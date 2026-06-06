@@ -1,0 +1,11 @@
+{
+  "recommendations": [
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "ms-python.autopep8",
+    "ms-python.debugpy",
+    "anthropic.claude-code",
+    "yzhang.markdown-all-in-one",
+    "ziyasal.vscode-open-in-github"
+  ]
+}

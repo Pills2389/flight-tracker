@@ -1,0 +1,68 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "▶ Run tracker (normal)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/flight_tracker.py",
+      "args": [],
+      "console": "integratedTerminal",
+      "env": { "PYTHONIOENCODING": "utf-8" }
+    },
+    {
+      "name": "🔍 Run tracker (debug mode)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/flight_tracker.py",
+      "args": ["--debug"],
+      "console": "integratedTerminal",
+      "env": { "PYTHONIOENCODING": "utf-8" }
+    },
+    {
+      "name": "🔍 Debug single route — OTP→AKL",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/flight_tracker.py",
+      "args": ["--debug", "--route", "otp-akl-2027"],
+      "console": "integratedTerminal",
+      "env": { "PYTHONIOENCODING": "utf-8" }
+    },
+    {
+      "name": "🔍 Debug single route — OTP→HKG",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/flight_tracker.py",
+      "args": ["--debug", "--route", "otp-hkd-2026"],
+      "console": "integratedTerminal",
+      "env": { "PYTHONIOENCODING": "utf-8" }
+    },
+    {
+      "name": "✅ Test suite (fast, no live search)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/test.py",
+      "args": ["--no-live"],
+      "console": "integratedTerminal",
+      "env": { "PYTHONIOENCODING": "utf-8" }
+    },
+    {
+      "name": "✅ Test suite (with live search)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/test.py",
+      "args": [],
+      "console": "integratedTerminal",
+      "env": { "PYTHONIOENCODING": "utf-8" }
+    },
+    {
+      "name": "✅ Test suite (with notifications)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/test.py",
+      "args": ["--notify"],
+      "console": "integratedTerminal",
+      "env": { "PYTHONIOENCODING": "utf-8" }
+    }
+  ]
+}

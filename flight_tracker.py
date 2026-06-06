@@ -158,6 +158,14 @@ def _build_cmd(fli: list[str], route: dict,
     if passengers > 1:
         cmd += ["--adults", str(passengers)]
 
+    country = route.get("search_country", "")
+    if country:
+        cmd += ["--country", country]
+
+    language = route.get("search_language", "")
+    if language:
+        cmd += ["--language", language]
+
     # Fetch all results when hard airline filter is active,
     # otherwise we might miss the preferred carrier entirely
     al_mode = route.get("preferred_airline_mode", "soft")

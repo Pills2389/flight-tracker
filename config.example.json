@@ -46,6 +46,9 @@
 
       "passengers": 1,
       "currency": "EUR",
+      "search_country": "RO",
+      "_search_country_note": "ISO country code for Google Flights (gl= param). 'RO' = Romania — makes Google show airlines popular from Bucharest like Turkish. Leave empty for generic results.",
+      "search_language": "en",
 
       "preferred_airlines": [],
       "_airlines_note": "List of preferred airline IATA codes e.g. ['TK', 'QR']. Empty = no preference.",
