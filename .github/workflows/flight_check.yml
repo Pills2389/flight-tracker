@@ -2,8 +2,9 @@ name: ✈️ Daily Flight Check
 
 on:
   schedule:
-    # 08:00 UTC = 11:00 Romania (EET+1 winter) / 11:00 EEST (summer)
-    - cron: '0 8 * * *'
+    # Every 2 hours, 07:00–17:00 UTC = 10:00–20:00 Romania summer (EEST, UTC+3)
+    # 6 runs/day × ~10 min = ~60 min/day, well within GitHub free tier (2000 min/month)
+    - cron: '0 7,9,11,13,15,17 * * *'
   workflow_dispatch:
     # Allows manual trigger from the GitHub Actions tab
 
@@ -31,9 +32,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Write config from secret
-        env:
-          FLIGHT_CONFIG: ${{ secrets.FLIGHT_CONFIG }}
-        run: echo "$FLIGHT_CONFIG" > config.json
+        run: echo '${{ secrets.FLIGHT_CONFIG }}' > config.json
 
       - name: Run flight tracker
         run: python flight_tracker.py
