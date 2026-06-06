@@ -979,6 +979,55 @@ def _extract_legs(legs_raw: list, layovers_raw: list) -> list:
     return result
 
 
+def _group_flights(flights: list, max_per_group: int = 3) -> list[dict]:
+    """
+    Group flights by airline combination.
+    Keep the cheapest max_per_group per group.
+    Sort groups by their cheapest flight.
+    Returns list of {key, label, flights} dicts.
+    """
+    groups: dict[str, dict] = {}
+    for f in flights:
+        key = "+".join(sorted(f.get("airline_codes", []))) or f.get("airline", "Unknown")
+        if key not in groups:
+            groups[key] = {
+                "key":     key,
+                "label":   f.get("airline", "Unknown"),
+                "flights": [],
+            }
+        if len(groups[key]["flights"]) < max_per_group:
+            groups[key]["flights"].append(f)
+
+    return sorted(groups.values(), key=lambda g: g["flights"][0]["price"])
+
+
+def _render_airline_group(group: dict, currency: str, preferred_airlines: list,
+                           origin: str, dest: str) -> str:
+    """Render one airline group as a collapsible section containing flight options."""
+    flights   = group["flights"]
+    label     = group["label"]
+    best      = flights[0]["price"]
+    count     = len(flights)
+    has_pref  = any(f.get("preferred_airline_match") for f in flights)
+    css       = " ag-pref" if has_pref else ""
+
+    inner = "".join(
+        _render_option(f, i, currency, preferred_airlines, origin, dest)
+        for i, f in enumerate(flights, 1)
+    )
+
+    return f"""<details class='ag{css}' open>
+    <summary class='ag-sum'>
+      <span class='ag-name'>{label}</span>
+      <span class='ag-cnt'>{count} option{'s' if count != 1 else ''}</span>
+      <span class='ag-best'>from {best:.0f} {currency}</span>
+      {'<span style="margin-left:4px">🏷️</span>' if has_pref else ''}
+    </summary>
+    <div class='ag-body'>{inner}</div>
+  </details>"""
+
+
+
 def _render_direction(legs: list, dur_str: str,
                       is_outbound: bool) -> str:
     """Render one flight direction as a collapsible <details> block."""
@@ -1093,13 +1142,15 @@ def generate_dashboard(routes: list, history: dict) -> str:
             trend_sig = trend["signal"]
             tc        = _tc(trend["direction"])
 
-            top = last.get("top_flights", [])[:10]
+            top = last.get("top_flights", [])[:30]  # enough for grouping
             preferred_airlines = route.get("preferred_airlines", [])
+            max_per_airline    = route.get("max_per_airline", 3)
+            groups             = _group_flights(top, max_per_group=max_per_airline)
             options_html = "".join(
-                _render_option(f, i, currency, preferred_airlines,
-                               route["origin"], route["destination"])
-                for i, f in enumerate(top, 1)
-            ) if top else "<p style='color:#999'>No flights today.</p>"
+                _render_airline_group(g, currency, preferred_airlines,
+                                      route["origin"], route["destination"])
+                for g in groups
+            ) if groups else "<p style='color:#999'>No flights today.</p>"
             flights_tbl = f"<div class='options'>{options_html}</div>"
 
         chart_labels = [e["date"][5:] for e in entries[-30:]]
@@ -1141,10 +1192,10 @@ def generate_dashboard(routes: list, history: dict) -> str:
           </div>
           <div>
             <div style="font-size:11px;color:#888;margin-bottom:5px">
-              Today's top 10 options &nbsp;·&nbsp;
+              Today's best options grouped by airline &nbsp;·&nbsp; top 3 per airline &nbsp;·&nbsp;
               <span style="color:#27ae60;font-weight:bold">■</span> preferred airline &nbsp;
               <span style="color:#2980b9;font-weight:bold">■</span> preferred time &nbsp;
-              🌙 overnight layover &nbsp; · Click to expand
+              🌙 overnight layover &nbsp;· Click rows to expand
             </div>
             {flights_tbl}
           </div>
@@ -1177,6 +1228,18 @@ def generate_dashboard(routes: list, history: dict) -> str:
     th{{background:#1a5276;color:#fff;padding:5px 7px;text-align:left;white-space:nowrap}}
     td{{padding:5px 7px;border-bottom:1px solid #f4f4f4}}
     tr:hover td{{background:#f0f8ff}}
+    /* ── Airline groups ────────────────────────────── */
+    .ag{{margin:8px 0;border:1px solid #d5e8f5;border-radius:10px;overflow:hidden}}
+    .ag>summary{{display:flex;align-items:center;gap:10px;padding:10px 14px;
+                 background:#eaf4fb;cursor:pointer}}
+    .ag>summary:hover{{background:#d5e8f5}}
+    .ag>summary::before{{content:'▶';font-size:10px;color:#aaa;transition:transform .2s}}
+    .ag[open]>summary::before{{transform:rotate(90deg)}}
+    .ag-pref>summary{{background:#eafaf1;border-left:4px solid #27ae60}}
+    .ag-name{{font-weight:700;font-size:14px;color:#1a5276;flex:1}}
+    .ag-cnt{{font-size:12px;color:#888}}
+    .ag-best{{font-size:13px;font-weight:600;color:#27ae60}}
+    .ag-body{{padding:6px 8px;background:#fff}}
     /* ── Tree view ─────────────────────────────── */
     .options{{margin-top:6px}}
     details summary{{cursor:pointer;list-style:none}}
@@ -1283,7 +1346,7 @@ def process_route(route: dict, cfg: dict, history: dict, fli_cmd: list[str]):
         "stops":        flights[0]["stops"],
         "duration_str": flights[0]["duration_str"],
         "top_flights":  [{k: v for k, v in f.items() if k != "raw"}
-                         for f in flights[:10]],
+                         for f in flights[:30]],
     }
     add_entry(history, rid, label, entry)
 
