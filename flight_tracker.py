@@ -352,42 +352,54 @@ def _extract_hour(time_str: str) -> int | None:
 def _sample_dates(date_from: str, date_to: str, n: int,
                   departure_days: list | None = None) -> list[str]:
     """
-    Return up to n evenly-spaced departure dates across [date_from, date_to].
-    If departure_days is set (e.g. ['wednesday','thursday','friday']),
-    only dates falling on those weekdays are considered.
+    Returns departure dates to check.
+
+    - If departure_days is set: return ALL dates in the window that fall
+      on those weekdays. daily_samples is ignored — you asked for specific
+      days, so we check all of them.
+    - If departure_days is not set: sample n evenly-spaced dates across
+      the window (original behaviour).
     """
     start = datetime.strptime(date_from, "%Y-%m-%d")
     end   = datetime.strptime(date_to,   "%Y-%m-%d")
 
-    allowed = {d.lower() for d in departure_days} if departure_days else None
+    if departure_days:
+        allowed = {d.lower() for d in departure_days}
+        dates = []
+        cur = start
+        while cur <= end:
+            if cur.strftime("%A").lower() in allowed:
+                dates.append(cur.strftime("%Y-%m-%d"))
+            cur += timedelta(days=1)
+        if not dates:
+            log.warning("No dates match departure_days in the window — falling back to daily_samples")
+        else:
+            log.info(f"  Departure days filter: {len(dates)} matching dates across window")
+            return dates
 
-    # Build the pool of eligible dates
-    pool = []
-    cur  = start
-    while cur <= end:
-        if allowed is None or cur.strftime("%A").lower() in allowed:
-            pool.append(cur.strftime("%Y-%m-%d"))
-        cur += timedelta(days=1)
-
-    if not pool:
-        log.warning("No dates match the configured departure_days — returning all dates")
-        pool = [(start + timedelta(days=i)).strftime("%Y-%m-%d")
-                for i in range((end - start).days + 1)]
-
-    if len(pool) <= n:
-        return pool
-
-    # Sample n evenly from the pool
-    step = (len(pool) - 1) / (n - 1)
-    return [pool[round(i * step)] for i in range(n)]
+    # No departure_days set — sample evenly
+    span = (end - start).days
+    if span < 0:
+        return [date_from]
+    if span == 0 or n == 1:
+        return [date_from]
+    step = span / (n - 1)
+    dates = []
+    for i in range(n):
+        d = start + timedelta(days=round(i * step))
+        dates.append(d.strftime("%Y-%m-%d"))
+    return sorted(set(dates))
 
 
 def _return_dates(departure: str, route: dict) -> list[str]:
     """
     Generate return date candidates for a given departure.
-    Considers target_nights ± flexibility_days.
-    If return_days is configured, only keeps dates on those weekdays.
-    Falls back to the exact target date if no candidates match.
+
+    - If return_days is set: check every night from (target - flex) to
+      (target + flex) and keep only those landing on the preferred weekdays.
+    - If return_days is not set: return just target-flex, target, target+flex
+      (original compact behaviour).
+    Falls back to exact target date if nothing matches.
     """
     dep         = datetime.strptime(departure, "%Y-%m-%d")
     base        = route.get("target_nights", 20)
@@ -401,8 +413,6 @@ def _return_dates(departure: str, route: dict) -> list[str]:
             candidates.append(ret.strftime("%Y-%m-%d"))
 
     if not candidates:
-        # No date in the window falls on a preferred return day —
-        # fall back to exact target so we always search something
         fallback = (dep + timedelta(days=base)).strftime("%Y-%m-%d")
         log.debug(f"  No return day match for dep {departure}, using fallback {fallback}")
         return [fallback]
