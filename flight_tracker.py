@@ -1035,10 +1035,15 @@ def _render_option(f: dict, idx: int, currency: str,
     od = fmt_d(f.get("outbound_date", ""))
     rd = fmt_d(f.get("return_date",   ""))
 
+    out_stops = max(0, len(f.get("outbound_legs", [])) - 1)
+    ret_stops = max(0, len(f.get("return_legs",  [])) - 1)
+    out_meta  = f"<span class='dmeta'>{f.get('outbound_duration_str','?')} · {out_stops} stop{'s' if out_stops!=1 else ''}</span>"
+    ret_meta  = f"<span class='dmeta'>{f.get('return_duration_str','?')} · {ret_stops} stop{'s' if ret_stops!=1 else ''}</span>" if f.get("return_duration_str") else ""
+
     out_str = (f"<b>{origin}</b> <b>{f.get('dep_time','')}</b> {od} "
-               f"→ <b>{dest}</b> <b>{f.get('outbound_arr_time','')}</b>")
+               f"→ <b>{dest}</b> <b>{f.get('outbound_arr_time','')}</b> {out_meta}")
     ret_str = (f"<b>{dest}</b> <b>{f.get('return_dep_time','')}</b> {rd} "
-               f"→ <b>{origin}</b> <b>{f.get('return_arr_time','')}</b>")
+               f"→ <b>{origin}</b> <b>{f.get('return_arr_time','')}</b> {ret_meta}")
 
     out_dir = _render_direction(f.get("outbound_legs", []),
                                 f.get("outbound_duration_str", "?"), True)
@@ -1192,6 +1197,7 @@ def generate_dashboard(routes: list, history: dict) -> str:
     .odates{{flex:1;font-size:12px;line-height:1.7;min-width:260px}}
     .dout,.dret{{display:block}}
     .dsep{{display:none}}
+    .dmeta{{color:#888;font-size:11px;margin-left:4px}}
     .ometa{{font-size:11px;color:#888;white-space:nowrap}}
     .obody{{padding:8px 14px 12px 26px;background:#fff;border-top:1px solid #f0f0f0}}
     .dir{{margin:4px 0;border-radius:6px;overflow:hidden;border:1px solid #eee}}
