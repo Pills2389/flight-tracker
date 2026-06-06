@@ -226,24 +226,17 @@ def _parse_results(raw) -> list[dict]:
 
 def _parse_one(item: dict) -> dict | None:
     """
-    Parse one flight object from fli's actual JSON structure:
-    {
-      "price": 812.0, "currency": "EUR",
-      "duration": 2720,   # total minutes
-      "stops": 2,
-      "legs": [
-        { "departure_airport": {"code":"OTP","name":"..."},
-          "arrival_airport":   {"code":"DOH","name":"..."},
-          "departure_time": "2026-09-04T17:10:00",
-          "arrival_time":   "2026-09-04T21:40:00",
-          "duration": 270,
-          "airline": {"code":"QR","name":"Qatar Airways"},
-          "flight_number": "222", "aircraft": "Boeing 787" }
-      ],
-      "layovers": [
-        {"airport": {"code":"DOH","name":"..."}, "duration": 1340, "overnight": true}
-      ]
-    }
+    Parse one flight object from fli's JSON.
+
+    fli returns two different structures depending on trip type:
+
+    One-way:
+      { "price": X, "stops": N, "legs": [...], "layovers": [...] }
+
+    Round-trip:
+      { "price": X, "stops": N,
+        "outbound": { "legs": [...], "layovers": [...], "self_transfer": bool },
+        "return":   { "legs": [...], "layovers": [...] } }
     """
     if not isinstance(item, dict):
         return None
@@ -256,12 +249,21 @@ def _parse_one(item: dict) -> dict | None:
     duration_min = int(item.get("duration", 0))
     stops        = int(item.get("stops", 0))
 
-    # ── Legs ────────────────────────────────────────────────
-    legs = item.get("legs", [])
+    # ── Locate outbound legs & layovers ─────────────────────
+    # Round-trip: nested under "outbound"
+    # One-way:    flat at top level
+    outbound      = item.get("outbound", {})
+    legs          = outbound.get("legs", item.get("legs", []))
+    layovers      = outbound.get("layovers", item.get("layovers", []))
+    self_transfer = outbound.get("self_transfer",
+                    item.get("self_transfer", False))
+
     if not isinstance(legs, list):
         legs = []
 
+    # ── Airlines & departure time ────────────────────────────
     airlines     = []
+    airline_codes = []
     dep_time_str = ""
     dep_hour     = None
 
@@ -269,28 +271,29 @@ def _parse_one(item: dict) -> dict | None:
         if not isinstance(leg, dict):
             continue
 
-        # Airline: {"code": "QR", "name": "Qatar Airways"}
-        al_obj = leg.get("airline", {})
-        al_name = (al_obj.get("name", "") if isinstance(al_obj, dict)
-                   else str(al_obj))
+        al_obj  = leg.get("airline", {})
+        al_name = al_obj.get("name", "") if isinstance(al_obj, dict) else str(al_obj)
+        al_code = al_obj.get("code", "") if isinstance(al_obj, dict) else ""
+
         if al_name and al_name not in airlines:
             airlines.append(al_name)
+        if al_code and al_code.upper() not in airline_codes:
+            airline_codes.append(al_code.upper())
 
-        # Departure time from first leg only
         if i == 0:
             raw_dt = leg.get("departure_time", "")
             if raw_dt:
                 try:
-                    dt = datetime.fromisoformat(raw_dt)
+                    dt           = datetime.fromisoformat(raw_dt)
                     dep_hour     = dt.hour
                     dep_time_str = dt.strftime("%H:%M")
                 except Exception:
                     dep_hour     = _extract_hour(raw_dt)
                     dep_time_str = raw_dt[:5] if len(raw_dt) >= 5 else raw_dt
 
-    # ── Layovers (top-level list) ────────────────────────────
+    # ── Max layover (outbound only) ──────────────────────────
     max_layover_min = 0
-    for lay in item.get("layovers", []):
+    for lay in layovers:
         if isinstance(lay, dict):
             max_layover_min = max(max_layover_min, int(lay.get("duration", 0)))
 
@@ -300,15 +303,12 @@ def _parse_one(item: dict) -> dict | None:
         "duration_str":    _minutes_to_hm(duration_min),
         "stops":           stops,
         "airline":         ", ".join(airlines) if airlines else "Unknown",
-        "airline_codes":   [leg["airline"]["code"].upper()
-                            for leg in legs
-                            if isinstance(leg, dict)
-                            and isinstance(leg.get("airline"), dict)
-                            and leg["airline"].get("code")],
+        "airline_codes":   airline_codes,
         "max_layover_min": max_layover_min,
         "max_layover_h":   round(max_layover_min / 60, 1),
         "dep_hour":        dep_hour,
         "dep_time":        dep_time_str,
+        "self_transfer":   bool(self_transfer),
         "raw":             item,
     }
 
@@ -455,6 +455,14 @@ def search_route(route: dict, fli_cmd: list[str]) -> list[dict]:
                 f["outbound_date"] = dep
                 f["return_date"]   = ret
                 f["nights"]        = nights
+
+                # Self-transfer: flag flights where passenger must buy
+                # separate tickets and manage their own connections
+                f["self_transfer"] = f.get("self_transfer", False)
+
+                # Filter out self-transfer if configured
+                if route.get("exclude_self_transfer", True) and f["self_transfer"]:
+                    continue
 
                 # Preferred airline flag (supports multiple airlines)
                 # off  = no flagging
@@ -685,10 +693,11 @@ def format_message(route: dict, flights: list, trend: dict,
 
     lines += ["", "── Top 5 ──────────────────────────────────────"]
     for i, f in enumerate(top5, 1):
-        star     = "⭐ " if f.get("preferred_time") else "   "
-        al_star  = "🏷️ " if f.get("preferred_airline_match") and route.get("preferred_airline") else ""
+        star    = "⭐ " if f.get("preferred_time") else "   "
+        al_star = "🏷️ " if f.get("preferred_airline_match") and route.get("preferred_airlines") else ""
+        self_tr = "⚠️ST " if f.get("self_transfer") else ""
         lines.append(
-            f"  {i}. {star}{al_star}{f['price']:.0f} {currency} | "
+            f"  {i}. {star}{al_star}{self_tr}{f['price']:.0f} {currency} | "
             f"{f['outbound_date']} {f.get('dep_time','')} → {f['return_date']} ({f['nights']}n) | "
             f"{f['airline']} | {f['stops']} stop(s) | {f['duration_str']}"
         )

@@ -62,6 +62,9 @@
       "max_layover_hours": 8,
       "_layover_note": "Max single layover duration in hours. Remove or set null to allow any.",
 
+      "exclude_self_transfer": true,
+      "_self_transfer_note": "true = only show protected single-ticket itineraries. false = also show self-transfer (you buy 2 separate tickets, no protection if you miss connection).",
+
       "bags": 0,
       "_bags_note": "Checked bags to include in price filter (0, 1, or 2). Long-haul usually includes bags.",
 
