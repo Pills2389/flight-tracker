@@ -292,37 +292,72 @@ def _parse_one(item: dict) -> dict | None:
                     dep_time_str = raw_dt[:5] if len(raw_dt) >= 5 else raw_dt
 
     # ── Durations ────────────────────────────────────────────
-    # For round trips, outbound and return durations are separate
     outbound_dur = outbound.get("duration", duration_min) if outbound else duration_min
     return_obj   = item.get("return", {})
     return_dur   = return_obj.get("duration", 0) if isinstance(return_obj, dict) else 0
-
-    # If no outbound object (one-way), use the total
     if not outbound:
         outbound_dur = duration_min
         return_dur   = 0
+
+    # ── Max layover (outbound only) ──────────────────────────
     max_layover_min = 0
     for lay in layovers:
         if isinstance(lay, dict):
             max_layover_min = max(max_layover_min, int(lay.get("duration", 0)))
 
+    # ── Arrival/departure times for tree display ─────────────
+    # Outbound arrival at destination (last outbound leg)
+    outbound_arr_time = ""
+    if legs:
+        last = legs[-1]
+        if isinstance(last, dict):
+            ref = legs[0].get("departure_time", "") if isinstance(legs[0], dict) else ""
+            outbound_arr_time = _time_offset(last.get("arrival_time", ""), ref)
+
+    # Return departure from destination & arrival back home
+    return_dep_time = ""
+    return_arr_time = ""
+    ret_legs_raw    = (return_obj.get("legs", [])
+                       if isinstance(return_obj, dict) else [])
+    ret_layovers    = (return_obj.get("layovers", [])
+                       if isinstance(return_obj, dict) else [])
+    if ret_legs_raw and isinstance(ret_legs_raw[0], dict):
+        ret_ref = ret_legs_raw[0].get("departure_time", "")
+        try:
+            return_dep_time = datetime.fromisoformat(ret_ref).strftime("%H:%M")
+        except Exception:
+            return_dep_time = ret_ref[11:16] if len(ret_ref) >= 16 else ""
+        if isinstance(ret_legs_raw[-1], dict):
+            return_arr_time = _time_offset(
+                ret_legs_raw[-1].get("arrival_time", ""), ret_ref
+            )
+
+    # ── Leg details for dashboard tree ───────────────────────
+    outbound_legs = _extract_legs(legs, layovers)
+    return_legs   = _extract_legs(ret_legs_raw, ret_layovers)
+
     return {
-        "price":                round(price, 2),
-        "duration_min":         duration_min,
-        "duration_str":         _minutes_to_hm(duration_min),
-        "outbound_duration_min": outbound_dur,
-        "outbound_duration_str": _minutes_to_hm(outbound_dur),
-        "return_duration_min":  return_dur,
-        "return_duration_str":  _minutes_to_hm(return_dur) if return_dur else "",
-        "stops":                stops,
-        "airline":              ", ".join(airlines) if airlines else "Unknown",
-        "airline_codes":        airline_codes,
-        "max_layover_min":      max_layover_min,
-        "max_layover_h":        round(max_layover_min / 60, 1),
-        "dep_hour":             dep_hour,
-        "dep_time":             dep_time_str,
-        "self_transfer":        bool(self_transfer),
-        "raw":                  item,
+        "price":                  round(price, 2),
+        "duration_min":           duration_min,
+        "duration_str":           _minutes_to_hm(duration_min),
+        "outbound_duration_min":  outbound_dur,
+        "outbound_duration_str":  _minutes_to_hm(outbound_dur),
+        "return_duration_min":    return_dur,
+        "return_duration_str":    _minutes_to_hm(return_dur) if return_dur else "",
+        "stops":                  stops,
+        "airline":                ", ".join(airlines) if airlines else "Unknown",
+        "airline_codes":          airline_codes,
+        "max_layover_min":        max_layover_min,
+        "max_layover_h":          round(max_layover_min / 60, 1),
+        "dep_hour":               dep_hour,
+        "dep_time":               dep_time_str,
+        "outbound_arr_time":      outbound_arr_time,
+        "return_dep_time":        return_dep_time,
+        "return_arr_time":        return_arr_time,
+        "outbound_legs":          outbound_legs,
+        "return_legs":            return_legs,
+        "self_transfer":          bool(self_transfer),
+        "raw":                    item,
     }
 
 
@@ -468,6 +503,8 @@ def search_route(route: dict, fli_cmd: list[str]) -> list[dict]:
                 f["outbound_date"] = dep
                 f["return_date"]   = ret
                 f["nights"]        = nights
+                f["origin"]        = route["origin"]
+                f["destination"]   = route["destination"]
 
                 # Duration filters (outbound and return separately)
                 max_out_h = route.get("max_outbound_duration_hours")
@@ -878,6 +915,146 @@ def dispatch(content: dict, cfg: dict, route: dict):
     if ch["ntfy"]:     send_ntfy(content,     gn["ntfy"], route["id"], rn)
 
 
+def _time_offset(iso_str: str, ref_iso: str) -> str:
+    """Return HH:MM from iso_str, appending +N if arrival is N days after ref."""
+    if not iso_str:
+        return ""
+    try:
+        dt  = datetime.fromisoformat(iso_str)
+        ref = datetime.fromisoformat(ref_iso).date() if ref_iso else dt.date()
+        t   = dt.strftime("%H:%M")
+        diff = (dt.date() - ref).days
+        return t + (f"+{diff}" if diff > 0 else "")
+    except Exception:
+        return iso_str[11:16] if len(iso_str) >= 16 else iso_str[:5]
+
+
+def _extract_legs(legs_raw: list, layovers_raw: list) -> list:
+    """Convert raw fli leg list into clean display-ready dicts."""
+    if not legs_raw:
+        return []
+    ref_iso = (legs_raw[0].get("departure_time", "")
+               if isinstance(legs_raw[0], dict) else "")
+    result  = []
+    for i, leg in enumerate(legs_raw):
+        if not isinstance(leg, dict):
+            continue
+        al      = leg.get("airline", {})
+        dep_ap  = leg.get("departure_airport", {})
+        arr_ap  = leg.get("arrival_airport",   {})
+        dep_iso = leg.get("departure_time", "")
+        arr_iso = leg.get("arrival_time",   "")
+        al_code = al.get("code", "") if isinstance(al, dict) else ""
+
+        entry = {
+            "dep_code":     dep_ap.get("code", "") if isinstance(dep_ap, dict) else "",
+            "dep_name":     dep_ap.get("name", "") if isinstance(dep_ap, dict) else "",
+            "dep_time":     _time_offset(dep_iso, ref_iso),
+            "arr_code":     arr_ap.get("code", "") if isinstance(arr_ap, dict) else "",
+            "arr_name":     arr_ap.get("name", "") if isinstance(arr_ap, dict) else "",
+            "arr_time":     _time_offset(arr_iso, ref_iso),
+            "airline":      al.get("name", "") if isinstance(al, dict) else "",
+            "flight_num":   f"{al_code}{leg.get('flight_number', '')}",
+            "aircraft":     leg.get("aircraft", ""),
+            "duration_str": _minutes_to_hm(leg.get("duration", 0)),
+        }
+        # Layover after this leg
+        if isinstance(layovers_raw, list) and i < len(layovers_raw):
+            lay    = layovers_raw[i]
+            lay_ap = lay.get("airport", {}) if isinstance(lay, dict) else {}
+            if isinstance(lay, dict):
+                entry["layover_after"] = {
+                    "code":         lay_ap.get("code", "") if isinstance(lay_ap, dict) else "",
+                    "name":         lay_ap.get("name", "") if isinstance(lay_ap, dict) else "",
+                    "duration_str": _minutes_to_hm(lay.get("duration", 0)),
+                    "overnight":    lay.get("overnight", False),
+                }
+        result.append(entry)
+    return result
+
+
+def _render_direction(legs: list, dur_str: str,
+                      is_outbound: bool) -> str:
+    """Render one flight direction as a collapsible <details> block."""
+    label   = "✈️ Outbound" if is_outbound else "↩️ Return"
+    css_cls = "outbound" if is_outbound else "return-dir"
+    stops   = max(0, len(legs) - 1)
+    stops_s = f"{stops} stop{'s' if stops != 1 else ''}"
+
+    legs_html = ""
+    for leg in legs:
+        lay = leg.get("layover_after")
+        lay_html = ""
+        if lay:
+            night = " overnight" if lay.get("overnight") else ""
+            night_flag = " 🌙 Overnight" if lay.get("overnight") else ""
+            lay_html = (f"<div class='layover{night}'>⏱ Layover "
+                        f"<b>{lay['code']}</b> ({lay['name']}) "
+                        f"· {lay['duration_str']}{night_flag}</div>")
+        legs_html += f"""
+        <div class='leg'>
+          <div class='leg-ap'>
+            <span class='ap'><b>{leg['dep_code']}</b><span class='ap-name'>{leg['dep_name']}</span></span>
+            <span class='lt'><b>{leg['dep_time']}</b></span>
+            <span class='arr'>→</span>
+            <span class='ap'><b>{leg['arr_code']}</b><span class='ap-name'>{leg['arr_name']}</span></span>
+            <span class='lt'><b>{leg['arr_time']}</b></span>
+          </div>
+          <div class='leg-info'>{leg['airline']} · {leg['flight_num']} · {leg['aircraft']} · {leg['duration_str']}</div>
+        </div>{lay_html}"""
+
+    return f"""<details class='dir {css_cls}'>
+      <summary>{label} &nbsp;·&nbsp; {dur_str} &nbsp;·&nbsp; {stops_s}</summary>
+      <div class='legs'>{legs_html}</div>
+    </details>"""
+
+
+def _render_option(f: dict, idx: int, currency: str,
+                   preferred_airlines: list, origin: str, dest: str) -> str:
+    """Render one flight option as a collapsible tree row."""
+    css = ""
+    if f.get("preferred_airline_match") and preferred_airlines:
+        css += " pref-al"
+    if f.get("preferred_time"):
+        css += " pref-time"
+
+    flags = ("🏷️ " if (f.get("preferred_airline_match") and preferred_airlines) else "") + \
+            ("⭐ " if f.get("preferred_time") else "") + \
+            ("⚠️ " if f.get("self_transfer") else "")
+
+    def fmt_d(d):
+        try: return datetime.strptime(d, "%Y-%m-%d").strftime("%b %d")
+        except: return d
+
+    od = fmt_d(f.get("outbound_date", ""))
+    rd = fmt_d(f.get("return_date",   ""))
+
+    out_str = (f"<b>{origin}</b> <b>{f.get('dep_time','')}</b> {od} "
+               f"→ <b>{dest}</b> <b>{f.get('outbound_arr_time','')}</b>")
+    ret_str = (f"<b>{dest}</b> <b>{f.get('return_dep_time','')}</b> {rd} "
+               f"→ <b>{origin}</b> <b>{f.get('return_arr_time','')}</b>")
+
+    out_dir = _render_direction(f.get("outbound_legs", []),
+                                f.get("outbound_duration_str", "?"), True)
+    ret_dir = (_render_direction(f.get("return_legs", []),
+                                 f.get("return_duration_str", "?"), False)
+               if f.get("return_legs") else "")
+
+    return f"""<details class='opt{css}'>
+    <summary>
+      <span class='onum'>{idx}</span>
+      <span class='oprice'>{f['price']:.0f} <span class='cur'>{currency}</span></span>
+      <span class='odates'>
+        <span class='dout'>{out_str}</span>
+        <span class='dsep'>↔</span>
+        <span class='dret'>{ret_str}</span>
+      </span>
+      <span class='ometa'>{f.get('nights','?')}n · {f.get('airline','?')} · {f.get('stops','?')} stop(s) {flags}</span>
+    </summary>
+    <div class='obody'>{out_dir}{ret_dir}</div>
+  </details>"""
+
+
 # ─────────────────────────────────────────────────────────────
 # DASHBOARD  (docs/index.html → GitHub Pages)
 # ─────────────────────────────────────────────────────────────
@@ -905,25 +1082,14 @@ def generate_dashboard(routes: list, history: dict) -> str:
             trend_sig = trend["signal"]
             tc        = _tc(trend["direction"])
 
-            top = last.get("top_flights", [])[:5]
-            flight_rows = "".join(
-                f"<tr style='background:{'#e8f8f0' if f.get('preferred_time') else ''}'>"
-                f"<td>{'⭐ ' if f.get('preferred_time') else ''}"
-                f"<b>{f['price']:.0f}</b> {currency}</td>"
-                f"<td>{f.get('outbound_date','')} <b>{f.get('dep_time','')}</b></td>"
-                f"<td>{f.get('return_date','')}</td>"
-                f"<td>{f.get('nights','')}n</td>"
-                f"<td>{f.get('airline','—')}</td>"
-                f"<td>{f.get('stops','?')} / {f.get('duration_str','')}</td>"
-                f"<td>{f.get('max_layover_h','')}h</td>"
-                f"</tr>"
-                for f in top
-            )
-            flights_tbl = (
-                "<table><thead><tr><th>Price</th><th>Depart</th><th>Return</th>"
-                "<th>Nights</th><th>Airline</th><th>Stops/Dur</th><th>Lay</th></tr></thead>"
-                f"<tbody>{flight_rows}</tbody></table>"
-            ) if flight_rows else "<p>No flights today.</p>"
+            top = last.get("top_flights", [])[:10]
+            preferred_airlines = route.get("preferred_airlines", [])
+            options_html = "".join(
+                _render_option(f, i, currency, preferred_airlines,
+                               route["origin"], route["destination"])
+                for i, f in enumerate(top, 1)
+            ) if top else "<p style='color:#999'>No flights today.</p>"
+            flights_tbl = f"<div class='options'>{options_html}</div>"
 
         chart_labels = [e["date"][5:] for e in entries[-30:]]
         chart_prices = [e["best_price"]  for e in entries[-30:]]
@@ -962,9 +1128,12 @@ def generate_dashboard(routes: list, history: dict) -> str:
           <div style="position:relative;height:140px;margin-bottom:14px">
             <canvas id="chart-{rid}"></canvas>
           </div>
-          <div style="overflow-x:auto">
-            <div style="font-size:11px;color:#888;margin-bottom:4px">
-              Today's top options (⭐ = preferred departure time)
+          <div>
+            <div style="font-size:11px;color:#888;margin-bottom:5px">
+              Today's top 10 options &nbsp;·&nbsp;
+              <span style="color:#27ae60;font-weight:bold">■</span> preferred airline &nbsp;
+              <span style="color:#2980b9;font-weight:bold">■</span> preferred time &nbsp;
+              🌙 overnight layover &nbsp; · Click to expand
             </div>
             {flights_tbl}
           </div>
@@ -997,6 +1166,49 @@ def generate_dashboard(routes: list, history: dict) -> str:
     th{{background:#1a5276;color:#fff;padding:5px 7px;text-align:left;white-space:nowrap}}
     td{{padding:5px 7px;border-bottom:1px solid #f4f4f4}}
     tr:hover td{{background:#f0f8ff}}
+    /* ── Tree view ─────────────────────────────── */
+    .options{{margin-top:6px}}
+    details summary{{cursor:pointer;list-style:none}}
+    details summary::-webkit-details-marker{{display:none}}
+    .opt{{margin:4px 0;border:1px solid #e0e0e0;border-radius:8px;overflow:hidden}}
+    .opt>summary{{display:flex;align-items:center;gap:8px;padding:9px 12px;
+                  background:#f8f9fa;flex-wrap:wrap}}
+    .opt>summary:hover{{background:#e9ecef}}
+    .opt>summary::before{{content:'▶';font-size:9px;color:#aaa;flex-shrink:0;
+                          transition:transform .2s}}
+    .opt[open]>summary::before{{transform:rotate(90deg)}}
+    .opt.pref-al>summary{{background:#eafaf1;border-left:4px solid #27ae60}}
+    .opt.pref-time>summary{{background:#eaf4fb;border-left:4px solid #2980b9}}
+    .opt.pref-al.pref-time>summary{{background:#e8f8f0;border-left:4px solid #1e8449}}
+    .onum{{color:#bbb;font-size:11px;min-width:16px}}
+    .oprice{{font-weight:700;font-size:16px;color:#1a5276;min-width:85px}}
+    .cur{{font-size:12px;font-weight:400;color:#888}}
+    .odates{{flex:1;font-size:12px;line-height:1.7;min-width:260px}}
+    .dout,.dret{{display:block}}
+    .dsep{{display:none}}
+    .ometa{{font-size:11px;color:#888;white-space:nowrap}}
+    .obody{{padding:8px 14px 12px 26px;background:#fff;border-top:1px solid #f0f0f0}}
+    .dir{{margin:4px 0;border-radius:6px;overflow:hidden;border:1px solid #eee}}
+    .dir>summary{{padding:6px 10px;font-size:12px;font-weight:600;
+                  background:#f4f4f4;display:flex;align-items:center;gap:6px}}
+    .dir>summary::before{{content:'▶';font-size:9px;color:#aaa;
+                          transition:transform .2s}}
+    .dir[open]>summary::before{{transform:rotate(90deg)}}
+    .dir>summary:hover{{background:#e8e8e8}}
+    .outbound>summary{{border-left:3px solid #2980b9}}
+    .return-dir>summary{{border-left:3px solid #27ae60}}
+    .legs{{padding:6px 10px}}
+    .leg{{padding:6px 0;border-bottom:1px solid #f4f4f4}}
+    .leg:last-child{{border-bottom:none}}
+    .leg-ap{{display:flex;align-items:center;gap:6px;font-size:12px;flex-wrap:wrap}}
+    .ap{{display:inline-flex;flex-direction:column;line-height:1.2}}
+    .ap-name{{font-size:10px;color:#aaa}}
+    .lt{{font-size:13px;padding:0 2px}}
+    .arr{{color:#ccc}}
+    .leg-info{{font-size:11px;color:#999;margin-top:2px}}
+    .layover{{padding:3px 8px;margin:3px 0;background:#fff8e1;
+              border-radius:4px;font-size:11px;color:#856404}}
+    .layover.overnight{{background:#fde8e8;color:#842029}}
     @media(max-width:600px){{.grid{{grid-template-columns:1fr}}}}
   </style>
 </head>
@@ -1058,7 +1270,8 @@ def process_route(route: dict, cfg: dict, history: dict, fli_cmd: list[str]):
         "airline":      flights[0]["airline"],
         "stops":        flights[0]["stops"],
         "duration_str": flights[0]["duration_str"],
-        "top_flights":  flights[:10],
+        "top_flights":  [{k: v for k, v in f.items() if k != "raw"}
+                         for f in flights[:10]],
     }
     add_entry(history, rid, label, entry)
 
