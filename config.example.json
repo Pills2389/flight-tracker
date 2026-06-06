@@ -34,6 +34,8 @@
       "destination": "AKL",
       "date_from": "2027-02-01",
       "date_to": "2027-03-31",
+      "max_return_date": null,
+      "_max_return_date_note": "Optional hard cap on return date e.g. '2027-04-15'. Useful when date_to + target_nights would spill into the next month. null = no cap.",
 
       "target_nights": 20,
       "flexibility_days": 2,

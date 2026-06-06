@@ -445,23 +445,29 @@ def _return_dates(departure: str, route: dict) -> list[str]:
 
     - If return_days is set: check every night from (target - flex) to
       (target + flex) and keep only those landing on the preferred weekdays.
-    - If return_days is not set: return just target-flex, target, target+flex
-      (original compact behaviour).
+    - If return_days is not set: return just target-flex, target, target+flex.
+    - Respects max_return_date if set — no return date beyond that is generated.
     Falls back to exact target date if nothing matches.
     """
     dep         = datetime.strptime(departure, "%Y-%m-%d")
     base        = route.get("target_nights", 20)
     flex        = route.get("flexibility_days", 0)
     return_days = {d.lower() for d in route.get("return_days", [])}
+    max_ret     = route.get("max_return_date")  # e.g. "2026-10-31"
 
     candidates = []
     for nights in range(max(1, base - flex), base + flex + 1):
-        ret = dep + timedelta(days=nights)
+        ret     = dep + timedelta(days=nights)
+        ret_str = ret.strftime("%Y-%m-%d")
+        if max_ret and ret_str > max_ret:
+            continue
         if not return_days or ret.strftime("%A").lower() in return_days:
-            candidates.append(ret.strftime("%Y-%m-%d"))
+            candidates.append(ret_str)
 
     if not candidates:
         fallback = (dep + timedelta(days=base)).strftime("%Y-%m-%d")
+        if max_ret and fallback > max_ret:
+            return []   # no valid return date exists — skip this departure
         log.debug(f"  No return day match for dep {departure}, using fallback {fallback}")
         return [fallback]
 
@@ -907,12 +913,12 @@ def send_ntfy(content: dict, nc: dict, route_id: str, route_notif: dict):
 
 
 def dispatch(content: dict, cfg: dict, route: dict):
-    gn = cfg["notifications"]
+    gn = cfg.get("notifications", {})
     rn = route.get("notifications", {})
     ch = _active_channels(gn, rn)
-    if ch["email"]:    send_email(content,    gn["email"])
-    if ch["whatsapp"]: send_whatsapp(content, gn["whatsapp"])
-    if ch["ntfy"]:     send_ntfy(content,     gn["ntfy"], route["id"], rn)
+    if ch["email"]:    send_email(content,    gn.get("email", {}))
+    if ch["whatsapp"]: send_whatsapp(content, gn.get("whatsapp", {}))
+    if ch["ntfy"]:     send_ntfy(content,     gn.get("ntfy", {}), route["id"], rn)
 
 
 def _time_offset(iso_str: str, ref_iso: str) -> str:
