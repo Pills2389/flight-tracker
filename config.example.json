@@ -1,0 +1,147 @@
+{
+  "_readme": "Copy this to config.json and fill in your values. Keys starting with _ are comments.",
+
+  "notifications": {
+    "email": {
+      "enabled": false,
+      "smtp_server": "smtp.gmail.com",
+      "smtp_port": 587,
+      "username": "your.email@gmail.com",
+      "password": "your-gmail-app-password",
+      "from_address": "your.email@gmail.com",
+      "to_address": "your.email@gmail.com"
+    },
+    "whatsapp": {
+      "_info": "Free via CallMeBot. Send 'I allow callmebot to send me messages' to +34 644 54 29 97 on WhatsApp to get your API key.",
+      "enabled": false,
+      "phone": "+40712345678",
+      "api_key": "YOUR_CALLMEBOT_API_KEY"
+    },
+    "ntfy": {
+      "_info": "Free push notifications. Install ntfy app, subscribe to your topic.",
+      "enabled": false,
+      "topic": "my-flight-tracker",
+      "server": "https://ntfy.sh"
+    }
+  },
+
+  "routes": [
+    {
+      "id": "otp-akl-2027",
+      "label": "Bucharest → Auckland (Feb–Mar 2027)",
+
+      "origin": "OTP",
+      "destination": "AKL",
+      "date_from": "2027-02-01",
+      "date_to": "2027-03-31",
+
+      "target_nights": 20,
+      "flexibility_days": 2,
+      "_flexibility_note": "Tries target-2, target, target+2 night durations per departure date",
+
+      "daily_samples": 8,
+      "_samples_note": "Number of departure dates sampled per daily run, spread evenly across the window",
+
+      "passengers": 1,
+      "currency": "EUR",
+
+      "preferred_airlines": [],
+      "_airlines_note": "List of preferred airline IATA codes e.g. ['TK', 'QR']. Empty = no preference.",
+      "preferred_airline_mode": "soft",
+      "_airline_mode_note": "off = show all, no flagging | soft = show all, flag matching with 🏷️ | hard = only show flights with at least one preferred airline leg",
+
+      "departure_days": [],
+      "_departure_days_note": "Weekdays to depart on e.g. ['wednesday','thursday','friday']. Empty = any day.",
+
+      "return_days": [],
+      "_return_days_note": "Weekdays to return on e.g. ['sunday','monday']. Empty = any day within flexibility window.",
+
+      "max_stopovers": 2,
+      "_stopovers_note": "Maximum number of stops. Remove or set null to allow any.",
+
+      "max_layover_hours": 8,
+      "_layover_note": "Max single layover duration in hours. Remove or set null to allow any.",
+
+      "bags": 0,
+      "_bags_note": "Checked bags to include in price filter (0, 1, or 2). Long-haul usually includes bags.",
+
+      "departure_window": {
+        "enabled": true,
+        "from": "20:00",
+        "to": "23:59",
+        "_mode_note": "hard = exclude flights outside window | soft = show all but flag preferred ones with ⭐",
+        "mode": "soft"
+      },
+
+      "max_price_alert": 1500,
+      "_price_note": "Sends an immediate alert when price drops below this. Set to null to disable.",
+
+      "notifications": {
+        "daily": {
+          "enabled": true,
+          "_info": "Sends every day if no max_price_alert set. If threshold is set, only when price is below it."
+        },
+        "price_alert": {
+          "enabled": true,
+          "_info": "Fires immediately when price drops below max_price_alert. Max once per day."
+        },
+        "weekly_summary": {
+          "enabled": false,
+          "day": "sunday",
+          "_days": "monday | tuesday | wednesday | thursday | friday | saturday | sunday"
+        },
+        "channels": {
+          "_info": "Per-route channel overrides. false = disable this channel for this route only.",
+          "email": true,
+          "whatsapp": true,
+          "ntfy": true,
+          "ntfy_topic": "otp-akl-alerts",
+          "_ntfy_topic_note": "Optional: per-route ntfy topic. Leave empty to use global topic."
+        }
+      }
+    },
+
+    {
+      "_info": "Example second route",
+      "id": "otp-lhr-2027",
+      "label": "Bucharest → London (Summer 2027)",
+
+      "origin": "OTP",
+      "destination": "LHR",
+      "date_from": "2027-06-01",
+      "date_to": "2027-08-31",
+
+      "target_nights": 7,
+      "flexibility_days": 2,
+      "daily_samples": 6,
+      "passengers": 1,
+      "currency": "EUR",
+
+      "preferred_airline": "",
+      "max_stopovers": 1,
+      "max_layover_hours": 4,
+      "bags": 0,
+
+      "departure_window": {
+        "enabled": false,
+        "from": "06:00",
+        "to": "22:00",
+        "mode": "soft"
+      },
+
+      "max_price_alert": 150,
+
+      "notifications": {
+        "daily": { "enabled": false },
+        "price_alert": { "enabled": true },
+        "weekly_summary": { "enabled": true, "day": "friday" },
+        "channels": {
+          "email": true,
+          "whatsapp": false,
+          "ntfy": true,
+          "ntfy_topic": "otp-lhr-alerts"
+        }
+      }
+    }
+  ]
+}

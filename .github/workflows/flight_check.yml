@@ -1,0 +1,47 @@
+name: ✈️ Daily Flight Check
+
+on:
+  schedule:
+    # 08:00 UTC = 11:00 Romania (EET+1 winter) / 11:00 EEST (summer)
+    - cron: '0 8 * * *'
+  workflow_dispatch:
+    # Allows manual trigger from the GitHub Actions tab
+
+jobs:
+  check-flights:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write   # needed to commit price_history.json and docs/
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Write config from secret
+        run: echo '${{ secrets.FLIGHT_CONFIG }}' > config.json
+
+      - name: Run flight tracker
+        run: python flight_tracker.py
+
+      - name: Commit updated data and dashboard
+        run: |
+          git config user.name  "Flight Tracker Bot"
+          git config user.email "flight-tracker@users.noreply.github.com"
+          git add price_history.json docs/
+          git diff --staged --quiet \
+            && echo "No changes to commit" \
+            || (git commit -m "📊 $(date -u +'%Y-%m-%d %H:%M UTC') — prices updated" \
+                && git push)
