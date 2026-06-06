@@ -40,6 +40,9 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
+DEBUG      = False   # set to True via --debug flag
+DEBUG_DIR  = Path("debug")
+
 HISTORY_FILE   = "price_history.json"
 DASHBOARD_DIR  = Path("docs")
 DASHBOARD_FILE = DASHBOARD_DIR / "index.html"
@@ -55,7 +58,7 @@ def load_config() -> dict:
         log.info("Loading config from FLIGHT_CONFIG env var")
         return json.loads(env)
     if Path("config.json").exists():
-        with open("config.json") as f:
+        with open("config.json", encoding="utf-8") as f:
             return json.load(f)
     log.error("No config found. Copy config.example.json → config.json")
     sys.exit(1)
@@ -167,7 +170,7 @@ def _build_cmd(fli: list[str], route: dict,
 # ─────────────────────────────────────────────────────────────
 # FLI — RUN & PARSE
 # ─────────────────────────────────────────────────────────────
-def _run_fli(cmd: list[str]) -> list[dict]:
+def _run_fli(cmd: list[str], debug_label: str = "") -> list[dict]:
     """Execute fli command and return parsed JSON results."""
     try:
         result = subprocess.run(
@@ -198,6 +201,16 @@ def _run_fli(cmd: list[str]) -> list[dict]:
     except json.JSONDecodeError:
         log.error(f"fli JSON parse error. Output was: {stdout[:300]}")
         return []
+
+    # ── Debug: save raw API response to file ─────────────────
+    if DEBUG and debug_label:
+        DEBUG_DIR.mkdir(exist_ok=True)
+        ts       = datetime.now().strftime("%H%M%S")
+        filename = DEBUG_DIR / f"{debug_label}_{ts}.json"
+        filename.write_text(json.dumps(raw, indent=2, ensure_ascii=False),
+                            encoding="utf-8")
+        count = raw.get("count", "?") if isinstance(raw, dict) else "?"
+        log.info(f"  [DEBUG] Saved {count} raw results → {filename}")
 
     return _parse_results(raw)
 
@@ -495,8 +508,9 @@ def search_route(route: dict, fli_cmd: list[str]) -> list[dict]:
             if nights < 1:
                 continue
 
-            cmd = _build_cmd(fli_cmd, route, dep, ret)
-            flights = _run_fli(cmd)
+            cmd     = _build_cmd(fli_cmd, route, dep, ret)
+            label   = f"{route['id']}_{dep}_{ret}"
+            flights = _run_fli(cmd, debug_label=label if DEBUG else "")
 
             if not flights:
                 log.info(f"  {dep} → {ret}: no results")
@@ -504,6 +518,20 @@ def search_route(route: dict, fli_cmd: list[str]) -> list[dict]:
 
             log.info(f"  {dep} → {ret} ({nights}n): "
                      f"{len(flights)} options, best {flights[0]['price']:.0f} {route.get('currency','EUR')}")
+
+            # Debug: show airline breakdown before filtering
+            if DEBUG:
+                airline_counts: dict[str, int] = {}
+                for f in flights:
+                    for code in f.get("airline_codes", ["?"]):
+                        airline_counts[code] = airline_counts.get(code, 0) + 1
+                log.info(f"  [DEBUG] Airlines in raw results: "
+                         f"{', '.join(f'{k}:{v}' for k,v in sorted(airline_counts.items()))}")
+
+            filtered_in  = 0
+            skip_dur_out = 0
+            skip_dur_ret = 0
+            skip_self_tr = 0
 
             for f in flights:
                 f["outbound_date"] = dep
@@ -516,22 +544,19 @@ def search_route(route: dict, fli_cmd: list[str]) -> list[dict]:
                 max_out_h = route.get("max_outbound_duration_hours")
                 max_ret_h = route.get("max_return_duration_hours")
                 if max_out_h and f["outbound_duration_min"] > max_out_h * 60:
+                    skip_dur_out += 1
                     continue
                 if max_ret_h and f["return_duration_min"] > max_ret_h * 60:
+                    skip_dur_ret += 1
                     continue
 
-                # Self-transfer: flag flights where passenger must buy
-                # separate tickets and manage their own connections
+                # Self-transfer filter
                 f["self_transfer"] = f.get("self_transfer", False)
-
-                # Filter out self-transfer if configured
                 if route.get("exclude_self_transfer", True) and f["self_transfer"]:
+                    skip_self_tr += 1
                     continue
 
-                # Preferred airline flag (supports multiple airlines)
-                # off  = no flagging
-                # soft = flag flights containing any preferred carrier with 🏷️
-                # hard = flag + filter after collecting all results
+                # Preferred airline flag
                 preferred_list = _get_preferred_airlines(route)
                 al_mode        = route.get("preferred_airline_mode", "soft")
                 if preferred_list and al_mode != "off":
@@ -553,7 +578,15 @@ def search_route(route: dict, fli_cmd: list[str]) -> list[dict]:
                 else:
                     f["preferred_time"] = False
 
+                filtered_in += 1
                 results.append(f)
+
+            if DEBUG and (skip_dur_out or skip_dur_ret or skip_self_tr):
+                log.info(f"  [DEBUG] Filtered out: "
+                         f"{skip_dur_out} outbound too long, "
+                         f"{skip_dur_ret} return too long, "
+                         f"{skip_self_tr} self-transfer  "
+                         f"→ {filtered_in} kept")
 
     results.sort(key=lambda x: x["price"])
 
@@ -1374,7 +1407,12 @@ def process_route(route: dict, cfg: dict, history: dict, fli_cmd: list[str]):
         history[rid]["last_weekly_summary"] = _today()
 
 
-def run():
+def run(debug: bool = False, only_route: str = ""):
+    global DEBUG
+    DEBUG = debug
+    if DEBUG:
+        log.info("🔍 DEBUG MODE — raw API responses saved to debug/ folder")
+
     cfg     = load_config()
     history = load_history()
 
@@ -1386,6 +1424,8 @@ def run():
         sys.exit(1)
 
     for route in cfg.get("routes", []):
+        if only_route and route["id"] != only_route:
+            continue
         log.info(f"\n{'═' * 60}")
         log.info(f"Route: {route.get('label', route['id'])}")
         log.info(f"{'═' * 60}")
@@ -1406,4 +1446,15 @@ def run():
 
 
 if __name__ == "__main__":
-    run()
+    import argparse
+    parser = argparse.ArgumentParser(description="Flight Price Tracker")
+    parser.add_argument(
+        "--debug", action="store_true",
+        help="Save raw API responses to debug/ folder and show filter breakdown"
+    )
+    parser.add_argument(
+        "--route", default="",
+        help="Only run a specific route by ID (e.g. --route otp-akl-2027)"
+    )
+    args = parser.parse_args()
+    run(debug=args.debug, only_route=args.route)
