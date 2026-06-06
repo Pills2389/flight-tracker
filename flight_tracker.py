@@ -291,25 +291,38 @@ def _parse_one(item: dict) -> dict | None:
                     dep_hour     = _extract_hour(raw_dt)
                     dep_time_str = raw_dt[:5] if len(raw_dt) >= 5 else raw_dt
 
-    # ── Max layover (outbound only) ──────────────────────────
+    # ── Durations ────────────────────────────────────────────
+    # For round trips, outbound and return durations are separate
+    outbound_dur = outbound.get("duration", duration_min) if outbound else duration_min
+    return_obj   = item.get("return", {})
+    return_dur   = return_obj.get("duration", 0) if isinstance(return_obj, dict) else 0
+
+    # If no outbound object (one-way), use the total
+    if not outbound:
+        outbound_dur = duration_min
+        return_dur   = 0
     max_layover_min = 0
     for lay in layovers:
         if isinstance(lay, dict):
             max_layover_min = max(max_layover_min, int(lay.get("duration", 0)))
 
     return {
-        "price":           round(price, 2),
-        "duration_min":    duration_min,
-        "duration_str":    _minutes_to_hm(duration_min),
-        "stops":           stops,
-        "airline":         ", ".join(airlines) if airlines else "Unknown",
-        "airline_codes":   airline_codes,
-        "max_layover_min": max_layover_min,
-        "max_layover_h":   round(max_layover_min / 60, 1),
-        "dep_hour":        dep_hour,
-        "dep_time":        dep_time_str,
-        "self_transfer":   bool(self_transfer),
-        "raw":             item,
+        "price":                round(price, 2),
+        "duration_min":         duration_min,
+        "duration_str":         _minutes_to_hm(duration_min),
+        "outbound_duration_min": outbound_dur,
+        "outbound_duration_str": _minutes_to_hm(outbound_dur),
+        "return_duration_min":  return_dur,
+        "return_duration_str":  _minutes_to_hm(return_dur) if return_dur else "",
+        "stops":                stops,
+        "airline":              ", ".join(airlines) if airlines else "Unknown",
+        "airline_codes":        airline_codes,
+        "max_layover_min":      max_layover_min,
+        "max_layover_h":        round(max_layover_min / 60, 1),
+        "dep_hour":             dep_hour,
+        "dep_time":             dep_time_str,
+        "self_transfer":        bool(self_transfer),
+        "raw":                  item,
     }
 
 
@@ -455,6 +468,14 @@ def search_route(route: dict, fli_cmd: list[str]) -> list[dict]:
                 f["outbound_date"] = dep
                 f["return_date"]   = ret
                 f["nights"]        = nights
+
+                # Duration filters (outbound and return separately)
+                max_out_h = route.get("max_outbound_duration_hours")
+                max_ret_h = route.get("max_return_duration_hours")
+                if max_out_h and f["outbound_duration_min"] > max_out_h * 60:
+                    continue
+                if max_ret_h and f["return_duration_min"] > max_ret_h * 60:
+                    continue
 
                 # Self-transfer: flag flights where passenger must buy
                 # separate tickets and manage their own connections
@@ -678,12 +699,15 @@ def format_message(route: dict, flights: list, trend: dict,
     if is_weekly:
         lines += ["", "─── WEEKLY SUMMARY ────────────────────────────"]
 
-    dw   = route.get("departure_window", {})
+    ret_dur_line = f"   ↩️  Return:   {best.get('return_duration_str','?')}" if best.get("return_duration_str") else ""
+    dw = route.get("departure_window", {})
     lines += [
         "",
         f"💰 Best price: {best['price']:.0f} {currency}{pax_note}",
         f"   🗓  {best['outbound_date']} {best.get('dep_time','')} → {best['return_date']} ({best['nights']} nights)",
-        f"   ✈️  {best['airline']}  |  {best['stops']} stop(s)  |  {best['duration_str']}  |  Max layover: {best['max_layover_h']}h",
+        f"   ✈️  Outbound: {best.get('outbound_duration_str','?')}",
+        ret_dur_line,
+        f"   🛫 {best['airline']}  |  {best['stops']} stop(s)  |  Max layover: {best['max_layover_h']}h",
         f"   {'⭐ Within preferred time window' if best.get('preferred_time') else ('⏰ Outside preferred window' if dw.get('enabled') else '')}",
         "",
         f"📊 Trend: {trend['signal']}",
@@ -696,10 +720,12 @@ def format_message(route: dict, flights: list, trend: dict,
         star    = "⭐ " if f.get("preferred_time") else "   "
         al_star = "🏷️ " if f.get("preferred_airline_match") and route.get("preferred_airlines") else ""
         self_tr = "⚠️ST " if f.get("self_transfer") else ""
+        ret_dur = f" / ✈️back {f['return_duration_str']}" if f.get("return_duration_str") else ""
         lines.append(
             f"  {i}. {star}{al_star}{self_tr}{f['price']:.0f} {currency} | "
             f"{f['outbound_date']} {f.get('dep_time','')} → {f['return_date']} ({f['nights']}n) | "
-            f"{f['airline']} | {f['stops']} stop(s) | {f['duration_str']}"
+            f"{f['airline']} | {f['stops']} stop(s) | "
+            f"✈️out {f['outbound_duration_str']}{ret_dur}"
         )
 
     plain = "\n".join(lines)

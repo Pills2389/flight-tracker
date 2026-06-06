@@ -59,6 +59,12 @@
       "max_stopovers": 2,
       "_stopovers_note": "Maximum number of stops. Remove or set null to allow any.",
 
+      "max_outbound_duration_hours": 22,
+      "_outbound_duration_note": "Max outbound flight duration in hours (OTP→HKG). Remove or set null to allow any.",
+
+      "max_return_duration_hours": 22,
+      "_return_duration_note": "Max return flight duration in hours (HKG→OTP). Remove or set null to allow any.",
+
       "max_layover_hours": 8,
       "_layover_note": "Max single layover duration in hours. Remove or set null to allow any.",
 
