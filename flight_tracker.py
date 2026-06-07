@@ -144,13 +144,41 @@ def _max_stops(n) -> MaxStops:
     return MaxStops.ANY
 
 
+def _airport_codes(value) -> list[str]:
+    """Normalize an origin/destination config value to a list of IATA codes.
+
+    Accepts a single code ("OTP") or a list of codes (["NRT", "HND"]) — the
+    latter lets one route cover a multi-airport city (e.g. Tokyo = NRT+HND)
+    in a single search, since fli/Google Flights search multiple airports
+    per segment natively.
+    """
+    codes = value if isinstance(value, list) else [value]
+    return [c.upper() for c in codes]
+
+
+def _airport_enums(codes: list[str]) -> list[Airport]:
+    """Convert IATA codes to fli Airport enum members, skipping unknown ones."""
+    out = []
+    for code in codes:
+        try:
+            out.append(Airport[code])
+        except KeyError:
+            log.warning(f"Unknown airport code '{code}' — skipping")
+    return out
+
+
+def endpoint_label(value) -> str:
+    """Display label for an origin/destination — joins multi-airport codes with '/'."""
+    return "/".join(_airport_codes(value))
+
+
 # ─────────────────────────────────────────────────────────────
 # FLI — BUILD SEARCH FILTERS
 # ─────────────────────────────────────────────────────────────
 def _build_filters(route: dict, departure: str, ret: str) -> FlightSearchFilters:
     """Build a typed FlightSearchFilters for one departure/return date pair."""
-    origin      = Airport[route["origin"].upper()]
-    destination = Airport[route["destination"].upper()]
+    origins      = _airport_enums(_airport_codes(route["origin"]))
+    destinations = _airport_enums(_airport_codes(route["destination"]))
 
     dw = route.get("departure_window", {})
     outbound_restrictions = None
@@ -162,14 +190,14 @@ def _build_filters(route: dict, departure: str, ret: str) -> FlightSearchFilters
 
     segments = [
         FlightSegment(
-            departure_airport=[[origin, 0]],
-            arrival_airport=[[destination, 0]],
+            departure_airport=[[a, 0] for a in origins],
+            arrival_airport=[[a, 0] for a in destinations],
             travel_date=departure,
             time_restrictions=outbound_restrictions,
         ),
         FlightSegment(
-            departure_airport=[[destination, 0]],
-            arrival_airport=[[origin, 0]],
+            departure_airport=[[a, 0] for a in destinations],
+            arrival_airport=[[a, 0] for a in origins],
             travel_date=ret,
         ),
     ]
@@ -491,8 +519,8 @@ def search_route(route: dict, search: SearchFlights) -> list[dict]:
                 f["outbound_date"] = dep
                 f["return_date"]   = ret
                 f["nights"]        = nights
-                f["origin"]        = route["origin"]
-                f["destination"]   = route["destination"]
+                f["origin"]        = endpoint_label(route["origin"])
+                f["destination"]   = endpoint_label(route["destination"])
 
                 # Duration filters (outbound and return separately)
                 max_out_h = route.get("max_outbound_duration_hours")
@@ -717,7 +745,7 @@ def format_message(route: dict, flights: list, trend: dict,
                    trigger: str, currency: str, passengers: int) -> dict:
     best      = flights[0]
     top5      = flights[:5]
-    label     = route.get("label", f"{route['origin']} → {route['destination']}")
+    label     = route.get("label", f"{endpoint_label(route['origin'])} → {endpoint_label(route['destination'])}")
     pax_note  = f" (×{passengers} passengers)" if passengers > 1 else ""
     is_alert  = trigger == "price_alert"
     is_weekly = trigger == "weekly"
@@ -1060,15 +1088,25 @@ def _render_option(f: dict, idx: int, currency: str,
     od = fmt_d(f.get("outbound_date", ""))
     rd = fmt_d(f.get("return_date",   ""))
 
-    out_stops = max(0, len(f.get("outbound_legs", [])) - 1)
-    ret_stops = max(0, len(f.get("return_legs",  [])) - 1)
+    out_legs  = f.get("outbound_legs", [])
+    ret_legs  = f.get("return_legs",  [])
+    out_stops = max(0, len(out_legs) - 1)
+    ret_stops = max(0, len(ret_legs) - 1)
     out_meta  = f"<span class='dmeta'>{f.get('outbound_duration_str','?')} · {out_stops} stop{'s' if out_stops!=1 else ''}</span>"
     ret_meta  = f"<span class='dmeta'>{f.get('return_duration_str','?')} · {ret_stops} stop{'s' if ret_stops!=1 else ''}</span>" if f.get("return_duration_str") else ""
 
-    out_str = (f"<b>{origin}</b> <b>{f.get('dep_time','')}</b> {od} "
-               f"→ <b>{dest}</b> <b>{f.get('outbound_arr_time','')}</b> {out_meta}")
-    ret_str = (f"<b>{dest}</b> <b>{f.get('return_dep_time','')}</b> {rd} "
-               f"→ <b>{origin}</b> <b>{f.get('return_arr_time','')}</b> {ret_meta}")
+    # Use the actual leg airport codes (not the route's nominal origin/dest) —
+    # matters for multi-airport routes (e.g. destination ["NRT","HND"]) where
+    # different options can land at different airports of the same city.
+    o_dep = out_legs[0]["dep_code"]  if out_legs else origin
+    o_arr = out_legs[-1]["arr_code"] if out_legs else dest
+    r_dep = ret_legs[0]["dep_code"]  if ret_legs else dest
+    r_arr = ret_legs[-1]["arr_code"] if ret_legs else origin
+
+    out_str = (f"<b>{o_dep}</b> <b>{f.get('dep_time','')}</b> {od} "
+               f"→ <b>{o_arr}</b> <b>{f.get('outbound_arr_time','')}</b> {out_meta}")
+    ret_str = (f"<b>{r_dep}</b> <b>{f.get('return_dep_time','')}</b> {rd} "
+               f"→ <b>{r_arr}</b> <b>{f.get('return_arr_time','')}</b> {ret_meta}")
 
     out_dir = _render_direction(f.get("outbound_legs", []),
                                 f.get("outbound_duration_str", "?"), True)
@@ -1100,7 +1138,7 @@ def generate_dashboard(routes: list, history: dict) -> str:
 
     for route in routes:
         rid      = route["id"]
-        label    = route.get("label", f"{route['origin']} → {route['destination']}")
+        label    = route.get("label", f"{endpoint_label(route['origin'])} → {endpoint_label(route['destination'])}")
         currency = route.get("currency", "EUR")
         entries  = history.get(rid, {}).get("entries", [])
 
@@ -1124,7 +1162,7 @@ def generate_dashboard(routes: list, history: dict) -> str:
             groups             = _group_flights(top, max_per_group=max_per_airline)
             options_html = "".join(
                 _render_airline_group(g, currency, preferred_airlines,
-                                      route["origin"], route["destination"])
+                                      endpoint_label(route["origin"]), endpoint_label(route["destination"]))
                 for g in groups
             ) if groups else "<p style='color:#999'>No flights today.</p>"
             flights_tbl = f"<div class='options'>{options_html}</div>"
@@ -1152,7 +1190,7 @@ def generate_dashboard(routes: list, history: dict) -> str:
           <div class="card-head">
             <h3>{label}</h3>
             <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
-              <span class="badge">{route['origin']} → {route['destination']}</span>
+              <span class="badge">{endpoint_label(route['origin'])} → {endpoint_label(route['destination'])}</span>
               {'<span class="badge">'+route.get('preferred_airline','')+' preferred</span>' if route.get('preferred_airline') else ''}
               {alert_badge}
             </div>
@@ -1294,7 +1332,7 @@ routes.forEach(r=>{{
 # ─────────────────────────────────────────────────────────────
 def process_route(route: dict, cfg: dict, history: dict, search: SearchFlights):
     rid        = route["id"]
-    label      = route.get("label", f"{route['origin']}→{route['destination']}")
+    label      = route.get("label", f"{endpoint_label(route['origin'])}→{endpoint_label(route['destination'])}")
     currency   = route.get("currency", "EUR")
     passengers = route.get("passengers", 1)
 

@@ -24,6 +24,29 @@ on GitHub Pages, and sends notifications via Email, WhatsApp (CallMeBot), and nt
 
 ---
 
+## fli source — read it locally instead of guessing
+
+This machine has a local clone of **fli** (the Google Flights API library this
+project depends on) at:
+
+```
+c:\Users\Cristi\Desktop\Repos\fli
+```
+
+When you need to know exactly how `SearchFlights`, `FlightSearchFilters`,
+`FlightSegment`, `Airport`/`Airline`/`Alliance` enums, retry/backoff behaviour,
+or any other fli internal works — **read the source there directly** (e.g.
+`fli/search/flights.py`, `fli/models/google_flights/base.py`,
+`fli/search/client.py`) rather than guessing from the installed package or
+searching the web. It's faster, free of token waste, and always matches the
+exact behaviour you'll see at runtime. Useful starting points:
+- `fli/search/flights.py` — `SearchFlights.search()`, `_fetch_flights()`, `_expand_multi_leg()`
+- `fli/models/google_flights/base.py` — `FlightSearchFilters`, `FlightSegment` (note `departure_airport`/`arrival_airport` are `list[list[Airport | int]]` — multiple airports per segment are natively supported, which is how multi-airport-city routes work, see below)
+- `fli/search/client.py` — HTTP client's own `tenacity` retry/backoff
+- `fli/core/airports.py` — `CITY_AIRPORTS` city→IATA mapping and `search_airports()`
+
+---
+
 ## Architecture — data flow
 
 ```
@@ -83,6 +106,7 @@ generate_dashboard()          Writes docs/index.html
     "label":                      "Human readable name",
     "origin":                     "OTP",
     "destination":                "AKL",
+
     "date_from":                  "2027-02-01",
     "date_to":                    "2027-03-31",
     "max_return_date":            null,
@@ -252,6 +276,19 @@ varies — Google just sometimes serves an empty response for no reason.
 times (2s delay between attempts) before logging "no results" as final.
 Configurable per-route via `"search_retries"` in config.json — set to `0` to
 disable.
+
+### Multi-airport cities (`origin`/`destination` as a list)
+`origin`/`destination` accept either a single IATA code (`"OTP"`) or a list of
+codes (`["NRT", "HND"]`) to cover a multi-airport city — e.g. Tokyo (Narita +
+Haneda), London (LHR/LGW/STN/...), New York (JFK/LGA/EWR). `_airport_codes()`/
+`_airport_enums()` normalize the config value and `_build_filters()` passes all
+listed airports into the same `FlightSegment` (`departure_airport`/
+`arrival_airport` are natively `list[list[Airport, weight]]` — fli/Google
+Flights search them together in one query, exactly like Google's own metro-area
+search). `endpoint_label()` renders the route-level label as codes joined with
+`/` (e.g. `"OTP → NRT/HND"`); each individual option in the dashboard shows the
+*actual* airport it uses (`_render_option` reads `dep_code`/`arr_code` straight
+off the parsed legs), so a NRT-bound and an HND-bound option are never confused.
 
 ### Why search_country matters
 Without `"search_country": "RO"`, Google returns generic results that may omit

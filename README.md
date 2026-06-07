@@ -48,7 +48,7 @@ Use a **private** repo — your config will be stored as a secret, not in the re
 4. Value: paste the entire contents of your `config.json`
 5. Save
 
-The workflow runs automatically at **08:00 UTC (11:00 Romania time)** every day.
+The workflow runs automatically at **09:00 UTC (12:00 Romania time, summer)** every day.
 Trigger it manually anytime from the **Actions** tab → **Run workflow**.
 
 ---
@@ -68,16 +68,21 @@ Dashboard live at: `https://YOUR_USERNAME.github.io/flight-tracker/`
 
 | Field | Description |
 |---|---|
-| `origin` / `destination` | IATA airport codes |
+| `origin` / `destination` | IATA airport code (`"OTP"`) or a list to cover a multi-airport city in one search (`["NRT","HND"]` for Tokyo) |
 | `date_from` / `date_to` | Search window (YYYY-MM-DD) |
 | `target_nights` | Ideal trip duration |
 | `flexibility_days` | ±N nights checked per departure date |
-| `daily_samples` | Departure dates checked per run (spread across window) |
+| `daily_samples` | Departure dates checked per run (spread across window, ignored if `departure_days` set) |
+| `top_n` | How many cheapest outbound options fli expands into return searches (default 20 — raise to catch airlines missing from the cheapest few) |
+| `search_retries` | Retries for transient empty Google responses, 2s delay between (default 3) |
 | `passengers` | Number of adults |
 | `currency` | EUR, USD, RON, etc. |
-| `preferred_airline` | IATA code e.g. `TK` — leave empty for all |
+| `preferred_airlines` / `preferred_alliances` | IATA codes / alliance names (`["TK","QR"]` / `["STAR_ALLIANCE"]`) — leave empty for no preference |
+| `preferred_airline_mode` | `off` = no preference · `soft` = flag matches with 🏷️ · `hard` = only show matching carriers |
 | `max_stopovers` | Max number of stops |
 | `max_layover_hours` | Max single layover duration |
+| `max_outbound_duration_hours` / `max_return_duration_hours` | Client-side duration caps per direction |
+| `exclude_self_transfer` | `true` = only protected single-ticket itineraries |
 | `bags` | Checked bags (0/1/2) |
 | `departure_window.mode` | `hard` = filter out · `soft` = flag with ⭐ |
 | `max_price_alert` | Alert when price drops below this |

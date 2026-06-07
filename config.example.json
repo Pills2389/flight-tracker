@@ -32,6 +32,7 @@
 
       "origin": "OTP",
       "destination": "AKL",
+      "_origin_destination_note": "Single IATA code (e.g. 'OTP') or a list of codes to cover a multi-airport city in one search, e.g. 'destination': ['NRT', 'HND'] for Tokyo. fli/Google Flights searches all listed airports together; the dashboard shows the actual airport each option uses.",
       "date_from": "2027-02-01",
       "date_to": "2027-03-31",
       "max_return_date": null,

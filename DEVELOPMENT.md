@@ -100,14 +100,24 @@ Open `.github/workflows/flight_check.yml` and edit the cron line:
 
 ## Pushing changes to GitHub
 
+GitHub Actions commits `price_history.json` and `docs/` back to the repo after
+each run, so `origin/main` can drift ahead of your local branch between your
+last pull and your push. **Never `git push --force`** — that overwrites the
+bot's automated commits (and anyone else's work) with no way back. Instead:
+
 ```bash
 git add .
 git commit -m "Description of change"
-git push --force
+git push
+# if rejected as non-fast-forward:
+git fetch origin
+git log origin/main -3 --oneline   # confirm it's only the bot's "📊 ... prices updated" commit
+git rebase origin/main             # replays your commit(s) on top — safe, no data loss
+git push
 ```
 
-`--force` is needed because GitHub Actions commits `price_history.json` and `docs/`
-back to the repo after each run, putting the remote ahead of your local copy.
+This has come up twice already (bot commits landing mid-session); `fetch` +
+`rebase origin/main` resolves it cleanly every time with no conflicts.
 
 ---
 
@@ -131,6 +141,16 @@ Auto-generated at `docs/index.html` after each workflow run.
 Live at: `https://pills2389.github.io/flight-tracker/`
 
 Settings → Pages → Source: Deploy from branch `main`, folder `/docs`.
+
+---
+
+## Working with fli internals
+
+A local clone of the **fli** library lives at `c:\Users\Cristi\Desktop\Repos\fli`.
+When `pip install flights` behaviour is unclear (filter shapes, retry/backoff,
+enum members, what `search()` actually returns for round trips, etc.), read the
+source there directly instead of guessing — see [CLAUDE.md](CLAUDE.md) → "fli
+source — read it locally instead of guessing" for the key files to start with.
 
 ---
 
