@@ -173,13 +173,71 @@ def endpoint_label(value) -> str:
 
 
 # ─────────────────────────────────────────────────────────────
+# MULTI-CITY (open-jaw) ROUTE HELPERS
+# ─────────────────────────────────────────────────────────────
+def _is_multi_city(route: dict) -> bool:
+    """True for open-jaw routes — e.g. fly OTP→HKG, return NRT→OTP.
+
+    Such routes use `"trip_type": "multi_city"` plus a `"legs"` array of
+    exactly two `{origin, destination}` pairs instead of the single
+    top-level `origin`/`destination` a round-trip route uses. Unlike a
+    round-trip search (same airports both ways), this maps to fli's
+    TripType.MULTI_CITY so Google prices the whole open-jaw itinerary
+    together — much cheaper than booking the two one-ways separately.
+    """
+    return route.get("trip_type", "round_trip") == "multi_city"
+
+
+def _route_legs(route: dict) -> list[dict]:
+    """Return the `{origin, destination}` legs of a multi-city route."""
+    legs = route.get("legs", [])
+    if len(legs) != 2:
+        raise ValueError(
+            f"Route '{route.get('id','?')}': multi_city requires exactly 2 legs "
+            f"(open-jaw out + back), got {len(legs)}"
+        )
+    return legs
+
+
+def _route_first_origin(route: dict):
+    """Origin of the very first leg — where the whole itinerary starts."""
+    return _route_legs(route)[0]["origin"] if _is_multi_city(route) else route["origin"]
+
+
+def _route_final_destination(route: dict):
+    """Destination of the very last leg — where the itinerary ends."""
+    return _route_legs(route)[-1]["destination"] if _is_multi_city(route) else route["destination"]
+
+
+def route_endpoint_label(route: dict) -> str:
+    """Display label for a route's full itinerary.
+
+    Round-trip: "OTP → AKL". Multi-city (open-jaw): "OTP → HKG  /  NRT → OTP"
+    — each leg shown with its own origin/destination since they differ.
+    """
+    if _is_multi_city(route):
+        return "  /  ".join(
+            f"{endpoint_label(leg['origin'])} → {endpoint_label(leg['destination'])}"
+            for leg in _route_legs(route)
+        )
+    return f"{endpoint_label(route['origin'])} → {endpoint_label(route['destination'])}"
+
+
+# ─────────────────────────────────────────────────────────────
 # FLI — BUILD SEARCH FILTERS
 # ─────────────────────────────────────────────────────────────
-def _build_filters(route: dict, departure: str, ret: str) -> FlightSearchFilters:
-    """Build a typed FlightSearchFilters for one departure/return date pair."""
-    origins      = _airport_enums(_airport_codes(route["origin"]))
-    destinations = _airport_enums(_airport_codes(route["destination"]))
+def _build_filters(route: dict, dates: list[str]) -> FlightSearchFilters:
+    """Build a typed FlightSearchFilters for one date combination.
 
+    `dates` holds one travel date per leg, in order:
+    `[departure, return]` for a round-trip route, or one date per entry
+    in `route["legs"]` for a multi-city (open-jaw) route.
+
+    Round-trip uses the same airports both ways (TripType.ROUND_TRIP).
+    Multi-city lets each leg have its own origin/destination — e.g.
+    OTP→HKG out, NRT→OTP back — and must use TripType.MULTI_CITY so
+    Google prices the whole open-jaw itinerary as one ticket.
+    """
     dw = route.get("departure_window", {})
     outbound_restrictions = None
     if dw.get("enabled") and dw.get("mode") == "hard":
@@ -188,18 +246,29 @@ def _build_filters(route: dict, departure: str, ret: str) -> FlightSearchFilters
             latest_departure=int(dw["to"].split(":")[0]),
         )
 
+    if _is_multi_city(route):
+        trip_type = TripType.MULTI_CITY
+        leg_endpoints = [
+            (_airport_enums(_airport_codes(leg["origin"])),
+             _airport_enums(_airport_codes(leg["destination"])))
+            for leg in _route_legs(route)
+        ]
+    else:
+        trip_type = TripType.ROUND_TRIP
+        origins      = _airport_enums(_airport_codes(route["origin"]))
+        destinations = _airport_enums(_airport_codes(route["destination"]))
+        leg_endpoints = [(origins, destinations), (destinations, origins)]
+
     segments = [
         FlightSegment(
-            departure_airport=[[a, 0] for a in origins],
-            arrival_airport=[[a, 0] for a in destinations],
-            travel_date=departure,
-            time_restrictions=outbound_restrictions,
-        ),
-        FlightSegment(
-            departure_airport=[[a, 0] for a in destinations],
-            arrival_airport=[[a, 0] for a in origins],
-            travel_date=ret,
-        ),
+            departure_airport=[[a, 0] for a in dep],
+            arrival_airport=[[a, 0] for a in arr],
+            travel_date=date,
+            # Departure-window restriction only ever applies to the very
+            # first leg (the outbound flight from home).
+            time_restrictions=outbound_restrictions if i == 0 else None,
+        )
+        for i, ((dep, arr), date) in enumerate(zip(leg_endpoints, dates))
     ]
 
     layover_restrictions = None
@@ -224,7 +293,7 @@ def _build_filters(route: dict, departure: str, ret: str) -> FlightSearchFilters
             alliances = _alliance_enums(preferred_alliances) or None
 
     return FlightSearchFilters(
-        trip_type=TripType.ROUND_TRIP,
+        trip_type=trip_type,
         passenger_info=PassengerInfo(adults=route.get("passengers", 1)),
         flight_segments=segments,
         stops=_max_stops(route.get("max_stopovers")),
@@ -239,9 +308,14 @@ def _build_filters(route: dict, departure: str, ret: str) -> FlightSearchFilters
 # ─────────────────────────────────────────────────────────────
 # FLI — RUN & PARSE
 # ─────────────────────────────────────────────────────────────
-def _run_search(search: SearchFlights, route: dict, departure: str, ret: str,
+def _run_search(search: SearchFlights, route: dict, dates: list[str],
                 top_n: int, debug_label: str = "") -> list[dict]:
-    """Run one round-trip search via the fli Python API and return parsed flights.
+    """Run one two-leg search via the fli Python API and return parsed flights.
+
+    `dates` is `[departure, return]` — the travel date for each leg, in the
+    same order as the segments `_build_filters` builds (round-trip: same
+    airports both ways; multi-city/open-jaw: each leg's own airports from
+    `route["legs"]`).
 
     Google's backend occasionally returns an empty payload for a query that
     returns stable, non-empty results moments later (a transient glitch, not
@@ -249,8 +323,9 @@ def _run_search(search: SearchFlights, route: dict, departure: str, ret: str,
     retries return byte-identical flight data). We retry empty responses a
     few times before accepting "no results" as final.
     """
-    filters = _build_filters(route, departure, ret)
+    filters = _build_filters(route, dates)
     retries = route.get("search_retries", 3)
+    leg_label = " → ".join(dates)
 
     results = None
     for attempt in range(retries + 1):
@@ -269,7 +344,7 @@ def _run_search(search: SearchFlights, route: dict, departure: str, ret: str,
         if results:
             break
         if attempt < retries:
-            log.info(f"  {departure} → {ret}: empty response, "
+            log.info(f"  {leg_label}: empty response, "
                      f"retrying ({attempt + 1}/{retries})…")
             time.sleep(2)
 
@@ -288,10 +363,11 @@ def _run_search(search: SearchFlights, route: dict, departure: str, ret: str,
                             encoding="utf-8")
         log.info(f"  [DEBUG] Saved {len(pairs)} raw results → {filename}")
 
+    is_multi_city = _is_multi_city(route)
     out = []
     for outbound, return_flight in pairs:
         try:
-            f = _parse_pair(outbound, return_flight)
+            f = _parse_pair(outbound, return_flight, is_multi_city=is_multi_city)
             if f:
                 out.append(f)
         except Exception as e:
@@ -299,17 +375,21 @@ def _run_search(search: SearchFlights, route: dict, departure: str, ret: str,
     return out
 
 
-def _parse_pair(outbound, return_flight) -> dict | None:
+def _parse_pair(outbound, return_flight, is_multi_city: bool = False) -> dict | None:
     """
-    Build a normalized flight dict from a (outbound, return) FlightResult pair.
+    Build a normalized flight dict from a (leg1, leg2) FlightResult pair —
+    a round-trip outbound+return, or a 2-leg open-jaw multi-city itinerary.
 
-    Mirrors fli's own CLI serialization for round trips: the combined price,
-    currency, duration and stop count live on the outbound leg / are summed
-    across both legs (see fli/cli/utils.py `_serialize_flight_result`).
+    Mirrors fli's own CLI serialization (see fli/cli/utils.py
+    `display_flights`): the combined trip price, currency, duration and stop
+    count live on the *first* leg for round-trips, but on the *final* leg for
+    multi-city — Google surfaces the all-in itinerary price differently for
+    each trip type, so we must read it off the right segment.
     """
-    if outbound.price is None:
+    price_segment = return_flight if is_multi_city else outbound
+    if price_segment.price is None:
         return None
-    price = float(outbound.price)
+    price = float(price_segment.price)
 
     out_legs = outbound.legs or []
     ret_legs = return_flight.legs or []
@@ -378,7 +458,7 @@ def _parse_pair(outbound, return_flight) -> dict | None:
         "return_arr_time":        return_arr_time,
         "outbound_legs":          outbound_legs,
         "return_legs":            return_legs,
-        "self_transfer":          bool(outbound.self_transfer),
+        "self_transfer":          bool(price_segment.self_transfer),
     }
 
 
@@ -473,6 +553,9 @@ def search_route(route: dict, search: SearchFlights) -> list[dict]:
     Sample departure dates across the window and return all flight
     options found, enriched with outbound/return date info.
     """
+    if _is_multi_city(route):
+        _route_legs(route)  # validates exactly 2 legs, raises with a clear message otherwise
+
     n_samples    = route.get("daily_samples", 8)
     dep_dates    = _sample_dates(
         route["date_from"], route["date_to"], n_samples,
@@ -491,7 +574,7 @@ def search_route(route: dict, search: SearchFlights) -> list[dict]:
                 continue
 
             label   = f"{route['id']}_{dep}_{ret}"
-            flights = _run_search(search, route, dep, ret, top_n,
+            flights = _run_search(search, route, [dep, ret], top_n,
                                   debug_label=label if DEBUG else "")
 
             if not flights:
@@ -519,8 +602,8 @@ def search_route(route: dict, search: SearchFlights) -> list[dict]:
                 f["outbound_date"] = dep
                 f["return_date"]   = ret
                 f["nights"]        = nights
-                f["origin"]        = endpoint_label(route["origin"])
-                f["destination"]   = endpoint_label(route["destination"])
+                f["origin"]        = endpoint_label(_route_first_origin(route))
+                f["destination"]   = endpoint_label(_route_final_destination(route))
 
                 # Duration filters (outbound and return separately)
                 max_out_h = route.get("max_outbound_duration_hours")
@@ -745,7 +828,7 @@ def format_message(route: dict, flights: list, trend: dict,
                    trigger: str, currency: str, passengers: int) -> dict:
     best      = flights[0]
     top5      = flights[:5]
-    label     = route.get("label", f"{endpoint_label(route['origin'])} → {endpoint_label(route['destination'])}")
+    label     = route.get("label", route_endpoint_label(route))
     pax_note  = f" (×{passengers} passengers)" if passengers > 1 else ""
     is_alert  = trigger == "price_alert"
     is_weekly = trigger == "weekly"
@@ -1138,7 +1221,7 @@ def generate_dashboard(routes: list, history: dict) -> str:
 
     for route in routes:
         rid      = route["id"]
-        label    = route.get("label", f"{endpoint_label(route['origin'])} → {endpoint_label(route['destination'])}")
+        label    = route.get("label", route_endpoint_label(route))
         currency = route.get("currency", "EUR")
         entries  = history.get(rid, {}).get("entries", [])
 
@@ -1162,7 +1245,8 @@ def generate_dashboard(routes: list, history: dict) -> str:
             groups             = _group_flights(top, max_per_group=max_per_airline)
             options_html = "".join(
                 _render_airline_group(g, currency, preferred_airlines,
-                                      endpoint_label(route["origin"]), endpoint_label(route["destination"]))
+                                      endpoint_label(_route_first_origin(route)),
+                                      endpoint_label(_route_final_destination(route)))
                 for g in groups
             ) if groups else "<p style='color:#999'>No flights today.</p>"
             flights_tbl = f"<div class='options'>{options_html}</div>"
@@ -1190,7 +1274,7 @@ def generate_dashboard(routes: list, history: dict) -> str:
           <div class="card-head">
             <h3>{label}</h3>
             <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
-              <span class="badge">{endpoint_label(route['origin'])} → {endpoint_label(route['destination'])}</span>
+              <span class="badge">{route_endpoint_label(route)}</span>
               {'<span class="badge">'+route.get('preferred_airline','')+' preferred</span>' if route.get('preferred_airline') else ''}
               {alert_badge}
             </div>
@@ -1332,7 +1416,7 @@ routes.forEach(r=>{{
 # ─────────────────────────────────────────────────────────────
 def process_route(route: dict, cfg: dict, history: dict, search: SearchFlights):
     rid        = route["id"]
-    label      = route.get("label", f"{endpoint_label(route['origin'])}→{endpoint_label(route['destination'])}")
+    label      = route.get("label", route_endpoint_label(route))
     currency   = route.get("currency", "EUR")
     passengers = route.get("passengers", 1)
 

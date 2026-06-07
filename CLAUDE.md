@@ -106,6 +106,7 @@ generate_dashboard()          Writes docs/index.html
     "label":                      "Human readable name",
     "origin":                     "OTP",
     "destination":                "AKL",
+    "_or_multi_city":             "Replace origin/destination with \"trip_type\": \"multi_city\" + \"legs\": [{origin,destination},{origin,destination}] for an open-jaw route — see 'Multi-city (open-jaw) routes' below",
 
     "date_from":                  "2027-02-01",
     "date_to":                    "2027-03-31",
@@ -290,6 +291,53 @@ search). `endpoint_label()` renders the route-level label as codes joined with
 *actual* airport it uses (`_render_option` reads `dep_code`/`arr_code` straight
 off the parsed legs), so a NRT-bound and an HND-bound option are never confused.
 
+### Multi-city (open-jaw) routes (`"trip_type": "multi_city"` + `"legs"`)
+A route can be an **open-jaw** itinerary — fly out via one city pair and back
+via a different one, e.g. `OTP → HKG` outbound, `NRT → OTP` return (you make
+your own way from Hong Kong to Tokyo in between). Google prices this as a
+*single combined itinerary* via its multi-city search — substantially cheaper
+than booking the two one-ways separately, since they're ticketed together.
+
+Set this up by replacing the route's top-level `origin`/`destination` with:
+```json
+"trip_type": "multi_city",
+"legs": [
+  { "origin": "OTP", "destination": "HKG" },
+  { "origin": "NRT", "destination": "OTP" }
+]
+```
+Currently **exactly 2 legs** are supported (`_route_legs()` raises if not) —
+an open-jaw out-and-back, not arbitrary N-leg chains. Each leg's
+`origin`/`destination` accepts the same single-code-or-list shape as a
+round-trip route's (multi-airport cities work per leg too).
+
+Everything else about the route config is unchanged and reused as-is:
+- `date_from`/`date_to`/`daily_samples`/`departure_days` sample **leg 1's**
+  departure date exactly like a round-trip's outbound.
+- `target_nights`/`flexibility_days`/`return_days`/`max_return_date` generate
+  **leg 2's** departure date relative to leg 1 — same `_return_dates()` logic,
+  just read as "days until the journey home" rather than "nights at the
+  destination" for an open-jaw trip.
+- All filters (stops, layovers, airlines/alliances, duration caps,
+  self-transfer, departure window, bags) apply identically.
+
+Implementation-wise, `_is_multi_city()`/`_route_legs()` gate the branch points:
+- `_build_filters()` builds one `FlightSegment` per leg with that leg's own
+  airports (vs. the same pair flipped for round-trip) and sets
+  `trip_type=TripType.MULTI_CITY`.
+- **Price location differs by trip type** — Google returns the combined
+  itinerary price on the *first* leg for round-trips but on the *final* leg
+  for multi-city (mirrors fli's own CLI serialization, see
+  `fli/cli/utils.py::display_flights` `price_segment` selection).
+  `_parse_pair(outbound, return_flight, is_multi_city=...)` reads `price`
+  (and `self_transfer`/`mixed_cabin`) off the correct segment accordingly;
+  duration/stops are still summed across both legs either way.
+- `route_endpoint_label()` renders the dual-airport label, e.g.
+  `"OTP → HKG  /  NRT → OTP"`, used everywhere a route's endpoints are shown
+  (messages, dashboard card badge/title). `_route_first_origin()`/
+  `_route_final_destination()` give the itinerary's overall start/end airports
+  for the dashboard tree's fallback display.
+
 ### Why search_country matters
 Without `"search_country": "RO"`, Google returns generic results that may omit
 airlines popular from Romania (e.g. Turkish Airlines). Setting it to `"RO"` mimics
@@ -316,6 +364,14 @@ UTF-8 stream handler workaround in the logging setup.
 **Add a new route:**
 Copy an existing route block in `config.json`, change `id`, `origin`, `destination`,
 dates, and notification settings. Update the `FLIGHT_CONFIG` GitHub Secret.
+
+**Add a new open-jaw / multi-city route:**
+Copy the `otp-hkg-nrt-2027` example block in `config.example.json` — set
+`"trip_type": "multi_city"`, a 2-entry `"legs"` array (each `{origin,
+destination}`), and reuse `date_from`/`date_to`/`target_nights`/
+`flexibility_days`/`return_days` exactly as you would for a round-trip (they
+now describe leg 1's window and the gap to leg 2). See
+[Multi-city (open-jaw) routes](#multi-city-open-jaw-routes-trip_type-multi_city--legs).
 
 **Change notification threshold:**
 Update `max_price_alert` in the relevant route. Update GitHub Secret.

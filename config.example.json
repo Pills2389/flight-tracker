@@ -170,6 +170,70 @@
           "ntfy_topic": "otp-lhr-alerts"
         }
       }
+    },
+
+    {
+      "_info": "Example multi-city (open-jaw) route — fly into one city, out of another. Priced as ONE itinerary by Google (much cheaper than booking the two one-ways separately).",
+      "id": "otp-hkg-nrt-2027",
+      "label": "Bucharest → Hong Kong / Tokyo → Bucharest (open-jaw, 2027)",
+
+      "trip_type": "multi_city",
+      "_trip_type_note": "'multi_city' switches this route to fli's TripType.MULTI_CITY and requires a 'legs' array instead of top-level origin/destination. Currently supports exactly 2 legs (open-jaw: out + back via different cities).",
+
+      "legs": [
+        { "origin": "OTP", "destination": "HKG" },
+        { "origin": "NRT", "destination": "OTP" }
+      ],
+      "_legs_note": "Exactly 2 legs: [outbound, inbound]. Each is {origin, destination} — single IATA code or list of codes (multi-airport city) just like a round-trip route's origin/destination. They don't have to match: leg 1 flies OTP→HKG, leg 2 flies NRT→OTP — Google prices the whole open-jaw together.",
+
+      "date_from": "2027-04-01",
+      "date_to": "2027-04-30",
+      "_date_note": "Window for leg 1's departure date (same meaning as a round-trip route).",
+      "max_return_date": null,
+
+      "target_nights": 21,
+      "flexibility_days": 3,
+      "_target_nights_note": "For multi-city this is the gap between leg 1's departure and leg 2's departure (i.e. total trip length, not 'nights at one destination') — reuses the same target/flexibility/return_days date logic as round-trip routes.",
+
+      "daily_samples": 6,
+      "top_n": 20,
+      "search_retries": 3,
+
+      "passengers": 1,
+      "currency": "EUR",
+      "search_country": "RO",
+      "search_language": "en",
+
+      "preferred_airlines": [],
+      "preferred_alliances": [],
+      "preferred_airline_mode": "soft",
+
+      "departure_days": [],
+      "return_days": [],
+
+      "max_stopovers": 2,
+      "max_outbound_duration_hours": 24,
+      "max_return_duration_hours": 24,
+      "max_per_airline": 3,
+      "max_layover_hours": 8,
+      "exclude_self_transfer": true,
+      "bags": 0,
+
+      "departure_window": { "enabled": false },
+
+      "max_price_alert": 1300,
+
+      "notifications": {
+        "daily": { "enabled": true },
+        "price_alert": { "enabled": true },
+        "weekly_summary": { "enabled": false, "day": "sunday" },
+        "channels": {
+          "email": true,
+          "whatsapp": true,
+          "ntfy": true,
+          "ntfy_topic": "otp-hkg-nrt-alerts"
+        }
+      }
     }
   ]
 }
