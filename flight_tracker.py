@@ -548,10 +548,14 @@ def _return_dates(departure: str, route: dict) -> list[str]:
     return sorted(set(candidates))
 
 
-def search_route(route: dict, search: SearchFlights) -> list[dict]:
+def search_route(route: dict, search: SearchFlights) -> tuple[list[dict], dict]:
     """
     Sample departure dates across the window and return all flight
-    options found, enriched with outbound/return date info.
+    options found (enriched with outbound/return date info), plus a
+    raw API health rollup: {pairs_searched, pairs_with_results,
+    raw_flights_total} — counted *before* client-side filtering, so a
+    drop to zero signals the API itself going quiet rather than our
+    filters getting stricter.
     """
     if _is_multi_city(route):
         _route_legs(route)  # validates exactly 2 legs, raises with a clear message otherwise
@@ -566,6 +570,8 @@ def search_route(route: dict, search: SearchFlights) -> list[dict]:
     top_n  = route.get("top_n", 20)
     results = []
 
+    api_stats = {"pairs_searched": 0, "pairs_with_results": 0, "raw_flights_total": 0}
+
     for dep in dep_dates:
         for ret in _return_dates(dep, route):
             nights = (datetime.strptime(ret, "%Y-%m-%d") -
@@ -576,6 +582,11 @@ def search_route(route: dict, search: SearchFlights) -> list[dict]:
             label   = f"{route['id']}_{dep}_{ret}"
             flights = _run_search(search, route, [dep, ret], top_n,
                                   debug_label=label if DEBUG else "")
+
+            api_stats["pairs_searched"] += 1
+            api_stats["raw_flights_total"] += len(flights) if flights else 0
+            if flights:
+                api_stats["pairs_with_results"] += 1
 
             if not flights:
                 log.info(f"  {dep} → {ret}: no results")
@@ -668,7 +679,7 @@ def search_route(route: dict, search: SearchFlights) -> list[dict]:
         results = [f for f in results if f.get("preferred_airline_match")]
         log.info(f"  Hard airline filter ({', '.join(preferred_list)}): {before} → {len(results)} flights")
 
-    return results
+    return results, api_stats
 
 
 # ─────────────────────────────────────────────────────────────
@@ -714,6 +725,41 @@ def recent_entries(history: dict, rid: str, days: int = 30) -> list:
         return []
     cutoff = (datetime.now() - timedelta(days=days)).strftime("%Y-%m-%d")
     return [e for e in history[rid]["entries"] if e["date"] >= cutoff]
+
+
+def add_api_stats(history: dict, rid: str, label: str, stats: dict):
+    """Record today's raw (pre-filter) API result counts for this route —
+    independent of whether any flights survived filtering, so a weekly
+    heartbeat can still report on API health on a zero-result week."""
+    if rid not in history:
+        history[rid] = {
+            "label": label,
+            "entries": [],
+            "last_weekly_summary": None,
+            "last_alert_date": None,
+        }
+    health = [h for h in history[rid].get("api_health", []) if h["date"] != _today()]
+    health.append({"date": _today(), **stats})
+    history[rid]["api_health"] = health[-30:]
+
+
+def api_health_summary(history: dict, rid: str, days: int = 7) -> dict | None:
+    """Roll up the last N days of raw API result counts into a single
+    summary for the weekly report, or None if there's no data yet."""
+    cutoff = (datetime.now() - timedelta(days=days)).strftime("%Y-%m-%d")
+    recent = [h for h in history.get(rid, {}).get("api_health", []) if h["date"] >= cutoff]
+    if not recent:
+        return None
+    pairs_searched     = sum(h["pairs_searched"] for h in recent)
+    pairs_with_results = sum(h["pairs_with_results"] for h in recent)
+    raw_flights_total  = sum(h["raw_flights_total"] for h in recent)
+    return {
+        "days":               len(recent),
+        "pairs_searched":     pairs_searched,
+        "pairs_with_results": pairs_with_results,
+        "raw_flights_total":  raw_flights_total,
+        "avg_per_search":     round(raw_flights_total / pairs_searched, 1) if pairs_searched else 0,
+    }
 
 
 # ─────────────────────────────────────────────────────────────
@@ -824,9 +870,22 @@ def _tc(direction: str) -> str:
             "stable": "#2980b9", "unknown": "#95a5a6"}[direction]
 
 
+def _api_health_line(api_health: dict | None) -> str:
+    """One-line raw-API health summary for the weekly heartbeat — counts are
+    taken *before* client-side filtering, so a drop to near-zero here means
+    the API itself is going quiet, not that our filters got stricter."""
+    if not api_health or not api_health["pairs_searched"]:
+        return ""
+    h   = api_health
+    pct = h["pairs_with_results"] / h["pairs_searched"] * 100
+    return (f"🔧 API health ({h['days']}d): {h['pairs_with_results']}/{h['pairs_searched']} "
+            f"searches returned raw results ({pct:.0f}%) · "
+            f"avg {h['avg_per_search']:.0f} raw flights/search")
+
+
 def format_message(route: dict, flights: list, trend: dict,
                    trigger: str, currency: str, passengers: int,
-                   dashboard_url: str = "") -> dict:
+                   dashboard_url: str = "", api_health: dict | None = None) -> dict:
     best      = flights[0]
     top5      = flights[:5]
     label     = route.get("label", route_endpoint_label(route))
@@ -863,6 +922,9 @@ def format_message(route: dict, flights: list, trend: dict,
     if trend["avg_7d"]:
         trend_block.append(f"   7d avg: {trend['avg_7d']:.0f}  |  14d avg: {trend['avg_14d']:.0f} {currency}")
 
+    health_line  = _api_health_line(api_health) if is_weekly else ""
+    health_block = ["", health_line] if health_line else []
+
     top5_block = ["", "── *Top 5* ───"]
     for i, f in enumerate(top5, 1):
         star    = "⭐" if f.get("preferred_time") else ""
@@ -882,11 +944,11 @@ def format_message(route: dict, flights: list, trend: dict,
         anchor = f"{dashboard_url.rstrip('/')}#route-{route['id']}"
         dashboard_block = ["", f"📊 Full details & chart: {anchor}"]
 
-    plain = "\n".join(header + best_block + trend_block + top5_block + dashboard_block)
+    plain = "\n".join(header + best_block + trend_block + health_block + top5_block + dashboard_block)
 
     # WhatsApp: compact variant — no Trend/Top 5 (too long, pushes the
     # dashboard link past CallMeBot's message-length cutoff), link stays visible
-    whatsapp_text = "\n".join(header + best_block + dashboard_block)
+    whatsapp_text = "\n".join(header + best_block + health_block + dashboard_block)
 
     # ── Subject ──────────────────────────────────────────────
     prefix = "🚨 PRICE ALERT! " if is_alert else ("📅 Weekly: " if is_weekly else "✈️ ")
@@ -931,6 +993,10 @@ def format_message(route: dict, flights: list, trend: dict,
     avgs = (f" | 7d avg: {trend['avg_7d']:.0f}  14d avg: {trend['avg_14d']:.0f} {currency}"
             if trend.get("avg_7d") else "")
 
+    health_html = ""
+    if is_weekly and health_line:
+        health_html = f'<p style="color:#7d3c98;font-size:13px;margin:4px 0 0">{health_line}</p>'
+
     dashboard_link_html = ""
     if dashboard_url:
         anchor = f"{dashboard_url.rstrip('/')}#route-{route['id']}"
@@ -958,6 +1024,7 @@ def format_message(route: dict, flights: list, trend: dict,
       {'<p style="margin:4px 0">⭐ Within preferred time window</p>' if best.get('preferred_time') else ''}
     </div>
     <p style="color:{tc};font-weight:bold">📊 {trend['signal']}{avgs}</p>
+    {health_html}
     <h3 style="margin-top:16px">📋 Top 5 Options</h3>
     <table style="border-collapse:collapse;width:100%;font-size:13px">
       <thead><tr style="background:#1a5276;color:white">
@@ -976,39 +1043,120 @@ def format_message(route: dict, flights: list, trend: dict,
     return {"subject": subject, "plain": plain, "whatsapp": whatsapp_text, "html": html}
 
 
+def format_heartbeat_message(route: dict, currency: str, api_health: dict | None,
+                             dashboard_url: str = "") -> dict:
+    """Weekly heartbeat sent when *no* flights matched this week's searches.
+
+    Without this, a route whose filters/dates stop matching anything would
+    go completely silent — indistinguishable from the job itself being
+    broken. This confirms the job ran and reports raw API health, so a
+    drop in raw (pre-filter) results points at the API rather than your
+    filters being too strict.
+    """
+    label   = route.get("label", route_endpoint_label(route))
+    health_line = _api_health_line(api_health)
+
+    header = [
+        f"✈️ *{label}*",
+        f"🕐 {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}",
+        "", "─── *WEEKLY SUMMARY* ───",
+        "", "📭 No flights matched your filters this week — "
+            "job ran fine, just nothing to report.",
+    ]
+    if health_line:
+        header += ["", health_line]
+
+    dashboard_block = []
+    if dashboard_url:
+        anchor = f"{dashboard_url.rstrip('/')}#route-{route['id']}"
+        dashboard_block = ["", f"📊 Full details & chart: {anchor}"]
+
+    plain = "\n".join(header + dashboard_block)
+    subject = f"📅 Weekly: {label} — no matches this week ({datetime.now().strftime('%b %d')})"
+
+    health_html = (f'<p style="color:#7d3c98;font-size:13px;margin:4px 0 0">{health_line}</p>'
+                   if health_line else "")
+    dashboard_link_html = ""
+    if dashboard_url:
+        anchor = f"{dashboard_url.rstrip('/')}#route-{route['id']}"
+        dashboard_link_html = f"""
+        <p style="text-align:center;margin:18px 0">
+          <a href="{anchor}" style="background:#1a5276;color:#fff;text-decoration:none;
+                    padding:10px 22px;border-radius:6px;font-size:14px;display:inline-block">
+            📊 View full dashboard &amp; price chart
+          </a>
+        </p>"""
+
+    html = f"""<!DOCTYPE html><html><body
+      style="font-family:Arial,sans-serif;max-width:860px;margin:auto;padding:20px">
+    <h2 style="color:#1a5276">✈️ {label}</h2>
+    <p style="color:#999;font-size:12px">{datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}</p>
+    <h3 style="color:#7d3c98;border-bottom:2px solid #7d3c98;padding-bottom:6px">📅 Weekly Summary</h3>
+    <p>📭 No flights matched your filters this week — job ran fine, just nothing to report.</p>
+    {health_html}
+    {dashboard_link_html}
+    <p style="color:#aaa;font-size:11px;margin-top:16px">Powered by Flight Tracker 🤖 + fli (Google Flights)</p>
+    </body></html>"""
+
+    return {"subject": subject, "plain": plain, "whatsapp": plain, "html": html}
+
+
 # ─────────────────────────────────────────────────────────────
 # NOTIFICATION CHANNELS
 # ─────────────────────────────────────────────────────────────
-def _active_channels(global_notif: dict, route_notif: dict) -> dict:
-    rc = route_notif.get("channels", {})
+def _route_channels(route_notif: dict, trigger: str) -> dict:
+    """Resolve which channel/recipient config applies for this dispatch.
+
+    `weekly_summary` can carry its own `channels` override — e.g. so the
+    weekly digest goes to a smaller audience than daily updates/alerts
+    (`{"whatsapp": ["cristian"]}` while the route's default `channels.whatsapp`
+    is `true`/everyone). Falls back to the route's default `channels` when no
+    trigger-specific override is set, and for all other trigger types.
+    """
+    if trigger == "weekly":
+        override = route_notif.get("weekly_summary", {}).get("channels")
+        if override is not None:
+            return override
+    return route_notif.get("channels", {})
+
+
+def _active_channels(global_notif: dict, channels: dict) -> dict:
     return {
-        "email": global_notif.get("email", {}).get("enabled", False) and rc.get("email", True),
-        "ntfy":  global_notif.get("ntfy",  {}).get("enabled", False) and rc.get("ntfy",  True),
+        "email": global_notif.get("email", {}).get("enabled", False) and channels.get("email", True),
+        "ntfy":  global_notif.get("ntfy",  {}).get("enabled", False) and channels.get("ntfy",  True),
     }
 
 
-def _whatsapp_recipients(global_notif: dict, route_notif: dict) -> list[dict]:
-    """Resolve which (phone, api_key) recipients to WhatsApp for this route.
+def _whatsapp_recipient_list(wc: dict) -> list[dict]:
+    """Normalize notifications.whatsapp into a recipient list — supports both
+    the current {recipients: [...]} shape and the old flat {phone, api_key}
+    single-recipient shape (kept for backward compatibility)."""
+    recipients = wc.get("recipients")
+    if recipients is not None:
+        return recipients
+    if wc.get("phone") and wc.get("api_key"):
+        return [{"name": "default", "phone": wc["phone"], "api_key": wc["api_key"]}]
+    return []
+
+
+def _whatsapp_recipients(global_notif: dict, channels: dict) -> list[dict]:
+    """Resolve which (phone, api_key) recipients to WhatsApp for this dispatch.
 
     Each CallMeBot recipient must individually opt in and gets their own
     api_key — there's no broadcast endpoint, so we send one request per
     person. `notifications.whatsapp.recipients` lists everyone available
-    globally; a route picks its subset via `channels.whatsapp`:
-    `true` (everyone), `false` (no one), or a list of recipient names.
+    globally; the resolved `channels` dict (route default, or a trigger-
+    specific override — see `_route_channels`) picks the subset via
+    `channels.whatsapp`: `true` (everyone), `false` (no one), or a list of
+    recipient names.
     """
     wc = global_notif.get("whatsapp", {})
     if not wc.get("enabled", False):
         return []
 
-    recipients = wc.get("recipients")
-    if recipients is None:
-        # Backward compatible: old flat {phone, api_key} = single recipient
-        if wc.get("phone") and wc.get("api_key"):
-            recipients = [{"name": "default", "phone": wc["phone"], "api_key": wc["api_key"]}]
-        else:
-            recipients = []
+    recipients = _whatsapp_recipient_list(wc)
 
-    sel = route_notif.get("channels", {}).get("whatsapp", True)
+    sel = channels.get("whatsapp", True)
     if sel is True:
         return recipients
     if sel is False:
@@ -1051,10 +1199,10 @@ def send_whatsapp(content: dict, wc: dict):
         log.error(f"WhatsApp to {who} error: {e}")
 
 
-def send_ntfy(content: dict, nc: dict, route_id: str, route_notif: dict):
-    topic    = route_notif.get("ntfy_topic") or nc.get("topic", "flight-tracker")
+def send_ntfy(content: dict, nc: dict, route_id: str, channels: dict):
+    topic    = channels.get("ntfy_topic") or nc.get("topic", "flight-tracker")
     server   = nc.get("server", "https://ntfy.sh")
-    priority = "urgent" if "ALERT" in content["subject"] else "default"
+    priority = "urgent" if any(k in content["subject"] for k in ("ALERT", "FAILED")) else "default"
     # HTTP headers must be ASCII — strip emoji from the title
     title    = content["subject"].encode("ascii", errors="ignore").decode("ascii").strip()
     try:
@@ -1073,14 +1221,90 @@ def send_ntfy(content: dict, nc: dict, route_id: str, route_notif: dict):
         log.error(f"ntfy error: {e}")
 
 
-def dispatch(content: dict, cfg: dict, route: dict):
-    gn = cfg.get("notifications", {})
-    rn = route.get("notifications", {})
-    ch = _active_channels(gn, rn)
+def dispatch(content: dict, cfg: dict, route: dict, trigger: str = "daily"):
+    """Send `content` through the route's configured channels.
+
+    `trigger` ("daily" | "price_alert" | "weekly") selects which channel
+    config applies — `weekly` can use a `weekly_summary.channels` override
+    to reach a smaller/different audience than the route's default
+    `channels` (e.g. send daily updates to everyone but the weekly digest
+    to just yourself). See `_route_channels`.
+    """
+    gn       = cfg.get("notifications", {})
+    rn       = route.get("notifications", {})
+    channels = _route_channels(rn, trigger)
+    ch       = _active_channels(gn, channels)
     if ch["email"]: send_email(content, gn.get("email", {}))
-    for recipient in _whatsapp_recipients(gn, rn):
+    for recipient in _whatsapp_recipients(gn, channels):
         send_whatsapp(content, recipient)
-    if ch["ntfy"]:  send_ntfy(content, gn.get("ntfy", {}), route["id"], rn)
+    if ch["ntfy"]:  send_ntfy(content, gn.get("ntfy", {}), route["id"], channels)
+
+
+# ─────────────────────────────────────────────────────────────
+# ERROR REPORTS  (separate opt-in recipient list — not route-scoped)
+# ─────────────────────────────────────────────────────────────
+def _error_report_targets(global_notif: dict) -> dict:
+    """Resolve who gets the end-of-run error summary.
+
+    Opt-in via `receive_error_report` on each channel/recipient — kept as
+    the *same* property name across email/ntfy/whatsapp (even though only
+    whatsapp is multi-recipient today) so email/ntfy can grow multi-recipient
+    later without a rename. Errors aren't tied to a route, so this is
+    resolved straight from the global config rather than the per-route
+    `channels` routing used by `dispatch()`.
+    """
+    ec = global_notif.get("email", {})
+    nc = global_notif.get("ntfy", {})
+    wc = global_notif.get("whatsapp", {})
+    return {
+        "email": ec.get("enabled", False) and ec.get("receive_error_report", False),
+        "ntfy":  nc.get("enabled", False) and nc.get("receive_error_report", False),
+        "whatsapp": [r for r in _whatsapp_recipient_list(wc) if r.get("receive_error_report", False)]
+                    if wc.get("enabled", False) else [],
+    }
+
+
+def format_error_report(errors: list[tuple[str, str]]) -> dict:
+    when    = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
+    count   = len(errors)
+    lines   = [f"🔴 *Flight Tracker — {count} route{'s' if count != 1 else ''} FAILED*",
+               f"🕐 {when}", ""]
+    for rid, err in errors:
+        lines.append(f"• *{rid}*: {err}")
+    lines.append("")
+    lines.append("Other enabled routes (if any) ran normally — check the Actions log for full tracebacks.")
+    plain   = "\n".join(lines)
+    subject = f"🔴 Flight Tracker — {count} route{'s' if count != 1 else ''} FAILED ({datetime.now().strftime('%b %d %H:%M')})"
+
+    items = "".join(f"<li><b>{rid}</b>: {err}</li>" for rid, err in errors)
+    html = f"""<!DOCTYPE html><html><body
+      style="font-family:Arial,sans-serif;max-width:860px;margin:auto;padding:20px">
+    <h2 style="color:#c0392b">🔴 Flight Tracker — {count} route{'s' if count != 1 else ''} FAILED</h2>
+    <p style="color:#999;font-size:12px">{when}</p>
+    <ul style="font-size:14px;line-height:1.6">{items}</ul>
+    <p style="color:#555">Other enabled routes (if any) ran normally — check the Actions log for full tracebacks.</p>
+    </body></html>"""
+
+    return {"subject": subject, "plain": plain, "whatsapp": plain, "html": html}
+
+
+def dispatch_error_report(errors: list[tuple[str, str]], cfg: dict):
+    if not errors:
+        return
+    gn      = cfg.get("notifications", {})
+    targets = _error_report_targets(gn)
+    if not (targets["email"] or targets["ntfy"] or targets["whatsapp"]):
+        log.info(f"⚠️  {len(errors)} route(s) failed this run, but no error-report recipients configured")
+        return
+
+    content = format_error_report(errors)
+    log.info(f"📮 Sending error report for {len(errors)} failed route(s)")
+    if targets["email"]:
+        send_email(content, gn.get("email", {}))
+    if targets["ntfy"]:
+        send_ntfy(content, gn.get("ntfy", {}), "", {})
+    for recipient in targets["whatsapp"]:
+        send_whatsapp(content, recipient)
 
 
 def _time_offset(dt: datetime, ref: datetime) -> str:
@@ -1480,10 +1704,17 @@ def process_route(route: dict, cfg: dict, history: dict, search: SearchFlights):
     dashboard_url = cfg.get("dashboard_url", "")
 
     log.info(f"Searching {label} …")
-    flights = search_route(route, search)
+    flights, api_stats = search_route(route, search)
+    add_api_stats(history, rid, label, api_stats)
 
     if not flights:
         log.warning(f"[{rid}] No flights found — skipping")
+        if should_weekly(route, history):
+            log.info(f"[{rid}] 📅 Weekly heartbeat (no matches this week)")
+            health = api_health_summary(history, rid)
+            msg = format_heartbeat_message(route, currency, health, dashboard_url)
+            dispatch(msg, cfg, route, trigger="weekly")
+            history[rid]["last_weekly_summary"] = _today()
         return
 
     best_price = flights[0]["price"]
@@ -1515,19 +1746,20 @@ def process_route(route: dict, cfg: dict, history: dict, search: SearchFlights):
     if should_price_alert(route, best_price, history):
         log.info(f"[{rid}] 🚨 Price alert: {best_price:.0f} {currency}")
         msg = format_message(route, flights, trend, "price_alert", currency, passengers, dashboard_url)
-        dispatch(msg, cfg, route)
+        dispatch(msg, cfg, route, trigger="price_alert")
         history[rid]["last_alert_date"] = _today()
         alert_sent = True
 
     if should_daily(route, best_price, alert_sent):
         log.info(f"[{rid}] 📅 Daily digest")
         msg = format_message(route, flights, trend, "daily", currency, passengers, dashboard_url)
-        dispatch(msg, cfg, route)
+        dispatch(msg, cfg, route, trigger="daily")
 
     if should_weekly(route, history):
         log.info(f"[{rid}] 📅 Weekly summary")
-        msg = format_message(route, flights, trend, "weekly", currency, passengers, dashboard_url)
-        dispatch(msg, cfg, route)
+        health = api_health_summary(history, rid)
+        msg = format_message(route, flights, trend, "weekly", currency, passengers, dashboard_url, api_health=health)
+        dispatch(msg, cfg, route, trigger="weekly")
         history[rid]["last_weekly_summary"] = _today()
 
 
@@ -1537,34 +1769,49 @@ def run(debug: bool = False, only_route: str = ""):
     if DEBUG:
         log.info("🔍 DEBUG MODE — raw API responses saved to debug/ folder")
 
-    cfg     = load_config()
-    history = load_history()
-    search  = SearchFlights()
+    cfg = None
+    try:
+        cfg     = load_config()
+        history = load_history()
+        search  = SearchFlights()
 
-    for route in cfg.get("routes", []):
-        if only_route and route["id"] != only_route:
-            continue
-        if not route.get("enabled", True):
-            log.info(f"⏸️  Skipping disabled route: {route.get('label', route['id'])}")
-            continue
-        log.info(f"\n{'═' * 60}")
-        log.info(f"Route: {route.get('label', route['id'])}")
-        log.info(f"{'═' * 60}")
-        try:
-            process_route(route, cfg, history, search)
-        except Exception as e:
-            log.error(f"Error on route {route.get('id','?')}: {e}", exc_info=True)
+        route_errors = []
+        for route in cfg.get("routes", []):
+            if only_route and route["id"] != only_route:
+                continue
+            if not route.get("enabled", True):
+                log.info(f"⏸️  Skipping disabled route: {route.get('label', route['id'])}")
+                continue
+            log.info(f"\n{'═' * 60}")
+            log.info(f"Route: {route.get('label', route['id'])}")
+            log.info(f"{'═' * 60}")
+            try:
+                process_route(route, cfg, history, search)
+            except Exception as e:
+                log.error(f"Error on route {route.get('id','?')}: {e}", exc_info=True)
+                route_errors.append((route.get("id", "?"), str(e)))
 
-    save_history(history)
-    log.info("💾 price_history.json saved")
+        dispatch_error_report(route_errors, cfg)
 
-    DASHBOARD_DIR.mkdir(exist_ok=True)
-    (DASHBOARD_DIR / ".nojekyll").touch()
-    active_routes = [r for r in cfg["routes"] if r.get("enabled", True)]
-    DASHBOARD_FILE.write_text(generate_dashboard(active_routes, history),
-                              encoding="utf-8")
-    log.info(f"🌐 Dashboard → {DASHBOARD_FILE}")
-    log.info("✅ Done.")
+        save_history(history)
+        log.info("💾 price_history.json saved")
+
+        DASHBOARD_DIR.mkdir(exist_ok=True)
+        (DASHBOARD_DIR / ".nojekyll").touch()
+        active_routes = [r for r in cfg["routes"] if r.get("enabled", True)]
+        DASHBOARD_FILE.write_text(generate_dashboard(active_routes, history),
+                                  encoding="utf-8")
+        log.info(f"🌐 Dashboard → {DASHBOARD_FILE}")
+        log.info("✅ Done.")
+    except Exception as e:
+        log.error(f"💥 Flight tracker run crashed: {e}", exc_info=True)
+        # cfg may not have loaded (e.g. bad FLIGHT_CONFIG secret) — only
+        # attempt notification if we have somewhere to send it from. GitHub
+        # Actions' own failure-email mechanism is the backstop either way,
+        # since we re-raise to keep the run marked as failed.
+        if cfg is not None:
+            dispatch_error_report([("flight-tracker-job", f"Run crashed: {e}")], cfg)
+        raise
 
 
 if __name__ == "__main__":

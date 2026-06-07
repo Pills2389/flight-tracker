@@ -97,10 +97,11 @@ generate_dashboard()          Writes docs/index.html
 ```json
 {
   "notifications": {
-    "email":    { "enabled", "smtp_server", "smtp_port", "username", "password", "from_address", "to_address" },
-    "whatsapp": { "enabled", "phone", "api_key" },
-    "ntfy":     { "enabled", "topic", "server" }
+    "email":    { "enabled", "smtp_server", "smtp_port", "username", "password", "from_address", "to_address", "receive_error_report" },
+    "whatsapp": { "enabled", "recipients": [{ "name", "phone", "api_key", "receive_error_report" }] },
+    "ntfy":     { "enabled", "topic", "server", "receive_error_report" }
   },
+  "_receive_error_report_note": "Opt-in flag for the batched end-of-run 🔴 error report (see 'Error reports' below) — same property name on all three channels (email/ntfy are single-recipient today, whatsapp is a per-recipient list) so the shape stays consistent if email/ntfy ever grow multi-recipient too. Defaults to false everywhere; independent of the per-route notification routing.",
   "routes": [{
     "id":                         "unique-id",
     "label":                      "Human readable name",
@@ -156,7 +157,64 @@ generate_dashboard()          Writes docs/index.html
 | Alert sent today | Daily digest skipped (no duplicates) |
 | `daily.enabled` + no threshold | Daily digest always fires |
 | `daily.enabled` + threshold set | Daily only fires when price ≤ threshold |
-| Configured weekday | Weekly summary (max once/week) |
+| Configured weekday | Weekly summary (max once/week) — also doubles as a job heartbeat, see below |
+| One or more routes throw an error this run | 🔴 Error report (batched, end of run) — see "Error reports" below |
+
+### Weekly summary doubles as a heartbeat + API health check
+
+`should_weekly()` no longer requires that the route found any flights —
+it fires on the configured weekday regardless, so silence on a route
+(zero matches for days/weeks) is distinguishable from "the job stopped
+running". When no flights matched this week, `format_heartbeat_message()`
+sends a short "📭 no matches, job ran fine" notice instead of the full
+price report (`process_route()` branches on this *before* its early
+`return` for empty results).
+
+Either way, the weekly message includes a 7-day **raw API health** line —
+`pairs_with_results / pairs_searched` and `avg raw flights/search`,
+counted in `search_route()` *before* any client-side filtering
+(duration/self-transfer/airline) and persisted per-route per-day via
+`add_api_stats()` → `history[route_id]["api_health"]`
+(`api_health_summary()` rolls the last 7 days into one figure,
+`_api_health_line()` renders it). Because these counts are pre-filter,
+a sudden drop toward zero means the *API* has gone quiet — not that
+your filters got stricter — which is the signal you're watching for.
+
+### Per-trigger recipient routing (`weekly_summary.channels` override)
+
+`dispatch(content, cfg, route, trigger=...)` resolves which `channels`
+config applies via `_route_channels(route_notif, trigger)`: a route's
+`notifications.weekly_summary` block may carry its own `channels` override,
+used *only* for the weekly digest, falling back to the route's default
+`notifications.channels` for daily/price-alert dispatches and whenever no
+override is set. This is how you send daily updates/alerts to everyone but
+keep the weekly summary to a smaller list — e.g.
+`weekly_summary.channels.whatsapp: ["cristian"]` while the route default is
+`channels.whatsapp: true`. Same shape/rules as the route-level `channels`
+(`true`/`false`/list of recipient names for whatsapp, `true`/`false` for
+email/ntfy, optional `ntfy_topic`).
+
+Refactoring this also fixed a latent bug: `send_ntfy()` previously read
+`ntfy_topic` off the whole `notifications` dict instead of `notifications.
+channels` (where it actually lives in the config schema), so a route's
+custom ntfy topic was silently ignored and everything went to the global
+topic. `_active_channels`/`_whatsapp_recipients`/`send_ntfy` now all take
+the already-resolved `channels` dict directly.
+
+### Error reports (separate opt-in recipient list)
+
+Per-route exceptions are caught in `run()`'s loop (so one broken route
+doesn't kill the rest) and collected into `route_errors`; at the end of
+the run `dispatch_error_report()` sends one batched 🔴 summary — *if*
+anyone has opted in. A second, outer try/except around all of `run()`
+catches whole-job crashes (bad config, dashboard generation, etc.) and
+sends a single-item report the same way before re-raising (so GitHub
+Actions still marks the run failed and its own failure email remains the
+backstop for crashes that happen before `cfg` even loads).
+
+Error-report recipients are configured **globally**, independent of the
+per-route `channels` routing used for digests — see `receive_error_report`
+in the config schema below. `_error_report_targets()` resolves them.
 
 ---
 
