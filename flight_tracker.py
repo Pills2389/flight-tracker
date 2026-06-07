@@ -25,6 +25,7 @@ import requests
 from fli.models import (
     Airline,
     Airport,
+    Alliance,
     BagsFilter,
     FlightSearchFilters,
     FlightSegment,
@@ -104,6 +105,26 @@ def _airline_enums(codes: list[str]) -> list[Airline]:
     return out
 
 
+def _get_preferred_alliances(route: dict) -> list[str]:
+    """Return list of preferred alliance names, e.g. ["ONEWORLD", "STAR_ALLIANCE"]."""
+    alliances = route.get("preferred_alliances", [])
+    if not isinstance(alliances, list):
+        return []
+    return [a.upper().replace(" ", "_") for a in alliances if a]
+
+
+def _alliance_enums(names: list[str]) -> list[Alliance]:
+    """Convert alliance names to fli Alliance enum members, skipping unknown ones."""
+    out = []
+    for name in names:
+        try:
+            out.append(Alliance[name])
+        except KeyError:
+            log.warning(f"Unknown alliance '{name}' — skipping from hard filter "
+                        f"(valid: {', '.join(a.name for a in Alliance)})")
+    return out
+
+
 def _max_stops(n) -> MaxStops:
     """
     Map a stopover count to fli's MaxStops enum, mirroring fli's own
@@ -159,13 +180,19 @@ def _build_filters(route: dict, departure: str, ret: str) -> FlightSearchFilters
 
     bags = route.get("bags", 0)
 
-    # Hard airline filter is passed to fli directly (show only matching
-    # carriers), otherwise we'd risk missing the preferred carrier entirely
-    al_mode  = route.get("preferred_airline_mode", "soft")
-    airlines = None
-    preferred = _get_preferred_airlines(route)
-    if preferred and al_mode == "hard":
-        airlines = _airline_enums(preferred) or None
+    # Hard airline/alliance filters are passed to fli directly (show only
+    # matching carriers), otherwise we'd risk missing the preferred carrier
+    # entirely (it might not be among the cheapest options fli expands)
+    al_mode   = route.get("preferred_airline_mode", "soft")
+    airlines  = None
+    alliances = None
+    if al_mode == "hard":
+        preferred = _get_preferred_airlines(route)
+        if preferred:
+            airlines = _airline_enums(preferred) or None
+        preferred_alliances = _get_preferred_alliances(route)
+        if preferred_alliances:
+            alliances = _alliance_enums(preferred_alliances) or None
 
     return FlightSearchFilters(
         trip_type=TripType.ROUND_TRIP,
@@ -173,6 +200,7 @@ def _build_filters(route: dict, departure: str, ret: str) -> FlightSearchFilters
         flight_segments=segments,
         stops=_max_stops(route.get("max_stopovers")),
         airlines=airlines,
+        alliances=alliances,
         layover_restrictions=layover_restrictions,
         bags=BagsFilter(checked_bags=bags) if bags else None,
         sort_by=SortBy.CHEAPEST,
@@ -498,9 +526,15 @@ def search_route(route: dict, search: SearchFlights) -> list[dict]:
 
     results.sort(key=lambda x: x["price"])
 
-    preferred_list = _get_preferred_airlines(route)
-    al_mode        = route.get("preferred_airline_mode", "soft")
-    if preferred_list and al_mode == "hard":
+    # Redundant client-side re-check for the hard airline filter (defence in
+    # depth in case fli's server-side filter misbehaves). Skipped when an
+    # alliance filter is also active — we have no airline→alliance membership
+    # data to verify those matches client-side, so we trust fli's combined
+    # airlines+alliances query instead.
+    preferred_list      = _get_preferred_airlines(route)
+    preferred_alliances = _get_preferred_alliances(route)
+    al_mode             = route.get("preferred_airline_mode", "soft")
+    if al_mode == "hard" and preferred_list and not preferred_alliances:
         before  = len(results)
         results = [f for f in results if f.get("preferred_airline_match")]
         log.info(f"  Hard airline filter ({', '.join(preferred_list)}): {before} → {len(results)} flights")

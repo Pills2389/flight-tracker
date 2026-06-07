@@ -48,7 +48,7 @@ search_route()
     │
     ├── Duration filter       max_outbound_duration_hours / max_return_duration_hours
     ├── Self-transfer filter  exclude_self_transfer
-    ├── Preferred airline     preferred_airlines + preferred_airline_mode
+    ├── Preferred airline     preferred_airlines / preferred_alliances + preferred_airline_mode
     └── Departure window      hard (TimeRestrictions on the outbound segment) or soft (flag only)
     │
     ▼
@@ -97,6 +97,7 @@ generate_dashboard()          Writes docs/index.html
     "search_country":             "RO",
     "search_language":            "en",
     "preferred_airlines":         ["TK","QR"],
+    "preferred_alliances":        ["STAR_ALLIANCE"],
     "preferred_airline_mode":     "soft",
     "max_stopovers":              2,
     "max_layover_hours":          8,
@@ -144,16 +145,31 @@ generate_dashboard()          Writes docs/index.html
 
 ---
 
-## Preferred airline modes
+## Preferred airline / alliance modes
+
+`preferred_airline_mode` controls both `preferred_airlines` (IATA codes, e.g.
+`["TK", "QR"]`) and `preferred_alliances` (`["ONEWORLD", "SKYTEAM",
+"STAR_ALLIANCE"]`):
 
 | Mode | Behaviour |
 |---|---|
 | `off` | No preference, no flagging |
-| `soft` | All flights shown, matching ones get 🏷️ flag |
-| `hard` | Only flights with at least one leg on preferred airline; passes `airlines=[...]` to `FlightSearchFilters` |
+| `soft` | All flights shown, airline matches get 🏷️ flag (alliances **not** flaggable — see below) |
+| `hard` | Only flights matching a preferred airline and/or alliance; passes `airlines=[...]` / `alliances=[...]` to `FlightSearchFilters` |
 
-Supports multiple airlines: `["TK", "QR"]` — any leg matching any airline = match.
+Supports multiple airlines/alliances — any leg matching any of them = match
+(combined as one include list server-side, so it's an OR across both).
 Old single string format `"preferred_airline": "TK"` still works (backward compatible).
+
+**Why alliances can't be flagged in `soft` mode:** fli exposes `Alliance` purely
+as a server-side filter token (`ONEWORLD`/`SKYTEAM`/`STAR_ALLIANCE`) — it has no
+airline→alliance membership data we could use to test a parsed flight's airline
+against a preferred alliance client-side. So `preferred_alliances` only takes
+effect in `hard` mode, where fli does the matching itself before returning
+results. In `hard` mode with both airlines and alliances configured, the
+redundant client-side re-check (`search_route()`) is skipped entirely and we
+trust fli's combined query — see `_get_preferred_alliances`/`_alliance_enums`
+in `flight_tracker.py`.
 
 ---
 
@@ -196,8 +212,8 @@ python test.py --notify
 
 Workflow: `.github/workflows/flight_check.yml`
 
-Currently runs every 2 hours, 07:00–17:00 UTC (10:00–20:00 Romania EEST).
-After initial validation period, change to once daily: `cron: '0 7 * * *'`
+Currently runs once daily at 09:00 UTC = 12:00 Romania time (EEST/UTC+3 in
+summer, 11:00 EET/UTC+2 in winter — cron is UTC and doesn't follow DST).
 
 Config is stored as GitHub Secret `FLIGHT_CONFIG` (entire config.json contents).
 After each run, the workflow commits `price_history.json` and `docs/` back to the repo.
@@ -255,9 +271,10 @@ dates, and notification settings. Update the `FLIGHT_CONFIG` GitHub Secret.
 **Change notification threshold:**
 Update `max_price_alert` in the relevant route. Update GitHub Secret.
 
-**Switch from 2-hourly to daily:**
-In `.github/workflows/flight_check.yml`, replace the 6-entry cron with:
-`- cron: '0 7 * * *'`
+**Change run schedule:**
+Edit the `cron:` line in `.github/workflows/flight_check.yml`. Remember cron is
+UTC and ignores DST — e.g. `'0 9 * * *'` is 09:00 UTC = 12:00 Romania time in
+summer (EEST/UTC+3) but 11:00 in winter (EET/UTC+2).
 
 **Add a new filter:**
 1. Add field to `config.example.json` with a `_note` comment

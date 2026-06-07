@@ -55,8 +55,12 @@
 
       "preferred_airlines": [],
       "_airlines_note": "List of preferred airline IATA codes e.g. ['TK', 'QR']. Empty = no preference.",
+
+      "preferred_alliances": [],
+      "_alliances_note": "List of preferred alliances: 'ONEWORLD', 'SKYTEAM', 'STAR_ALLIANCE'. Empty = no preference. Only takes effect in 'hard' mode (passed straight to fli's alliance filter) — 'soft' mode can't flag alliance matches since fli has no airline→alliance membership data.",
+
       "preferred_airline_mode": "soft",
-      "_airline_mode_note": "off = show all, no flagging | soft = show all, flag matching with 🏷️ | hard = only show flights with at least one preferred airline leg",
+      "_airline_mode_note": "off = show all, no flagging | soft = show all, flag matching airlines with 🏷️ (alliances not flaggable) | hard = only show flights matching a preferred airline and/or alliance (passed to fli directly)",
 
       "departure_days": [],
       "_departure_days_note": "Weekdays to depart on e.g. ['wednesday','thursday','friday']. Empty = any day.",

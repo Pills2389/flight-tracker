@@ -2,9 +2,9 @@ name: ✈️ Daily Flight Check
 
 on:
   schedule:
-    # Every 2 hours, 07:00–17:00 UTC = 10:00–20:00 Romania summer (EEST, UTC+3)
-    # 6 runs/day × ~10 min = ~60 min/day, well within GitHub free tier (2000 min/month)
-    - cron: '0 7,9,11,13,15,17 * * *'
+    # Once daily at 12:00 Romania time. Cron is UTC and doesn't follow DST,
+    # so this is 09:00 UTC = 12:00 EEST (summer, UTC+3) / 11:00 EET (winter, UTC+2).
+    - cron: '0 9 * * *'
   workflow_dispatch:
     # Allows manual trigger from the GitHub Actions tab
 
