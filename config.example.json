@@ -1,6 +1,9 @@
 {
   "_readme": "Copy this to config.json and fill in your values. Keys starting with _ are comments and are ignored by the tracker. Route #1 below is fully annotated field-by-field — routes #2 and #3 reuse the exact same field order/shape with shorter notes, so you can compare them side by side or copy-paste a block as a starting point.",
 
+  "_dashboard_url_note": "Optional. Your live GitHub Pages dashboard URL — when set, email and WhatsApp notifications include a link straight to the route's card (e.g. '<dashboard_url>#route-<route id>') so you can tap through for the full collapsible tree and price chart that don't fit in a text message.",
+  "dashboard_url": "https://YOUR_GITHUB_USERNAME.github.io/YOUR_REPO_NAME/",
+
   "notifications": {
     "_section": "Global notification channels — enable/configure the ones you want. Each route can also override 'channels' individually below.",
     "email": {

@@ -825,7 +825,8 @@ def _tc(direction: str) -> str:
 
 
 def format_message(route: dict, flights: list, trend: dict,
-                   trigger: str, currency: str, passengers: int) -> dict:
+                   trigger: str, currency: str, passengers: int,
+                   dashboard_url: str = "") -> dict:
     best      = flights[0]
     top5      = flights[:5]
     label     = route.get("label", route_endpoint_label(route))
@@ -834,46 +835,51 @@ def format_message(route: dict, flights: list, trend: dict,
     is_weekly = trigger == "weekly"
     threshold = route.get("max_price_alert")
 
-    # ── Plain text ───────────────────────────────────────────
+    # ── Plain text (WhatsApp markdown: *bold* _italic_) ──────
     lines = [
-        f"{'🚨 ' if is_alert else ''}✈️  {label}",
+        f"{'🚨 ' if is_alert else ''}✈️ *{label}*",
         f"🕐 {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}",
     ]
     if is_alert and threshold:
-        lines += ["", "=" * 52,
-                  f"🚨 PRICE ALERT! {best['price']:.0f} {currency} — below target of {threshold:.0f} {currency}!",
-                  "=" * 52]
+        lines += ["", "─" * 28,
+                  f"🚨 *PRICE ALERT!* {best['price']:.0f} {currency} — below target of {threshold:.0f} {currency}!",
+                  "─" * 28]
     if is_weekly:
-        lines += ["", "─── WEEKLY SUMMARY ────────────────────────────"]
+        lines += ["", "─── *WEEKLY SUMMARY* ───"]
 
-    ret_dur_line = f"   ↩️  Return:   {best.get('return_duration_str','?')}" if best.get("return_duration_str") else ""
+    ret_dur_line = f"   ↩️ Return:   {best.get('return_duration_str','?')}" if best.get("return_duration_str") else ""
     dw = route.get("departure_window", {})
     lines += [
         "",
-        f"💰 Best price: {best['price']:.0f} {currency}{pax_note}",
-        f"   🗓  {best['outbound_date']} {best.get('dep_time','')} → {best['return_date']} ({best['nights']} nights)",
-        f"   ✈️  Outbound: {best.get('outbound_duration_str','?')}",
+        f"💰 Best price: *{best['price']:.0f} {currency}*{pax_note}",
+        f"   🗓 {best['outbound_date']} {best.get('dep_time','')} → {best['return_date']} ({best['nights']} nights)",
+        f"   ✈️ Outbound: {best.get('outbound_duration_str','?')}",
         ret_dur_line,
         f"   🛫 {best['airline']}  |  {best['stops']} stop(s)  |  Max layover: {best['max_layover_h']}h",
         f"   {'⭐ Within preferred time window' if best.get('preferred_time') else ('⏰ Outside preferred window' if dw.get('enabled') else '')}",
         "",
-        f"📊 Trend: {trend['signal']}",
+        f"📊 Trend: _{trend['signal']}_",
     ]
     if trend["avg_7d"]:
         lines.append(f"   7d avg: {trend['avg_7d']:.0f}  |  14d avg: {trend['avg_14d']:.0f} {currency}")
 
-    lines += ["", "── Top 5 ──────────────────────────────────────"]
+    lines += ["", "── *Top 5* ───"]
     for i, f in enumerate(top5, 1):
-        star    = "⭐ " if f.get("preferred_time") else "   "
-        al_star = "🏷️ " if f.get("preferred_airline_match") and route.get("preferred_airlines") else ""
-        self_tr = "⚠️ST " if f.get("self_transfer") else ""
+        star    = "⭐" if f.get("preferred_time") else ""
+        al_star = "🏷️" if f.get("preferred_airline_match") and route.get("preferred_airlines") else ""
+        self_tr = "⚠️ST" if f.get("self_transfer") else ""
+        flags   = " ".join(x for x in (star, al_star, self_tr) if x)
         ret_dur = f" / ✈️back {f['return_duration_str']}" if f.get("return_duration_str") else ""
         lines.append(
-            f"  {i}. {star}{al_star}{self_tr}{f['price']:.0f} {currency} | "
-            f"{f['outbound_date']} {f.get('dep_time','')} → {f['return_date']} ({f['nights']}n) | "
+            f"  {i}. *{f['price']:.0f} {currency}*{' ' + flags if flags else ''}\n"
+            f"     {f['outbound_date']} {f.get('dep_time','')} → {f['return_date']} ({f['nights']}n) | "
             f"{f['airline']} | {f['stops']} stop(s) | "
             f"✈️out {f['outbound_duration_str']}{ret_dur}"
         )
+
+    if dashboard_url:
+        anchor = f"{dashboard_url.rstrip('/')}#route-{route['id']}"
+        lines += ["", f"📊 Full details & chart: {anchor}"]
 
     plain = "\n".join(lines)
 
@@ -897,7 +903,10 @@ def format_message(route: dict, flights: list, trend: dict,
 
     rows = ""
     for i, f in enumerate(top5, 1):
-        bg   = "#e8f8f0" if f.get("preferred_time") else ("#f9f9f9" if i % 2 else "#fff")
+        bg    = "#e8f8f0" if f.get("preferred_time") else ("#f9f9f9" if i % 2 else "#fff")
+        flags = ("⭐" if f.get("preferred_time") else "") + \
+                (" 🏷️" if f.get("preferred_airline_match") and route.get("preferred_airlines") else "") + \
+                (" ⚠️ST" if f.get("self_transfer") else "")
         rows += (
             f"<tr style='background:{bg}'>"
             f"<td style='padding:6px 10px'>{i}</td>"
@@ -909,13 +918,24 @@ def format_message(route: dict, flights: list, trend: dict,
             f"<td style='padding:6px 10px'>{f['stops']} stop(s)</td>"
             f"<td style='padding:6px 10px'>{f['duration_str']}</td>"
             f"<td style='padding:6px 10px'>{f['max_layover_h']}h</td>"
-            f"<td style='padding:6px 10px;text-align:center'>{'⭐' if f.get('preferred_time') else ''}</td>"
+            f"<td style='padding:6px 10px;text-align:center;white-space:nowrap'>{flags}</td>"
             f"</tr>"
         )
 
     tc = _tc(trend["direction"])
     avgs = (f" | 7d avg: {trend['avg_7d']:.0f}  14d avg: {trend['avg_14d']:.0f} {currency}"
             if trend.get("avg_7d") else "")
+
+    dashboard_link_html = ""
+    if dashboard_url:
+        anchor = f"{dashboard_url.rstrip('/')}#route-{route['id']}"
+        dashboard_link_html = f"""
+        <p style="text-align:center;margin:18px 0">
+          <a href="{anchor}" style="background:#1a5276;color:#fff;text-decoration:none;
+                    padding:10px 22px;border-radius:6px;font-size:14px;display:inline-block">
+            📊 View full dashboard &amp; price chart
+          </a>
+        </p>"""
 
     html = f"""<!DOCTYPE html><html><body
       style="font-family:Arial,sans-serif;max-width:860px;margin:auto;padding:20px">
@@ -938,12 +958,14 @@ def format_message(route: dict, flights: list, trend: dict,
       <thead><tr style="background:#1a5276;color:white">
         <th style="padding:7px">#</th><th>Price</th><th>Depart</th><th>Return</th>
         <th>Nights</th><th>Airline</th><th>Stops</th><th>Duration</th>
-        <th>Max Lay</th><th>⭐</th>
+        <th>Max Lay</th><th>Flags</th>
       </tr></thead>
       <tbody>{rows}</tbody>
     </table>
+    {dashboard_link_html}
     <p style="color:#aaa;font-size:11px;margin-top:16px">
-      ⭐ = preferred time window | Powered by Flight Tracker 🤖 + fli (Google Flights)
+      ⭐ preferred time window &nbsp;·&nbsp; 🏷️ preferred airline &nbsp;·&nbsp; ⚠️ST self-transfer
+      | Powered by Flight Tracker 🤖 + fli (Google Flights)
     </p></body></html>"""
 
     return {"subject": subject, "plain": plain, "html": html}
@@ -1103,7 +1125,7 @@ def _render_airline_group(group: dict, currency: str, preferred_airlines: list,
         for i, f in enumerate(flights, 1)
     )
 
-    return f"""<details class='ag{css}' open>
+    return f"""<details class='ag{css}'>
     <summary class='ag-sum'>
       <span class='ag-name'>{label}</span>
       <span class='ag-cnt'>{count} option{'s' if count != 1 else ''}</span>
@@ -1270,7 +1292,7 @@ def generate_dashboard(routes: list, history: dict) -> str:
                            f'border-radius:10px;font-size:11px">{txt}</span>')
 
         cards += f"""
-        <div class="card">
+        <div class="card" id="route-{rid}">
           <div class="card-head">
             <h3>{label}</h3>
             <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
@@ -1415,10 +1437,11 @@ routes.forEach(r=>{{
 # MAIN
 # ─────────────────────────────────────────────────────────────
 def process_route(route: dict, cfg: dict, history: dict, search: SearchFlights):
-    rid        = route["id"]
-    label      = route.get("label", route_endpoint_label(route))
-    currency   = route.get("currency", "EUR")
-    passengers = route.get("passengers", 1)
+    rid           = route["id"]
+    label         = route.get("label", route_endpoint_label(route))
+    currency      = route.get("currency", "EUR")
+    passengers    = route.get("passengers", 1)
+    dashboard_url = cfg.get("dashboard_url", "")
 
     log.info(f"Searching {label} …")
     flights = search_route(route, search)
@@ -1455,19 +1478,19 @@ def process_route(route: dict, cfg: dict, history: dict, search: SearchFlights):
 
     if should_price_alert(route, best_price, history):
         log.info(f"[{rid}] 🚨 Price alert: {best_price:.0f} {currency}")
-        msg = format_message(route, flights, trend, "price_alert", currency, passengers)
+        msg = format_message(route, flights, trend, "price_alert", currency, passengers, dashboard_url)
         dispatch(msg, cfg, route)
         history[rid]["last_alert_date"] = _today()
         alert_sent = True
 
     if should_daily(route, best_price, alert_sent):
         log.info(f"[{rid}] 📅 Daily digest")
-        msg = format_message(route, flights, trend, "daily", currency, passengers)
+        msg = format_message(route, flights, trend, "daily", currency, passengers, dashboard_url)
         dispatch(msg, cfg, route)
 
     if should_weekly(route, history):
         log.info(f"[{rid}] 📅 Weekly summary")
-        msg = format_message(route, flights, trend, "weekly", currency, passengers)
+        msg = format_message(route, flights, trend, "weekly", currency, passengers, dashboard_url)
         dispatch(msg, cfg, route)
         history[rid]["last_weekly_summary"] = _today()
 
