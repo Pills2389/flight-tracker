@@ -32,7 +32,9 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Write config from secret
-        run: echo '${{ secrets.FLIGHT_CONFIG }}' > config.json
+        env:
+          FLIGHT_CONFIG: ${{ secrets.FLIGHT_CONFIG }}
+        run: printf '%s' "$FLIGHT_CONFIG" > config.json
 
       - name: Run flight tracker
         run: python flight_tracker.py
