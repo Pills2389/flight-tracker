@@ -15,6 +15,7 @@ import logging
 import os
 import smtplib
 import sys
+import time
 import urllib.parse
 from datetime import datetime, timedelta
 from email.mime.multipart import MIMEMultipart
@@ -212,20 +213,37 @@ def _build_filters(route: dict, departure: str, ret: str) -> FlightSearchFilters
 # ─────────────────────────────────────────────────────────────
 def _run_search(search: SearchFlights, route: dict, departure: str, ret: str,
                 top_n: int, debug_label: str = "") -> list[dict]:
-    """Run one round-trip search via the fli Python API and return parsed flights."""
-    filters = _build_filters(route, departure, ret)
+    """Run one round-trip search via the fli Python API and return parsed flights.
 
-    try:
-        results = search.search(
-            filters,
-            top_n=top_n,
-            currency=route.get("currency", "EUR"),
-            language=route.get("search_language") or None,
-            country=route.get("search_country") or None,
-        )
-    except Exception as e:
-        log.error(f"fli search error: {e}")
-        return []
+    Google's backend occasionally returns an empty payload for a query that
+    returns stable, non-empty results moments later (a transient glitch, not
+    a sign the route/dates have no flights — confirmed by hand: identical
+    retries return byte-identical flight data). We retry empty responses a
+    few times before accepting "no results" as final.
+    """
+    filters = _build_filters(route, departure, ret)
+    retries = route.get("search_retries", 3)
+
+    results = None
+    for attempt in range(retries + 1):
+        try:
+            results = search.search(
+                filters,
+                top_n=top_n,
+                currency=route.get("currency", "EUR"),
+                language=route.get("search_language") or None,
+                country=route.get("search_country") or None,
+            )
+        except Exception as e:
+            log.error(f"fli search error: {e}")
+            results = None
+
+        if results:
+            break
+        if attempt < retries:
+            log.info(f"  {departure} → {ret}: empty response, "
+                     f"retrying ({attempt + 1}/{retries})…")
+            time.sleep(2)
 
     if not results:
         return []

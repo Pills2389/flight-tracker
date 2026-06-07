@@ -241,6 +241,18 @@ missing from results). Configurable per-route via `"top_n"` in config.json
 (`route.get("top_n", 20)` in `search_route()`); higher values cost more requests
 and a longer run, but find more carriers.
 
+### Empty results can be a transient Google glitch — retried automatically
+Google's backend occasionally returns an empty payload for a date pair that
+genuinely has matching flights — confirmed by hand: re-running the *exact
+same* query (same filters, same hard `airlines=[TK,QR]`) seconds apart
+flipped between `None` and a stable, byte-identical set of 4 flights (same
+prices, times, airlines) across repeated calls. It's not that the data
+varies — Google just sometimes serves an empty response for no reason.
+`_run_search()` retries empty responses up to `route.get("search_retries", 3)`
+times (2s delay between attempts) before logging "no results" as final.
+Configurable per-route via `"search_retries"` in config.json — set to `0` to
+disable.
+
 ### Why search_country matters
 Without `"search_country": "RO"`, Google returns generic results that may omit
 airlines popular from Romania (e.g. Turkish Airlines). Setting it to `"RO"` mimics

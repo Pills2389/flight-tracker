@@ -47,6 +47,9 @@
       "top_n": 20,
       "_top_n_note": "How many cheapest outbound options fli expands into return-trip searches. Higher = more complete results (e.g. catches airlines like TK that aren't in the first 5) but more requests per search and a longer run. Default 20.",
 
+      "search_retries": 3,
+      "_search_retries_note": "Google's backend occasionally returns an empty payload for a date pair that has flights (confirmed: identical retried queries return the exact same stable results). Number of extra attempts (2s delay between each) before accepting 'no results' as final. Default 3.",
+
       "passengers": 1,
       "currency": "EUR",
       "search_country": "RO",
