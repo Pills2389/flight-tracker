@@ -836,20 +836,20 @@ def format_message(route: dict, flights: list, trend: dict,
     threshold = route.get("max_price_alert")
 
     # ── Plain text (WhatsApp markdown: *bold* _italic_) ──────
-    lines = [
+    header = [
         f"{'🚨 ' if is_alert else ''}✈️ *{label}*",
         f"🕐 {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}",
     ]
     if is_alert and threshold:
-        lines += ["", "─" * 28,
-                  f"🚨 *PRICE ALERT!* {best['price']:.0f} {currency} — below target of {threshold:.0f} {currency}!",
-                  "─" * 28]
+        header += ["", "─" * 28,
+                   f"🚨 *PRICE ALERT!* {best['price']:.0f} {currency} — below target of {threshold:.0f} {currency}!",
+                   "─" * 28]
     if is_weekly:
-        lines += ["", "─── *WEEKLY SUMMARY* ───"]
+        header += ["", "─── *WEEKLY SUMMARY* ───"]
 
     ret_dur_line = f"   ↩️ Return:   {best.get('return_duration_str','?')}" if best.get("return_duration_str") else ""
     dw = route.get("departure_window", {})
-    lines += [
+    best_block = [
         "",
         f"💰 Best price: *{best['price']:.0f} {currency}*{pax_note}",
         f"   🗓 {best['outbound_date']} {best.get('dep_time','')} → {best['return_date']} ({best['nights']} nights)",
@@ -857,31 +857,36 @@ def format_message(route: dict, flights: list, trend: dict,
         ret_dur_line,
         f"   🛫 {best['airline']}  |  {best['stops']} stop(s)  |  Max layover: {best['max_layover_h']}h",
         f"   {'⭐ Within preferred time window' if best.get('preferred_time') else ('⏰ Outside preferred window' if dw.get('enabled') else '')}",
-        "",
-        f"📊 Trend: _{trend['signal']}_",
     ]
-    if trend["avg_7d"]:
-        lines.append(f"   7d avg: {trend['avg_7d']:.0f}  |  14d avg: {trend['avg_14d']:.0f} {currency}")
 
-    lines += ["", "── *Top 5* ───"]
+    trend_block = ["", f"📊 Trend: _{trend['signal']}_"]
+    if trend["avg_7d"]:
+        trend_block.append(f"   7d avg: {trend['avg_7d']:.0f}  |  14d avg: {trend['avg_14d']:.0f} {currency}")
+
+    top5_block = ["", "── *Top 5* ───"]
     for i, f in enumerate(top5, 1):
         star    = "⭐" if f.get("preferred_time") else ""
         al_star = "🏷️" if f.get("preferred_airline_match") and route.get("preferred_airlines") else ""
         self_tr = "⚠️ST" if f.get("self_transfer") else ""
         flags   = " ".join(x for x in (star, al_star, self_tr) if x)
         ret_dur = f" / ✈️back {f['return_duration_str']}" if f.get("return_duration_str") else ""
-        lines.append(
+        top5_block.append(
             f"  {i}. *{f['price']:.0f} {currency}*{' ' + flags if flags else ''}\n"
             f"     {f['outbound_date']} {f.get('dep_time','')} → {f['return_date']} ({f['nights']}n) | "
             f"{f['airline']} | {f['stops']} stop(s) | "
             f"✈️out {f['outbound_duration_str']}{ret_dur}"
         )
 
+    dashboard_block = []
     if dashboard_url:
         anchor = f"{dashboard_url.rstrip('/')}#route-{route['id']}"
-        lines += ["", f"📊 Full details & chart: {anchor}"]
+        dashboard_block = ["", f"📊 Full details & chart: {anchor}"]
 
-    plain = "\n".join(lines)
+    plain = "\n".join(header + best_block + trend_block + top5_block + dashboard_block)
+
+    # WhatsApp: compact variant — no Trend/Top 5 (too long, pushes the
+    # dashboard link past CallMeBot's message-length cutoff), link stays visible
+    whatsapp_text = "\n".join(header + best_block + dashboard_block)
 
     # ── Subject ──────────────────────────────────────────────
     prefix = "🚨 PRICE ALERT! " if is_alert else ("📅 Weekly: " if is_weekly else "✈️ ")
@@ -968,7 +973,7 @@ def format_message(route: dict, flights: list, trend: dict,
       | Powered by Flight Tracker 🤖 + fli (Google Flights)
     </p></body></html>"""
 
-    return {"subject": subject, "plain": plain, "html": html}
+    return {"subject": subject, "plain": plain, "whatsapp": whatsapp_text, "html": html}
 
 
 # ─────────────────────────────────────────────────────────────
@@ -977,10 +982,39 @@ def format_message(route: dict, flights: list, trend: dict,
 def _active_channels(global_notif: dict, route_notif: dict) -> dict:
     rc = route_notif.get("channels", {})
     return {
-        "email":    global_notif.get("email",    {}).get("enabled", False) and rc.get("email",    True),
-        "whatsapp": global_notif.get("whatsapp", {}).get("enabled", False) and rc.get("whatsapp", True),
-        "ntfy":     global_notif.get("ntfy",     {}).get("enabled", False) and rc.get("ntfy",     True),
+        "email": global_notif.get("email", {}).get("enabled", False) and rc.get("email", True),
+        "ntfy":  global_notif.get("ntfy",  {}).get("enabled", False) and rc.get("ntfy",  True),
     }
+
+
+def _whatsapp_recipients(global_notif: dict, route_notif: dict) -> list[dict]:
+    """Resolve which (phone, api_key) recipients to WhatsApp for this route.
+
+    Each CallMeBot recipient must individually opt in and gets their own
+    api_key — there's no broadcast endpoint, so we send one request per
+    person. `notifications.whatsapp.recipients` lists everyone available
+    globally; a route picks its subset via `channels.whatsapp`:
+    `true` (everyone), `false` (no one), or a list of recipient names.
+    """
+    wc = global_notif.get("whatsapp", {})
+    if not wc.get("enabled", False):
+        return []
+
+    recipients = wc.get("recipients")
+    if recipients is None:
+        # Backward compatible: old flat {phone, api_key} = single recipient
+        if wc.get("phone") and wc.get("api_key"):
+            recipients = [{"name": "default", "phone": wc["phone"], "api_key": wc["api_key"]}]
+        else:
+            recipients = []
+
+    sel = route_notif.get("channels", {}).get("whatsapp", True)
+    if sel is True:
+        return recipients
+    if sel is False:
+        return []
+    names = {n.lower() for n in sel}
+    return [r for r in recipients if r.get("name", "").lower() in names]
 
 
 def send_email(content: dict, ec: dict):
@@ -1001,7 +1035,8 @@ def send_email(content: dict, ec: dict):
 
 
 def send_whatsapp(content: dict, wc: dict):
-    text = content["plain"]
+    who = wc.get("name", wc.get("phone", "?"))
+    text = content.get("whatsapp", content["plain"])
     if len(text) > 900:
         text = text[:880] + "\n[…]"
     url = (f"https://api.callmebot.com/whatsapp.php"
@@ -1010,10 +1045,10 @@ def send_whatsapp(content: dict, wc: dict):
            f"&apikey={wc['api_key']}")
     try:
         r = requests.get(url, timeout=20)
-        log.info("WhatsApp sent" if r.status_code == 200 else
-                 f"WhatsApp failed: {r.status_code}")
+        log.info(f"WhatsApp sent to {who}" if r.status_code == 200 else
+                 f"WhatsApp to {who} failed: {r.status_code}")
     except Exception as e:
-        log.error(f"WhatsApp error: {e}")
+        log.error(f"WhatsApp to {who} error: {e}")
 
 
 def send_ntfy(content: dict, nc: dict, route_id: str, route_notif: dict):
@@ -1042,9 +1077,10 @@ def dispatch(content: dict, cfg: dict, route: dict):
     gn = cfg.get("notifications", {})
     rn = route.get("notifications", {})
     ch = _active_channels(gn, rn)
-    if ch["email"]:    send_email(content,    gn.get("email", {}))
-    if ch["whatsapp"]: send_whatsapp(content, gn.get("whatsapp", {}))
-    if ch["ntfy"]:     send_ntfy(content,     gn.get("ntfy", {}), route["id"], rn)
+    if ch["email"]: send_email(content, gn.get("email", {}))
+    for recipient in _whatsapp_recipients(gn, rn):
+        send_whatsapp(content, recipient)
+    if ch["ntfy"]:  send_ntfy(content, gn.get("ntfy", {}), route["id"], rn)
 
 
 def _time_offset(dt: datetime, ref: datetime) -> str:
@@ -1508,6 +1544,9 @@ def run(debug: bool = False, only_route: str = ""):
     for route in cfg.get("routes", []):
         if only_route and route["id"] != only_route:
             continue
+        if not route.get("enabled", True):
+            log.info(f"⏸️  Skipping disabled route: {route.get('label', route['id'])}")
+            continue
         log.info(f"\n{'═' * 60}")
         log.info(f"Route: {route.get('label', route['id'])}")
         log.info(f"{'═' * 60}")
@@ -1521,7 +1560,8 @@ def run(debug: bool = False, only_route: str = ""):
 
     DASHBOARD_DIR.mkdir(exist_ok=True)
     (DASHBOARD_DIR / ".nojekyll").touch()
-    DASHBOARD_FILE.write_text(generate_dashboard(cfg["routes"], history),
+    active_routes = [r for r in cfg["routes"] if r.get("enabled", True)]
+    DASHBOARD_FILE.write_text(generate_dashboard(active_routes, history),
                               encoding="utf-8")
     log.info(f"🌐 Dashboard → {DASHBOARD_FILE}")
     log.info("✅ Done.")

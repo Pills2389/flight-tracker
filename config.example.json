@@ -16,10 +16,13 @@
       "to_address": "your.email@gmail.com"
     },
     "whatsapp": {
-      "_info": "Free via CallMeBot. Send 'I allow callmebot to send me messages' to +34 644 54 29 97 on WhatsApp to get your API key.",
+      "_info": "Free via CallMeBot. Each recipient must individually send 'I allow callmebot to send me messages' to +34 644 54 29 97 on WhatsApp to get their own API key — there's no broadcast endpoint, one request per person.",
+      "_per_route_note": "Pick which of these recipients get notified per route via routes[].notifications.channels.whatsapp — true (all), false (none), or a list of names e.g. [\"cristian\", \"alice\"].",
       "enabled": false,
-      "phone": "+40712345678",
-      "api_key": "YOUR_CALLMEBOT_API_KEY"
+      "recipients": [
+        { "name": "cristian", "phone": "+40712345678", "api_key": "YOUR_CALLMEBOT_API_KEY" },
+        { "name": "alice",    "phone": "+40798765432", "api_key": "ALICES_CALLMEBOT_API_KEY" }
+      ]
     },
     "ntfy": {
       "_info": "Free push notifications. Install ntfy app, subscribe to your topic.",
@@ -36,6 +39,8 @@
       "_section_1_identity": "── Identity ──────────────────────────────",
       "id": "otp-akl-2027",
       "label": "Bucharest → Auckland (Feb–Mar 2027)",
+      "enabled": true,
+      "_enabled_note": "Set to false to fully pause this route — no searches, no notifications, no dashboard card — without deleting/commenting it out. Defaults to true if omitted. Handy for 'not interested this week, keep the config around' situations.",
 
       "_section_2_endpoints": "── Where to fly ──────────────────────────",
       "origin": "OTP",
@@ -280,7 +285,8 @@
         "weekly_summary": { "enabled": false, "day": "sunday" },
         "channels": {
           "email": true,
-          "whatsapp": true,
+          "whatsapp": ["cristian", "alice"],
+          "_whatsapp_note": "List of recipient names from notifications.whatsapp.recipients to notify for this route — true = everyone, false = no one.",
           "ntfy": true,
           "ntfy_topic": "otp-hkg-nrt-alerts"
         }

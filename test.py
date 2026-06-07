@@ -285,17 +285,26 @@ def run_all(notify: bool, live: bool):
             skip("WhatsApp disabled in config")
             record("skipped")
         else:
-            from flight_tracker import send_whatsapp
-            try:
-                send_whatsapp(
-                    {"plain": "✈️ Flight Tracker test message — everything is working!"},
-                    wc
-                )
-                ok("Test WhatsApp message sent — check your phone")
-                record("passed")
-            except Exception as e:
-                fail(f"WhatsApp failed: {e}")
-                record("failed")
+            recipients = wc.get("recipients")
+            if recipients is None and wc.get("phone") and wc.get("api_key"):
+                recipients = [{"name": "default", "phone": wc["phone"], "api_key": wc["api_key"]}]
+            recipients = recipients or []
+            if not recipients:
+                skip("No WhatsApp recipients configured")
+                record("skipped")
+            else:
+                from flight_tracker import send_whatsapp
+                try:
+                    for r in recipients:
+                        send_whatsapp(
+                            {"plain": "✈️ Flight Tracker test message — everything is working!"},
+                            r
+                        )
+                    ok(f"Test WhatsApp message sent to {len(recipients)} recipient(s) — check their phones")
+                    record("passed")
+                except Exception as e:
+                    fail(f"WhatsApp failed: {e}")
+                    record("failed")
 
     # ── 11. ntfy notification ─────────────────────────────────
     test("ntfy.sh notification")
