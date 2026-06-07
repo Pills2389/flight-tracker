@@ -33,23 +33,23 @@ config.json
 load_config()
     │
     ▼
-find_fli()  ←─── fli CLI (pip install flights click)
+SearchFlights()  ←─── fli Python API (pip install flights)
     │
     ▼
 search_route()
     │
     ├── _sample_dates()       Sample departure dates (or all matching weekdays)
     ├── _return_dates()       Generate return dates (respects return_days + max_return_date)
-    ├── _build_cmd()          Build fli CLI command with all filters
-    ├── _run_fli()            Execute fli, save debug dump if --debug
-    └── _parse_one()          Parse fli JSON → normalized flight dict
+    ├── _build_filters()      Build typed FlightSearchFilters (Airport/Airline/MaxStops/...)
+    ├── _run_search()         search.search(filters, top_n=..., currency=, ...), save debug dump if --debug
+    └── _parse_pair()         (outbound, return) FlightResult tuple → normalized flight dict
          ├── outbound.legs    → outbound_legs (for dashboard tree)
          └── return.legs      → return_legs
     │
     ├── Duration filter       max_outbound_duration_hours / max_return_duration_hours
     ├── Self-transfer filter  exclude_self_transfer
     ├── Preferred airline     preferred_airlines + preferred_airline_mode
-    └── Departure window      hard (--time to fli) or soft (flag only)
+    └── Departure window      hard (TimeRestrictions on the outbound segment) or soft (flag only)
     │
     ▼
 process_route()
@@ -89,6 +89,7 @@ generate_dashboard()          Writes docs/index.html
     "target_nights":              20,
     "flexibility_days":           2,
     "daily_samples":              8,
+    "top_n":                      20,
     "departure_days":             ["wednesday","thursday","friday"],
     "return_days":                ["sunday","monday"],
     "passengers":                 1,
@@ -149,7 +150,7 @@ generate_dashboard()          Writes docs/index.html
 |---|---|
 | `off` | No preference, no flagging |
 | `soft` | All flights shown, matching ones get 🏷️ flag |
-| `hard` | Only flights with at least one leg on preferred airline; passes `--all` to fli |
+| `hard` | Only flights with at least one leg on preferred airline; passes `airlines=[...]` to `FlightSearchFilters` |
 
 Supports multiple airlines: `["TK", "QR"]` — any leg matching any airline = match.
 Old single string format `"preferred_airline": "TK"` still works (backward compatible).
@@ -173,7 +174,7 @@ Old single string format `"preferred_airline": "TK"` still works (backward compa
 # Normal run
 python flight_tracker.py
 
-# Debug mode — saves raw fli JSON to debug/ folder, shows filter breakdown
+# Debug mode — saves raw FlightResult/FlightLeg dumps to debug/ folder, shows filter breakdown
 python flight_tracker.py --debug
 
 # Debug one route only
@@ -205,17 +206,24 @@ After each run, the workflow commits `price_history.json` and `docs/` back to th
 
 ## Key implementation notes
 
-### fli JSON structure (round-trip)
-```json
-{
-  "price": 789.0,
-  "duration": 2405,
-  "stops": 2,
-  "outbound": { "duration": 1195, "legs": [...], "layovers": [...], "self_transfer": false },
-  "return":   { "duration": 1210, "legs": [...], "layovers": [...] }
-}
-```
-One-way flights have `legs` and `layovers` at top level instead of nested under `outbound`.
+### fli Python API — round-trip search shape
+We call `SearchFlights().search(filters, top_n=..., currency=, language=, country=)`
+(`fli.search.SearchFlights`, not the CLI subprocess). For `TripType.ROUND_TRIP` it
+returns `list[(outbound: FlightResult, return: FlightResult)] | None`. The combined
+round-trip price/duration/stops live on (or are summed from) the outbound leg —
+mirrored from fli's own CLI serialization (`outbound.price`, `outbound.duration +
+return.duration`, `outbound.stops + return.stops`). `_parse_pair()` builds the
+normalized flight dict directly from these typed `FlightResult`/`FlightLeg`/`Layover`
+Pydantic models (real `datetime` objects — no ISO-string parsing needed).
+
+### top_n controls how many outbound options get expanded into return searches
+`search()` only fetches return-trip options for the cheapest `top_n` outbound
+candidates (fli expands each in a parallel follow-up call, rate-limited to Google's
+10 req/sec ceiling). The fli default is 5, which can silently miss airlines that
+don't appear among the 5 cheapest outbound legs (this is why TK was sometimes
+missing from results). Configurable per-route via `"top_n"` in config.json
+(`route.get("top_n", 20)` in `search_route()`); higher values cost more requests
+and a longer run, but find more carriers.
 
 ### Why search_country matters
 Without `"search_country": "RO"`, Google returns generic results that may omit
@@ -224,12 +232,12 @@ searching from Romania and returns the same results as a manual search.
 
 ### Duration filtering is client-side
 `max_outbound_duration_hours` and `max_return_duration_hours` are NOT passed to fli.
-They filter results after the API call. fli does not support duration filtering natively.
+They filter results after the API call in `search_route()`. fli's `FlightSearchFilters`
+only supports a single combined `max_duration`, not separate outbound/return limits.
 
 ### price_history.json size
 Stores up to 30 flights per route per day, 180 days history.
 Each flight includes full leg data for the dashboard tree view.
-The `raw` field from fli is stripped before storage to keep file size manageable.
 
 ### Windows encoding
 All file opens use `encoding="utf-8"` explicitly. Route labels contain `→` (U+2192)
@@ -253,13 +261,24 @@ In `.github/workflows/flight_check.yml`, replace the 6-entry cron with:
 
 **Add a new filter:**
 1. Add field to `config.example.json` with a `_note` comment
-2. Read it in `search_route()` where other filters are applied
-3. Add to the `[DEBUG] Filtered out:` log line
+2. If it maps to a `FlightSearchFilters` field (stops, airlines, layovers, time
+   restrictions, bags, ...), read it in `_build_filters()` and pass it through typed
+   (e.g. `MaxStops`, `LayoverRestrictions`, `TimeRestrictions`, `BagsFilter`)
+3. If it can't be expressed server-side (e.g. separate outbound/return duration caps),
+   read it in `search_route()` and filter client-side after `_run_search()`
+4. Add to the `[DEBUG] Filtered out:` log line if it's a client-side filter
+
+**Increase airline coverage (e.g. catch TK in results):**
+Raise `"top_n"` in the route config — it controls how many cheapest outbound options
+get expanded into return-trip searches (fli default is 5; we default to 20). See
+[top_n controls how many outbound options get expanded into return searches](#key-implementation-notes).
 
 **Debug missing airline:**
 ```bash
 python flight_tracker.py --debug --route ROUTE_ID
 ```
-Check `debug/` folder JSON files. Look at `[DEBUG] Airlines in raw results:` log lines.
-If airline missing from raw → Google not returning it (try adding `search_country`).
-If in raw but not in final → check duration/self-transfer/airline filters.
+Check `debug/` folder JSON files (now raw `FlightResult`/`FlightLeg` Pydantic dumps,
+one `[outbound, return]` pair per entry). Look at `[DEBUG] Airlines in raw results:`
+log lines. If airline missing from raw → Google not returning it for the searched
+outbound candidates (try raising `top_n` or adding `search_country`). If in raw but
+not in final → check duration/self-transfer/airline filters.

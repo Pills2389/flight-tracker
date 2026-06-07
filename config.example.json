@@ -44,6 +44,9 @@
       "daily_samples": 8,
       "_samples_note": "Number of departure dates sampled per daily run, spread evenly across the window",
 
+      "top_n": 20,
+      "_top_n_note": "How many cheapest outbound options fli expands into return-trip searches. Higher = more complete results (e.g. catches airlines like TK that aren't in the first 5) but more requests per search and a longer run. Default 20.",
+
       "passengers": 1,
       "currency": "EUR",
       "search_country": "RO",

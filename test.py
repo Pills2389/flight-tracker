@@ -13,7 +13,6 @@ you push to GitHub and let Actions take over.
 import argparse
 import json
 import os
-import subprocess
 import sys
 import tempfile
 import time
@@ -62,29 +61,21 @@ def run_all(notify: bool, live: bool):
         fail(f"Python {v.major}.{v.minor} — need 3.10+")
         record("failed")
 
-    # ── 2. fli installed ─────────────────────────────────────
-    test("fli installation")
-    fli_cmd = None
+    # ── 2. fli (flights) Python API installed ────────────────
+    test("fli (flights) package installed")
+    search_flights_cls = None
     try:
-        from flight_tracker import find_fli
-        fli_cmd = find_fli()
-        ok(f"fli found: {' '.join(fli_cmd)}")
+        from importlib.metadata import version as pkg_version
+
+        from fli.search import SearchFlights
+        search_flights_cls = SearchFlights
+        ok(f"flights {pkg_version('flights')} importable (fli.search.SearchFlights)")
         record("passed")
-    except RuntimeError as e:
-        fail(str(e))
+    except ImportError as e:
+        fail(f"fli not found: {e} — run: pip install flights")
         record("failed")
     except Exception as e:
         fail(f"Unexpected error: {e}")
-        record("failed")
-
-    # ── 3. click installed (fli dependency) ──────────────────
-    test("click installed (fli dependency)")
-    try:
-        import click
-        ok(f"click {click.__version__}")
-        record("passed")
-    except ImportError:
-        fail("click not found — run: pip install click")
         record("failed")
 
     # ── 4. requests installed ────────────────────────────────
@@ -118,75 +109,72 @@ def run_all(notify: bool, live: bool):
         record("skipped")
 
     # ── 6. Live flight search ─────────────────────────────────
-    test("Live flight search (fli → Google Flights)")
+    test("Live flight search (fli Python API → Google Flights)")
     if not live:
         skip("Skipped (--no-live flag)")
         record("skipped")
-    elif fli_cmd is None:
+    elif search_flights_cls is None:
         skip("Skipped (fli not found)")
         record("skipped")
     else:
         # Use first configured route, or fall back to a test route
         if cfg and cfg.get("routes"):
-            r       = cfg["routes"][0]
-            origin  = r["origin"]
-            dest    = r["destination"]
-            dep     = (datetime.now() + timedelta(days=90)).strftime("%Y-%m-%d")
-            ret     = (datetime.now() + timedelta(days=110)).strftime("%Y-%m-%d")
+            r        = cfg["routes"][0]
+            origin   = r["origin"]
+            dest     = r["destination"]
             currency = r.get("currency", "EUR")
         else:
             origin, dest, currency = "LHR", "JFK", "EUR"
-            dep = (datetime.now() + timedelta(days=30)).strftime("%Y-%m-%d")
-            ret = (datetime.now() + timedelta(days=37)).strftime("%Y-%m-%d")
+        dep = (datetime.now() + timedelta(days=90)).strftime("%Y-%m-%d")
+        ret = (datetime.now() + timedelta(days=110)).strftime("%Y-%m-%d")
 
-        cmd = fli_cmd + [
-            "flights", origin, dest, dep,
-            "--return", ret,
-            "--currency", currency,
-            "--format", "json",
-        ]
-        info(f"Calling: {' '.join(cmd)}")
+        info(f"Calling: SearchFlights().search({origin} → {dest}, "
+             f"{dep} ↔ {ret}, currency={currency})")
         info("(This may take 15–30 seconds…)")
 
         try:
-            r = subprocess.run(cmd, capture_output=True, text=True,
-                               timeout=60, encoding="utf-8", errors="replace")
-            stdout = (r.stdout or "").strip()
-            stderr = (r.stderr or "").strip()
+            from fli.models import (
+                Airport,
+                FlightSearchFilters,
+                FlightSegment,
+                PassengerInfo,
+                TripType,
+            )
 
-            if stdout:
-                try:
-                    data = json.loads(stdout)
-                    n = len(data) if isinstance(data, list) else 1
-                    ok(f"Got {n} flight option(s)")
-                    if isinstance(data, list) and data:
-                        best = data[0]
-                        price = best.get("price", best.get("total_price", "?"))
-                        info(f"Best price: {price} {currency}")
-                    record("passed")
-                except json.JSONDecodeError:
-                    # Text output instead of JSON — still means fli works
-                    if "Price" in stdout or "Flight" in stdout or "€" in stdout or "$" in stdout:
-                        ok("Got flight results (text format — JSON parsing skipped)")
-                        info("Tip: JSON output may not be fully supported yet for this query")
-                        record("passed")
-                    else:
-                        fail(f"Unexpected output: {stdout[:200]}")
-                        record("failed")
-            elif stderr:
-                if "rate" in stderr.lower() or "limit" in stderr.lower() or "429" in stderr:
-                    fail("Rate limited by Google — wait 30 min and try again")
-                else:
-                    fail(f"fli error: {stderr[:300]}")
-                record("failed")
+            filters = FlightSearchFilters(
+                trip_type=TripType.ROUND_TRIP,
+                passenger_info=PassengerInfo(adults=1),
+                flight_segments=[
+                    FlightSegment(
+                        departure_airport=[[Airport[origin.upper()], 0]],
+                        arrival_airport=[[Airport[dest.upper()], 0]],
+                        travel_date=dep,
+                    ),
+                    FlightSegment(
+                        departure_airport=[[Airport[dest.upper()], 0]],
+                        arrival_airport=[[Airport[origin.upper()], 0]],
+                        travel_date=ret,
+                    ),
+                ],
+            )
+            search_results = search_flights_cls().search(filters, top_n=5, currency=currency)
+
+            if search_results:
+                ok(f"Got {len(search_results)} round-trip option(s)")
+                outbound, _return_flight = search_results[0]
+                info(f"Best price: {outbound.price} {currency}")
+                record("passed")
             else:
-                fail("No output from fli — possible rate limit or network issue")
+                fail("No results returned — possible rate limit or no availability")
                 record("failed")
-        except subprocess.TimeoutExpired:
-            fail("fli timed out (60s) — possible network issue or rate limit")
+        except KeyError as e:
+            fail(f"Unknown airport code: {e} — check route['origin']/['destination']")
             record("failed")
         except Exception as e:
-            fail(f"Unexpected error: {e}")
+            if "rate" in str(e).lower() or "429" in str(e):
+                fail("Rate limited by Google — wait 30 min and try again")
+            else:
+                fail(f"fli search error: {e}")
             record("failed")
 
     # ── 7. Price history read/write ───────────────────────────

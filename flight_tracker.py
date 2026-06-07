@@ -13,9 +13,7 @@ Dashboard    : docs/index.html     → GitHub Pages
 import json
 import logging
 import os
-import shutil
 import smtplib
-import subprocess
 import sys
 import urllib.parse
 from datetime import datetime, timedelta
@@ -24,6 +22,20 @@ from email.mime.text import MIMEText
 from pathlib import Path
 
 import requests
+from fli.models import (
+    Airline,
+    Airport,
+    BagsFilter,
+    FlightSearchFilters,
+    FlightSegment,
+    LayoverRestrictions,
+    MaxStops,
+    PassengerInfo,
+    SortBy,
+    TimeRestrictions,
+    TripType,
+)
+from fli.search import SearchFlights
 
 # ─────────────────────────────────────────────────────────────
 # LOGGING
@@ -65,46 +77,7 @@ def load_config() -> dict:
 
 
 # ─────────────────────────────────────────────────────────────
-# FLI — FIND EXECUTABLE
-# ─────────────────────────────────────────────────────────────
-def find_fli() -> list[str]:
-    """
-    Locate the fli CLI, trying multiple methods so it works on
-    Windows, Linux (GitHub Actions), and Mac without extra config.
-    """
-    # 1. python -m fli  (most portable — works everywhere pip installed it)
-    try:
-        r = subprocess.run(
-            [sys.executable, "-m", "fli", "--help"],
-            capture_output=True, timeout=15,
-        )
-        if r.returncode == 0:
-            return [sys.executable, "-m", "fli"]
-    except Exception:
-        pass
-
-    # 2. fli in PATH
-    p = shutil.which("fli")
-    if p:
-        return [p]
-
-    # 3. Scripts / bin next to the current Python executable
-    for candidate in [
-        Path(sys.executable).parent / "Scripts" / "fli.exe",   # Windows
-        Path(sys.executable).parent / "Scripts" / "fli",        # Windows no-ext
-        Path(sys.executable).parent / "fli",                    # Linux venv
-        Path(sys.executable).parent.parent / "bin" / "fli",    # Linux system
-    ]:
-        if candidate.exists():
-            return [str(candidate)]
-
-    raise RuntimeError(
-        "fli not found. Run:  pip install flights click"
-    )
-
-
-# ─────────────────────────────────────────────────────────────
-# AIRLINE HELPERS
+# AIRLINE / AIRPORT HELPERS
 # ─────────────────────────────────────────────────────────────
 def _get_preferred_airlines(route: dict) -> list[str]:
     """
@@ -120,124 +93,131 @@ def _get_preferred_airlines(route: dict) -> list[str]:
     return [old.upper()] if old else []
 
 
-# ─────────────────────────────────────────────────────────────
-# FLI — BUILD COMMAND
-# ─────────────────────────────────────────────────────────────
-def _build_cmd(fli: list[str], route: dict,
-               departure: str, ret: str) -> list[str]:
-    cmd = fli + [
-        "flights",
-        route["origin"],
-        route["destination"],
-        departure,
-        "--return", ret,
-        "--currency", route.get("currency", "EUR"),
-        "--sort",    "CHEAPEST",
-        "--format",  "json",
-    ]
+def _airline_enums(codes: list[str]) -> list[Airline]:
+    """Convert IATA airline codes to fli Airline enum members, skipping unknown ones."""
+    out = []
+    for code in codes:
+        try:
+            out.append(Airline[code.upper()])
+        except KeyError:
+            log.warning(f"Unknown airline code '{code}' — skipping from hard filter")
+    return out
 
-    max_lay = route.get("max_layover_hours")
-    if max_lay:
-        cmd += ["--max-layover", str(int(float(max_lay) * 60))]
 
-    max_stops = route.get("max_stopovers")
-    if max_stops is not None:
-        cmd += ["--stops", str(max_stops)]
+def _max_stops(n) -> MaxStops:
+    """
+    Map a stopover count to fli's MaxStops enum, mirroring fli's own
+    CLI parsing (parse_max_stops): 0 -> non-stop, 1 -> one-or-fewer,
+    2+ -> two-or-fewer. None/negative -> any.
+    """
+    if n is None:
+        return MaxStops.ANY
+    n = int(n)
+    if n == 0:
+        return MaxStops.NON_STOP
+    if n == 1:
+        return MaxStops.ONE_STOP_OR_FEWER
+    if n >= 2:
+        return MaxStops.TWO_OR_FEWER_STOPS
+    return MaxStops.ANY
+
+
+# ─────────────────────────────────────────────────────────────
+# FLI — BUILD SEARCH FILTERS
+# ─────────────────────────────────────────────────────────────
+def _build_filters(route: dict, departure: str, ret: str) -> FlightSearchFilters:
+    """Build a typed FlightSearchFilters for one departure/return date pair."""
+    origin      = Airport[route["origin"].upper()]
+    destination = Airport[route["destination"].upper()]
 
     dw = route.get("departure_window", {})
+    outbound_restrictions = None
     if dw.get("enabled") and dw.get("mode") == "hard":
-        fh = dw["from"].split(":")[0]
-        th = dw["to"].split(":")[0]
-        cmd += ["--time", f"{fh}-{th}"]
+        outbound_restrictions = TimeRestrictions(
+            earliest_departure=int(dw["from"].split(":")[0]),
+            latest_departure=int(dw["to"].split(":")[0]),
+        )
+
+    segments = [
+        FlightSegment(
+            departure_airport=[[origin, 0]],
+            arrival_airport=[[destination, 0]],
+            travel_date=departure,
+            time_restrictions=outbound_restrictions,
+        ),
+        FlightSegment(
+            departure_airport=[[destination, 0]],
+            arrival_airport=[[origin, 0]],
+            travel_date=ret,
+        ),
+    ]
+
+    layover_restrictions = None
+    max_lay = route.get("max_layover_hours")
+    if max_lay:
+        layover_restrictions = LayoverRestrictions(max_duration=int(float(max_lay) * 60))
 
     bags = route.get("bags", 0)
-    if bags:
-        cmd += ["--bags", str(bags)]
 
-    passengers = route.get("passengers", 1)
-    if passengers > 1:
-        cmd += ["--adults", str(passengers)]
+    # Hard airline filter is passed to fli directly (show only matching
+    # carriers), otherwise we'd risk missing the preferred carrier entirely
+    al_mode  = route.get("preferred_airline_mode", "soft")
+    airlines = None
+    preferred = _get_preferred_airlines(route)
+    if preferred and al_mode == "hard":
+        airlines = _airline_enums(preferred) or None
 
-    country = route.get("search_country", "")
-    if country:
-        cmd += ["--country", country]
-
-    language = route.get("search_language", "")
-    if language:
-        cmd += ["--language", language]
-
-    # Fetch all results when hard airline filter is active,
-    # otherwise we might miss the preferred carrier entirely
-    al_mode = route.get("preferred_airline_mode", "soft")
-    if _get_preferred_airlines(route) and al_mode == "hard":
-        cmd += ["--all"]
-
-    return cmd
+    return FlightSearchFilters(
+        trip_type=TripType.ROUND_TRIP,
+        passenger_info=PassengerInfo(adults=route.get("passengers", 1)),
+        flight_segments=segments,
+        stops=_max_stops(route.get("max_stopovers")),
+        airlines=airlines,
+        layover_restrictions=layover_restrictions,
+        bags=BagsFilter(checked_bags=bags) if bags else None,
+        sort_by=SortBy.CHEAPEST,
+    )
 
 
 # ─────────────────────────────────────────────────────────────
 # FLI — RUN & PARSE
 # ─────────────────────────────────────────────────────────────
-def _run_fli(cmd: list[str], debug_label: str = "") -> list[dict]:
-    """Execute fli command and return parsed JSON results."""
+def _run_search(search: SearchFlights, route: dict, departure: str, ret: str,
+                top_n: int, debug_label: str = "") -> list[dict]:
+    """Run one round-trip search via the fli Python API and return parsed flights."""
+    filters = _build_filters(route, departure, ret)
+
     try:
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            timeout=90,
-            encoding="utf-8",
-            errors="replace",
+        results = search.search(
+            filters,
+            top_n=top_n,
+            currency=route.get("currency", "EUR"),
+            language=route.get("search_language") or None,
+            country=route.get("search_country") or None,
         )
-    except subprocess.TimeoutExpired:
-        log.error("fli timed out after 90s")
-        return []
     except Exception as e:
-        log.error(f"fli subprocess error: {e}")
+        log.error(f"fli search error: {e}")
         return []
 
-    stdout = (result.stdout or "").strip()
-    stderr = (result.stderr or "").strip()
-
-    if not stdout:
-        if stderr:
-            log.warning(f"fli stderr: {stderr[:300]}")
+    if not results:
         return []
 
-    try:
-        raw = json.loads(stdout)
-    except json.JSONDecodeError:
-        log.error(f"fli JSON parse error. Output was: {stdout[:300]}")
-        return []
+    pairs = [r for r in results if isinstance(r, tuple) and len(r) == 2]
 
     # ── Debug: save raw API response to file ─────────────────
     if DEBUG and debug_label:
         DEBUG_DIR.mkdir(exist_ok=True)
         ts       = datetime.now().strftime("%H%M%S")
         filename = DEBUG_DIR / f"{debug_label}_{ts}.json"
-        filename.write_text(json.dumps(raw, indent=2, ensure_ascii=False),
+        dump = [[leg.model_dump(mode="json") for leg in pair] for pair in pairs]
+        filename.write_text(json.dumps(dump, indent=2, ensure_ascii=False),
                             encoding="utf-8")
-        count = raw.get("count", "?") if isinstance(raw, dict) else "?"
-        log.info(f"  [DEBUG] Saved {count} raw results → {filename}")
-
-    return _parse_results(raw)
-
-
-def _parse_results(raw) -> list[dict]:
-    """
-    Unwrap fli's top-level response envelope and parse each flight.
-    fli returns: {"success": true, "count": N, "flights": [...], ...}
-    """
-    if isinstance(raw, dict):
-        # Unwrap the envelope — flights are always under "flights" key
-        raw = raw.get("flights", [])
-    if not isinstance(raw, list):
-        return []
+        log.info(f"  [DEBUG] Saved {len(pairs)} raw results → {filename}")
 
     out = []
-    for item in raw:
+    for outbound, return_flight in pairs:
         try:
-            f = _parse_one(item)
+            f = _parse_pair(outbound, return_flight)
             if f:
                 out.append(f)
         except Exception as e:
@@ -245,117 +225,64 @@ def _parse_results(raw) -> list[dict]:
     return out
 
 
-def _parse_one(item: dict) -> dict | None:
+def _parse_pair(outbound, return_flight) -> dict | None:
     """
-    Parse one flight object from fli's JSON.
+    Build a normalized flight dict from a (outbound, return) FlightResult pair.
 
-    fli returns two different structures depending on trip type:
-
-    One-way:
-      { "price": X, "stops": N, "legs": [...], "layovers": [...] }
-
-    Round-trip:
-      { "price": X, "stops": N,
-        "outbound": { "legs": [...], "layovers": [...], "self_transfer": bool },
-        "return":   { "legs": [...], "layovers": [...] } }
+    Mirrors fli's own CLI serialization for round trips: the combined price,
+    currency, duration and stop count live on the outbound leg / are summed
+    across both legs (see fli/cli/utils.py `_serialize_flight_result`).
     """
-    if not isinstance(item, dict):
+    if outbound.price is None:
         return None
+    price = float(outbound.price)
 
-    price = item.get("price")
-    if price is None:
-        return None
-    price = float(price)
+    out_legs = outbound.legs or []
+    ret_legs = return_flight.legs or []
+    out_lays = outbound.layovers or []
+    ret_lays = return_flight.layovers or []
 
-    duration_min = int(item.get("duration", 0))
-    stops        = int(item.get("stops", 0))
+    outbound_dur = outbound.duration
+    return_dur   = return_flight.duration
+    duration_min = outbound_dur + return_dur
+    stops        = outbound.stops + return_flight.stops
 
-    # ── Locate outbound legs & layovers ─────────────────────
-    # Round-trip: nested under "outbound"
-    # One-way:    flat at top level
-    outbound      = item.get("outbound", {})
-    legs          = outbound.get("legs", item.get("legs", []))
-    layovers      = outbound.get("layovers", item.get("layovers", []))
-    self_transfer = outbound.get("self_transfer",
-                    item.get("self_transfer", False))
-
-    if not isinstance(legs, list):
-        legs = []
-
-    # ── Airlines & departure time ────────────────────────────
-    airlines     = []
+    # ── Airlines & departure time (outbound, first leg) ──────
+    airlines      = []
     airline_codes = []
-    dep_time_str = ""
-    dep_hour     = None
+    dep_hour      = None
+    dep_time_str  = ""
 
-    for i, leg in enumerate(legs):
-        if not isinstance(leg, dict):
-            continue
-
-        al_obj  = leg.get("airline", {})
-        al_name = al_obj.get("name", "") if isinstance(al_obj, dict) else str(al_obj)
-        al_code = al_obj.get("code", "") if isinstance(al_obj, dict) else ""
-
+    for i, leg in enumerate(out_legs):
+        al_name = leg.airline.value
+        al_code = leg.airline.name
         if al_name and al_name not in airlines:
             airlines.append(al_name)
-        if al_code and al_code.upper() not in airline_codes:
-            airline_codes.append(al_code.upper())
-
+        if al_code and al_code not in airline_codes:
+            airline_codes.append(al_code)
         if i == 0:
-            raw_dt = leg.get("departure_time", "")
-            if raw_dt:
-                try:
-                    dt           = datetime.fromisoformat(raw_dt)
-                    dep_hour     = dt.hour
-                    dep_time_str = dt.strftime("%H:%M")
-                except Exception:
-                    dep_hour     = _extract_hour(raw_dt)
-                    dep_time_str = raw_dt[:5] if len(raw_dt) >= 5 else raw_dt
-
-    # ── Durations ────────────────────────────────────────────
-    outbound_dur = outbound.get("duration", duration_min) if outbound else duration_min
-    return_obj   = item.get("return", {})
-    return_dur   = return_obj.get("duration", 0) if isinstance(return_obj, dict) else 0
-    if not outbound:
-        outbound_dur = duration_min
-        return_dur   = 0
+            dep_hour     = leg.departure_datetime.hour
+            dep_time_str = leg.departure_datetime.strftime("%H:%M")
 
     # ── Max layover (outbound only) ──────────────────────────
-    max_layover_min = 0
-    for lay in layovers:
-        if isinstance(lay, dict):
-            max_layover_min = max(max_layover_min, int(lay.get("duration", 0)))
+    max_layover_min = max((lay.duration for lay in out_lays), default=0)
 
     # ── Arrival/departure times for tree display ─────────────
-    # Outbound arrival at destination (last outbound leg)
     outbound_arr_time = ""
-    if legs:
-        last = legs[-1]
-        if isinstance(last, dict):
-            ref = legs[0].get("departure_time", "") if isinstance(legs[0], dict) else ""
-            outbound_arr_time = _time_offset(last.get("arrival_time", ""), ref)
+    if out_legs:
+        outbound_arr_time = _time_offset(out_legs[-1].arrival_datetime,
+                                         out_legs[0].departure_datetime)
 
-    # Return departure from destination & arrival back home
     return_dep_time = ""
     return_arr_time = ""
-    ret_legs_raw    = (return_obj.get("legs", [])
-                       if isinstance(return_obj, dict) else [])
-    ret_layovers    = (return_obj.get("layovers", [])
-                       if isinstance(return_obj, dict) else [])
-    if ret_legs_raw and isinstance(ret_legs_raw[0], dict):
-        ret_ref = ret_legs_raw[0].get("departure_time", "")
-        try:
-            return_dep_time = datetime.fromisoformat(ret_ref).strftime("%H:%M")
-        except Exception:
-            return_dep_time = ret_ref[11:16] if len(ret_ref) >= 16 else ""
-        if isinstance(ret_legs_raw[-1], dict):
-            return_arr_time = _time_offset(
-                ret_legs_raw[-1].get("arrival_time", ""), ret_ref
-            )
+    if ret_legs:
+        ret_ref         = ret_legs[0].departure_datetime
+        return_dep_time = ret_ref.strftime("%H:%M")
+        return_arr_time = _time_offset(ret_legs[-1].arrival_datetime, ret_ref)
 
     # ── Leg details for dashboard tree ───────────────────────
-    outbound_legs = _extract_legs(legs, layovers)
-    return_legs   = _extract_legs(ret_legs_raw, ret_layovers)
+    outbound_legs = _extract_legs(out_legs, out_lays)
+    return_legs   = _extract_legs(ret_legs, ret_lays)
 
     return {
         "price":                  round(price, 2),
@@ -377,42 +304,14 @@ def _parse_one(item: dict) -> dict | None:
         "return_arr_time":        return_arr_time,
         "outbound_legs":          outbound_legs,
         "return_legs":            return_legs,
-        "self_transfer":          bool(self_transfer),
-        "raw":                    item,
+        "self_transfer":          bool(outbound.self_transfer),
     }
-
-
-def _parse_duration(v) -> int:
-    """Convert duration value to minutes (int)."""
-    if isinstance(v, (int, float)):
-        return int(v)
-    if isinstance(v, str):
-        v = v.strip()
-        mins = 0
-        import re
-        for m in re.finditer(r"(\d+)\s*h", v):
-            mins += int(m.group(1)) * 60
-        for m in re.finditer(r"(\d+)\s*m", v):
-            mins += int(m.group(1))
-        return mins
-    return 0
 
 
 def _minutes_to_hm(m: int) -> str:
     if not m:
         return "?"
     return f"{m // 60}h {m % 60:02d}m"
-
-
-def _extract_hour(time_str: str) -> int | None:
-    """Extract hour (0-23) from a time string like '10:40' or '2027-02-15 22:10'."""
-    if not time_str:
-        return None
-    try:
-        part = time_str.strip().split()[-1] if " " in time_str else time_str
-        return int(part.split(":")[0])
-    except Exception:
-        return None
 
 
 # ─────────────────────────────────────────────────────────────
@@ -495,7 +394,7 @@ def _return_dates(departure: str, route: dict) -> list[str]:
     return sorted(set(candidates))
 
 
-def search_route(route: dict, fli_cmd: list[str]) -> list[dict]:
+def search_route(route: dict, search: SearchFlights) -> list[dict]:
     """
     Sample departure dates across the window and return all flight
     options found, enriched with outbound/return date info.
@@ -506,7 +405,8 @@ def search_route(route: dict, fli_cmd: list[str]) -> list[dict]:
         departure_days=route.get("departure_days") or None
     )
 
-    dw = route.get("departure_window", {})
+    dw     = route.get("departure_window", {})
+    top_n  = route.get("top_n", 20)
     results = []
 
     for dep in dep_dates:
@@ -516,9 +416,9 @@ def search_route(route: dict, fli_cmd: list[str]) -> list[dict]:
             if nights < 1:
                 continue
 
-            cmd     = _build_cmd(fli_cmd, route, dep, ret)
             label   = f"{route['id']}_{dep}_{ret}"
-            flights = _run_fli(cmd, debug_label=label if DEBUG else "")
+            flights = _run_search(search, route, dep, ret, top_n,
+                                  debug_label=label if DEBUG else "")
 
             if not flights:
                 log.info(f"  {dep} → {ret}: no results")
@@ -962,60 +862,43 @@ def dispatch(content: dict, cfg: dict, route: dict):
     if ch["ntfy"]:     send_ntfy(content,     gn.get("ntfy", {}), route["id"], rn)
 
 
-def _time_offset(iso_str: str, ref_iso: str) -> str:
-    """Return HH:MM from iso_str, appending +N if arrival is N days after ref."""
-    if not iso_str:
+def _time_offset(dt: datetime, ref: datetime) -> str:
+    """Return HH:MM for dt, appending +N if dt's date is N days after ref's date."""
+    if dt is None:
         return ""
-    try:
-        dt  = datetime.fromisoformat(iso_str)
-        ref = datetime.fromisoformat(ref_iso).date() if ref_iso else dt.date()
-        t   = dt.strftime("%H:%M")
-        diff = (dt.date() - ref).days
-        return t + (f"+{diff}" if diff > 0 else "")
-    except Exception:
-        return iso_str[11:16] if len(iso_str) >= 16 else iso_str[:5]
+    t    = dt.strftime("%H:%M")
+    diff = (dt.date() - ref.date()).days
+    return t + (f"+{diff}" if diff > 0 else "")
 
 
-def _extract_legs(legs_raw: list, layovers_raw: list) -> list:
-    """Convert raw fli leg list into clean display-ready dicts."""
-    if not legs_raw:
+def _extract_legs(legs: list, layovers: list) -> list:
+    """Convert a list of fli FlightLeg/Layover models into display-ready dicts."""
+    if not legs:
         return []
-    ref_iso = (legs_raw[0].get("departure_time", "")
-               if isinstance(legs_raw[0], dict) else "")
-    result  = []
-    for i, leg in enumerate(legs_raw):
-        if not isinstance(leg, dict):
-            continue
-        al      = leg.get("airline", {})
-        dep_ap  = leg.get("departure_airport", {})
-        arr_ap  = leg.get("arrival_airport",   {})
-        dep_iso = leg.get("departure_time", "")
-        arr_iso = leg.get("arrival_time",   "")
-        al_code = al.get("code", "") if isinstance(al, dict) else ""
-
+    ref = legs[0].departure_datetime
+    result = []
+    for i, leg in enumerate(legs):
         entry = {
-            "dep_code":     dep_ap.get("code", "") if isinstance(dep_ap, dict) else "",
-            "dep_name":     dep_ap.get("name", "") if isinstance(dep_ap, dict) else "",
-            "dep_time":     _time_offset(dep_iso, ref_iso),
-            "arr_code":     arr_ap.get("code", "") if isinstance(arr_ap, dict) else "",
-            "arr_name":     arr_ap.get("name", "") if isinstance(arr_ap, dict) else "",
-            "arr_time":     _time_offset(arr_iso, ref_iso),
-            "airline":      al.get("name", "") if isinstance(al, dict) else "",
-            "flight_num":   f"{al_code}{leg.get('flight_number', '')}",
-            "aircraft":     leg.get("aircraft", ""),
-            "duration_str": _minutes_to_hm(leg.get("duration", 0)),
+            "dep_code":     leg.departure_airport.name,
+            "dep_name":     leg.departure_airport_name or leg.departure_airport.value,
+            "dep_time":     _time_offset(leg.departure_datetime, ref),
+            "arr_code":     leg.arrival_airport.name,
+            "arr_name":     leg.arrival_airport_name or leg.arrival_airport.value,
+            "arr_time":     _time_offset(leg.arrival_datetime, ref),
+            "airline":      leg.airline.value,
+            "flight_num":   f"{leg.airline.name}{leg.flight_number}",
+            "aircraft":     leg.aircraft or "",
+            "duration_str": _minutes_to_hm(leg.duration),
         }
         # Layover after this leg
-        if isinstance(layovers_raw, list) and i < len(layovers_raw):
-            lay    = layovers_raw[i]
-            lay_ap = lay.get("airport", {}) if isinstance(lay, dict) else {}
-            if isinstance(lay, dict):
-                entry["layover_after"] = {
-                    "code":         lay_ap.get("code", "") if isinstance(lay_ap, dict) else "",
-                    "name":         lay_ap.get("name", "") if isinstance(lay_ap, dict) else "",
-                    "duration_str": _minutes_to_hm(lay.get("duration", 0)),
-                    "overnight":    lay.get("overnight", False),
-                }
+        if i < len(layovers):
+            lay = layovers[i]
+            entry["layover_after"] = {
+                "code":         lay.airport.name,
+                "name":         lay.airport_name or lay.airport.value,
+                "duration_str": _minutes_to_hm(lay.duration),
+                "overnight":    lay.overnight,
+            }
         result.append(entry)
     return result
 
@@ -1357,14 +1240,14 @@ routes.forEach(r=>{{
 # ─────────────────────────────────────────────────────────────
 # MAIN
 # ─────────────────────────────────────────────────────────────
-def process_route(route: dict, cfg: dict, history: dict, fli_cmd: list[str]):
+def process_route(route: dict, cfg: dict, history: dict, search: SearchFlights):
     rid        = route["id"]
     label      = route.get("label", f"{route['origin']}→{route['destination']}")
     currency   = route.get("currency", "EUR")
     passengers = route.get("passengers", 1)
 
     log.info(f"Searching {label} …")
-    flights = search_route(route, fli_cmd)
+    flights = search_route(route, search)
 
     if not flights:
         log.warning(f"[{rid}] No flights found — skipping")
@@ -1423,13 +1306,7 @@ def run(debug: bool = False, only_route: str = ""):
 
     cfg     = load_config()
     history = load_history()
-
-    try:
-        fli_cmd = find_fli()
-        log.info(f"fli found: {' '.join(fli_cmd)}")
-    except RuntimeError as e:
-        log.error(str(e))
-        sys.exit(1)
+    search  = SearchFlights()
 
     for route in cfg.get("routes", []):
         if only_route and route["id"] != only_route:
@@ -1438,7 +1315,7 @@ def run(debug: bool = False, only_route: str = ""):
         log.info(f"Route: {route.get('label', route['id'])}")
         log.info(f"{'═' * 60}")
         try:
-            process_route(route, cfg, history, fli_cmd)
+            process_route(route, cfg, history, search)
         except Exception as e:
             log.error(f"Error on route {route.get('id','?')}: {e}", exc_info=True)
 
