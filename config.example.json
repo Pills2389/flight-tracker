@@ -1,7 +1,8 @@
 {
-  "_readme": "Copy this to config.json and fill in your values. Keys starting with _ are comments.",
+  "_readme": "Copy this to config.json and fill in your values. Keys starting with _ are comments and are ignored by the tracker. Route #1 below is fully annotated field-by-field — routes #2 and #3 reuse the exact same field order/shape with shorter notes, so you can compare them side by side or copy-paste a block as a starting point.",
 
   "notifications": {
+    "_section": "Global notification channels — enable/configure the ones you want. Each route can also override 'channels' individually below.",
     "email": {
       "enabled": false,
       "smtp_server": "smtp.gmail.com",
@@ -27,12 +28,18 @@
 
   "routes": [
     {
+      "_info": "═══ ROUTE #1 — fully annotated reference. Every field below has a matching _..._note explaining it. Routes #2/#3 use this exact same field order without repeating the notes. ═══",
+
+      "_section_1_identity": "── Identity ──────────────────────────────",
       "id": "otp-akl-2027",
       "label": "Bucharest → Auckland (Feb–Mar 2027)",
 
+      "_section_2_endpoints": "── Where to fly ──────────────────────────",
       "origin": "OTP",
       "destination": "AKL",
-      "_origin_destination_note": "Single IATA code (e.g. 'OTP') or a list of codes to cover a multi-airport city in one search, e.g. 'destination': ['NRT', 'HND'] for Tokyo. fli/Google Flights searches all listed airports together; the dashboard shows the actual airport each option uses.",
+      "_origin_destination_note": "Single IATA code (e.g. 'OTP') or a list of codes to cover a multi-airport city in one search, e.g. 'destination': ['NRT', 'HND'] for Tokyo. fli/Google Flights searches all listed airports together; the dashboard shows the actual airport each option uses. To do an open-jaw / multi-city trip (fly into one city, out of another), replace origin/destination with 'trip_type': 'multi_city' + a 'legs' array — see route #3 (otp-hkg-nrt-2027) below.",
+
+      "_section_3_dates": "── Date window ───────────────────────────",
       "date_from": "2027-02-01",
       "date_to": "2027-03-31",
       "max_return_date": null,
@@ -42,8 +49,15 @@
       "flexibility_days": 2,
       "_flexibility_note": "Tries target-2, target, target+2 night durations per departure date",
 
+      "departure_days": [],
+      "_departure_days_note": "Weekdays to depart on e.g. ['wednesday','thursday','friday']. Empty = any day. When set, every matching weekday in the window is checked (daily_samples is ignored).",
+
+      "return_days": [],
+      "_return_days_note": "Weekdays to return on e.g. ['sunday','monday']. Empty = any day within the flexibility window.",
+
+      "_section_4_search": "── Search behaviour ──────────────────────",
       "daily_samples": 8,
-      "_samples_note": "Number of departure dates sampled per daily run, spread evenly across the window",
+      "_samples_note": "Number of departure dates sampled per daily run, spread evenly across the window. Ignored when departure_days is set (every matching weekday is checked instead).",
 
       "top_n": 20,
       "_top_n_note": "How many cheapest outbound options fli expands into return-trip searches. Higher = more complete results (e.g. catches airlines like TK that aren't in the first 5) but more requests per search and a longer run. Default 20.",
@@ -51,12 +65,14 @@
       "search_retries": 3,
       "_search_retries_note": "Google's backend occasionally returns an empty payload for a date pair that has flights (confirmed: identical retried queries return the exact same stable results). Number of extra attempts (2s delay between each) before accepting 'no results' as final. Default 3.",
 
+      "_section_5_query": "── Query parameters ──────────────────────",
       "passengers": 1,
       "currency": "EUR",
       "search_country": "RO",
       "_search_country_note": "ISO country code for Google Flights (gl= param). 'RO' = Romania — makes Google show airlines popular from Bucharest like Turkish. Leave empty for generic results.",
       "search_language": "en",
 
+      "_section_6_airlines": "── Airline / alliance preference ─────────",
       "preferred_airlines": [],
       "_airlines_note": "List of preferred airline IATA codes e.g. ['TK', 'QR']. Empty = no preference.",
 
@@ -66,26 +82,18 @@
       "preferred_airline_mode": "soft",
       "_airline_mode_note": "off = show all, no flagging | soft = show all, flag matching airlines with 🏷️ (alliances not flaggable) | hard = only show flights matching a preferred airline and/or alliance (passed to fli directly)",
 
-      "departure_days": [],
-      "_departure_days_note": "Weekdays to depart on e.g. ['wednesday','thursday','friday']. Empty = any day.",
-
-      "return_days": [],
-      "_return_days_note": "Weekdays to return on e.g. ['sunday','monday']. Empty = any day within flexibility window.",
-
+      "_section_7_filters": "── Flight quality filters ────────────────",
       "max_stopovers": 2,
       "_stopovers_note": "Maximum number of stops. Remove or set null to allow any.",
 
-      "max_outbound_duration_hours": 22,
-      "_outbound_duration_note": "Max outbound flight duration in hours. Remove or set null to allow any.",
-
-      "max_return_duration_hours": 22,
-      "_return_duration_note": "Max return flight duration in hours. Remove or set null to allow any.",
-
-      "max_per_airline": 3,
-      "_max_per_airline_note": "Max options shown per airline group in the dashboard. Default 3.",
-
       "max_layover_hours": 8,
       "_layover_note": "Max single layover duration in hours. Remove or set null to allow any.",
+
+      "max_outbound_duration_hours": 22,
+      "_outbound_duration_note": "Max outbound flight duration in hours (filtered client-side). Remove or set null to allow any.",
+
+      "max_return_duration_hours": 22,
+      "_return_duration_note": "Max return flight duration in hours (filtered client-side). Remove or set null to allow any.",
 
       "exclude_self_transfer": true,
       "_self_transfer_note": "true = only show protected single-ticket itineraries. false = also show self-transfer (you buy 2 separate tickets, no protection if you miss connection).",
@@ -97,10 +105,15 @@
         "enabled": true,
         "from": "20:00",
         "to": "23:59",
-        "_mode_note": "hard = exclude flights outside window | soft = show all but flag preferred ones with ⭐",
-        "mode": "soft"
+        "mode": "soft",
+        "_mode_note": "hard = exclude flights outside window | soft = show all but flag preferred ones with ⭐"
       },
 
+      "_section_8_dashboard": "── Dashboard ──────────────────────────────",
+      "max_per_airline": 3,
+      "_max_per_airline_note": "Max options shown per airline group in the dashboard. Default 3.",
+
+      "_section_9_alerts": "── Price alerts & notifications ──────────",
       "max_price_alert": 1500,
       "_price_note": "Sends an immediate alert when price drops below this. Set to null to disable.",
 
@@ -130,24 +143,47 @@
     },
 
     {
-      "_info": "Example second route",
+      "_info": "═══ ROUTE #2 — short-haul example, same field order/shape as route #1 above (see it for full notes on every field). ═══",
+
+      "_section_1_identity": "── Identity ──────────────────────────────",
       "id": "otp-lhr-2027",
       "label": "Bucharest → London (Summer 2027)",
 
+      "_section_2_endpoints": "── Where to fly ──────────────────────────",
       "origin": "OTP",
       "destination": "LHR",
+
+      "_section_3_dates": "── Date window ───────────────────────────",
       "date_from": "2027-06-01",
       "date_to": "2027-08-31",
-
+      "max_return_date": null,
       "target_nights": 7,
       "flexibility_days": 2,
+      "departure_days": [],
+      "return_days": [],
+
+      "_section_4_search": "── Search behaviour ──────────────────────",
       "daily_samples": 6,
+      "top_n": 20,
+      "search_retries": 3,
+
+      "_section_5_query": "── Query parameters ──────────────────────",
       "passengers": 1,
       "currency": "EUR",
+      "search_country": "RO",
+      "search_language": "en",
 
-      "preferred_airline": "",
+      "_section_6_airlines": "── Airline / alliance preference ─────────",
+      "preferred_airlines": [],
+      "preferred_alliances": [],
+      "preferred_airline_mode": "off",
+
+      "_section_7_filters": "── Flight quality filters ────────────────",
       "max_stopovers": 1,
       "max_layover_hours": 4,
+      "max_outbound_duration_hours": null,
+      "max_return_duration_hours": null,
+      "exclude_self_transfer": true,
       "bags": 0,
 
       "departure_window": {
@@ -157,6 +193,10 @@
         "mode": "soft"
       },
 
+      "_section_8_dashboard": "── Dashboard ──────────────────────────────",
+      "max_per_airline": 3,
+
+      "_section_9_alerts": "── Price alerts & notifications ──────────",
       "max_price_alert": 150,
 
       "notifications": {
@@ -173,10 +213,13 @@
     },
 
     {
-      "_info": "Example multi-city (open-jaw) route — fly into one city, out of another. Priced as ONE itinerary by Google (much cheaper than booking the two one-ways separately).",
+      "_info": "═══ ROUTE #3 — open-jaw / multi-city example: fly into one city, out of another, priced as ONE itinerary by Google (much cheaper than booking the two one-ways separately). Same field order/shape as routes #1-2 above, except 'origin'/'destination' are replaced by 'trip_type' + 'legs' — see _trip_type_note and _legs_note below. ═══",
+
+      "_section_1_identity": "── Identity ──────────────────────────────",
       "id": "otp-hkg-nrt-2027",
       "label": "Bucharest → Hong Kong / Tokyo → Bucharest (open-jaw, 2027)",
 
+      "_section_2_endpoints": "── Where to fly (open-jaw) ───────────────",
       "trip_type": "multi_city",
       "_trip_type_note": "'multi_city' switches this route to fli's TripType.MULTI_CITY and requires a 'legs' array instead of top-level origin/destination. Currently supports exactly 2 legs (open-jaw: out + back via different cities).",
 
@@ -186,41 +229,46 @@
       ],
       "_legs_note": "Exactly 2 legs: [outbound, inbound]. Each is {origin, destination} — single IATA code or list of codes (multi-airport city) just like a round-trip route's origin/destination. They don't have to match: leg 1 flies OTP→HKG, leg 2 flies NRT→OTP — Google prices the whole open-jaw together.",
 
+      "_section_3_dates": "── Date window ───────────────────────────",
+      "_date_note": "date_from/date_to/departure_days/daily_samples sample leg 1's departure date, exactly like a round-trip route's outbound. target_nights/flexibility_days/return_days/max_return_date then generate leg 2's departure date relative to leg 1 — same logic as a round-trip's return date, just read as 'days until the journey home' rather than 'nights at the destination'.",
       "date_from": "2027-04-01",
       "date_to": "2027-04-30",
-      "_date_note": "Window for leg 1's departure date (same meaning as a round-trip route).",
       "max_return_date": null,
-
       "target_nights": 21,
       "flexibility_days": 3,
-      "_target_nights_note": "For multi-city this is the gap between leg 1's departure and leg 2's departure (i.e. total trip length, not 'nights at one destination') — reuses the same target/flexibility/return_days date logic as round-trip routes.",
+      "departure_days": [],
+      "return_days": [],
 
+      "_section_4_search": "── Search behaviour ──────────────────────",
       "daily_samples": 6,
       "top_n": 20,
       "search_retries": 3,
 
+      "_section_5_query": "── Query parameters ──────────────────────",
       "passengers": 1,
       "currency": "EUR",
       "search_country": "RO",
       "search_language": "en",
 
+      "_section_6_airlines": "── Airline / alliance preference ─────────",
       "preferred_airlines": [],
       "preferred_alliances": [],
       "preferred_airline_mode": "soft",
 
-      "departure_days": [],
-      "return_days": [],
-
+      "_section_7_filters": "── Flight quality filters ────────────────",
       "max_stopovers": 2,
+      "max_layover_hours": 8,
       "max_outbound_duration_hours": 24,
       "max_return_duration_hours": 24,
-      "max_per_airline": 3,
-      "max_layover_hours": 8,
       "exclude_self_transfer": true,
       "bags": 0,
 
       "departure_window": { "enabled": false },
 
+      "_section_8_dashboard": "── Dashboard ──────────────────────────────",
+      "max_per_airline": 3,
+
+      "_section_9_alerts": "── Price alerts & notifications ──────────",
       "max_price_alert": 1300,
 
       "notifications": {
