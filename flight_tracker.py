@@ -464,6 +464,11 @@ def _run_search(search: SearchFlights, route: dict, dates: list[str],
         try:
             f = _parse_pair(outbound, return_flight, is_multi_city=is_multi_city)
             if f:
+                # Kept around (and stripped before serialization, see process_route's
+                # top_flights build) so _filter_airline_direct can later call
+                # search.get_booking_options() on this exact itinerary without
+                # re-running the search.
+                f["raw"] = (outbound, return_flight)
                 out.append(f)
         except Exception as e:
             log.debug(f"Skipping unparseable flight: {e}")
@@ -643,6 +648,76 @@ def _return_dates(departure: str, route: dict) -> list[str]:
     return sorted(set(candidates))
 
 
+def _filter_airline_direct(flights: list[dict], route: dict, search: SearchFlights,
+                           limit: int = 30, max_checks: int = 60) -> list[dict]:
+    """Drop itineraries that aren't bookable directly with an airline (only
+    agency/OTA fares), walking the price-sorted candidates and keeping the
+    cheapest `limit` survivors — agency-only fares are simply skipped, so the
+    next-cheapest candidate naturally fills their slot.
+
+    Single-carrier round trips are assumed airline-direct without spending an
+    API call — fli has no airline→alliance membership data to do better than
+    "same airline" cheaply (see CLAUDE.md "Why alliances can't be flagged"),
+    and a single carrier covering every leg is overwhelmingly likely to be
+    sellable on that airline's own site. Multi-carrier itineraries (the
+    "Frankenstein" combos OTAs assemble from interline fares) are checked for
+    real via fli's GetBookingResults — capped at `max_checks` since each is a
+    separate API call.
+    """
+    kept   = []
+    checks = 0
+    for f in flights:
+        if len(kept) >= limit:
+            break
+
+        raw = f.get("raw")
+        if raw is None:
+            kept.append(f)
+            continue
+
+        codes = {leg.airline.name for leg in (raw[0].legs or [])} | \
+                {leg.airline.name for leg in (raw[1].legs or [])}
+
+        if len(codes) <= 1:
+            f["airline_direct"] = True
+        elif checks >= max_checks:
+            continue  # over budget — skip rather than guess
+        else:
+            checks += 1
+            try:
+                filters = _build_filters(route, [f["outbound_date"], f["return_date"]])
+                token   = raw[-1].booking_token or raw[0].booking_token
+                options = search.get_booking_options(
+                    raw, filters,
+                    currency=route.get("currency", "EUR"),
+                    language=route.get("search_language") or None,
+                    country=route.get("search_country") or None,
+                    booking_token=token,
+                )
+                direct = next((o for o in options if o.is_airline_direct), None)
+                f["airline_direct"] = direct is not None
+                f["vendor"] = direct.vendor_name if direct else (
+                    options[0].vendor_name if options else None)
+            except Exception as e:
+                # Fail open — a flaky booking-options call shouldn't disqualify
+                # an otherwise-good fare.
+                log.debug(f"  get_booking_options failed for {f.get('airline')}: {e}")
+                f["airline_direct"] = True
+
+        if f["airline_direct"]:
+            kept.append(f)
+        elif DEBUG:
+            log.info(f"  [DEBUG] Dropped agency-only fare: {f['price']:.0f} "
+                     f"{route.get('currency','EUR')} {f.get('airline')} "
+                     f"(vendor: {f.get('vendor','?')})")
+
+    if DEBUG and checks:
+        log.info(f"  [DEBUG] Airline-direct check: {checks} multi-carrier "
+                 f"itineraries verified via get_booking_options")
+
+    return kept
+
+
 def search_route(route: dict, search: SearchFlights) -> tuple[list[dict], dict]:
     """
     Sample departure dates across the window and return all flight
@@ -774,6 +849,15 @@ def search_route(route: dict, search: SearchFlights) -> tuple[list[dict], dict]:
         results = [f for f in results if f.get("preferred_airline_match")]
         log.info(f"  Hard airline filter ({', '.join(preferred_list)}): {before} → {len(results)} flights")
 
+    # Drop agency/OTA-only fares by default (e.g. multi-carrier interline
+    # combos you can't manage directly with an airline if something goes
+    # wrong) — set allow_agency_fares: true on a route to skip this and see
+    # them too. See _filter_airline_direct.
+    if not route.get("allow_agency_fares"):
+        before  = len(results)
+        results = _filter_airline_direct(results, route, search)
+        log.info(f"  Airline-direct filter: {before} → {len(results)} flights")
+
     return results, api_stats
 
 
@@ -808,11 +892,17 @@ def add_entry(history: dict, rid: str, label: str, entry: dict):
             "last_weekly_summary": None,
             "last_alert_date": None,
         }
-    history[rid]["entries"] = [
-        e for e in history[rid]["entries"] if e["date"] != _today()
+    entries = history[rid]["entries"]
+    # Older entries are never read back beyond date/best_price (see analyze_trend
+    # and the dashboard's best-ever/chart calcs) — drop their top_flights/leg data
+    # so history doesn't carry ~30 full itineraries per route per day forever.
+    entries = [
+        {"date": e["date"], "best_price": e["best_price"]}
+        for e in entries
+        if e["date"] != _today()
     ]
-    history[rid]["entries"].append(entry)
-    history[rid]["entries"] = history[rid]["entries"][-180:]
+    entries.append(entry)
+    history[rid]["entries"] = entries[-180:]
 
 
 def recent_entries(history: dict, rid: str, days: int = 30) -> list:

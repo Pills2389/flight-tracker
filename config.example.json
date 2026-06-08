@@ -109,6 +109,8 @@
       "exclude_self_transfer": true,
       "_self_transfer_note": "true = only show protected single-ticket itineraries. false = also show self-transfer (you buy 2 separate tickets, no protection if you miss connection).",
 
+      "_allow_agency_fares_note": "Itineraries that aren't bookable directly through an airline (only sold by agencies/OTAs that assemble multi-carrier interline combos — no one to call but the agency if something goes wrong) are dropped by default. Set 'allow_agency_fares': true on a route to see them too. Single-carrier round trips are assumed airline-direct for free; multi-carrier ones are verified via an extra fli get_booking_options() call each (capped per route per run).",
+
       "bags": 0,
       "_bags_note": "Checked bags to include in price filter (0, 1, or 2). Long-haul usually includes bags.",
 
