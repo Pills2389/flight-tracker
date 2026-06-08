@@ -1759,7 +1759,7 @@ def generate_dashboard(routes: list, history: dict) -> str:
             trend_sig = trend["signal"]
             tc        = _tc(trend["direction"])
 
-            top = last.get("top_flights", [])[:30]  # enough for grouping
+            top = last.get("top_flights", [])[:route.get("top_flights_count", 30)]
             preferred_airlines = route.get("preferred_airlines", [])
             max_per_airline    = route.get("max_per_airline", 3)
             groups             = _group_flights(top, max_per_group=max_per_airline)
@@ -1931,6 +1931,27 @@ routes.forEach(r=>{{
 </body></html>"""
 
 
+def _select_top_flights(flights: list, limit: int, max_per_airline: int) -> list:
+    """
+    Pick up to `limit` cheapest flights (already price-sorted) while capping
+    each airline-combination at `max_per_airline`. Without the cap, a single
+    dominant carrier (e.g. lots of cheap Turkish Airlines combos) can fill
+    the entire stored/displayed set, crowding out pricier airlines that would
+    otherwise have a chance to surface in `top_flights` and the dashboard.
+    """
+    selected = []
+    counts: dict[str, int] = {}
+    for f in flights:
+        key = "+".join(sorted(f.get("airline_codes", []))) or f.get("airline", "Unknown")
+        if counts.get(key, 0) >= max_per_airline:
+            continue
+        selected.append(f)
+        counts[key] = counts.get(key, 0) + 1
+        if len(selected) >= limit:
+            break
+    return selected
+
+
 # ─────────────────────────────────────────────────────────────
 # MAIN
 # ─────────────────────────────────────────────────────────────
@@ -1960,6 +1981,10 @@ def process_route(route: dict, cfg: dict, history: dict, search: SearchFlights):
              f"({flights[0]['outbound_date']} → {flights[0]['return_date']}, "
              f"{flights[0]['nights']}n, {flights[0]['airline']})")
 
+    top_flights_count = route.get("top_flights_count", 30)
+    max_per_airline   = route.get("max_per_airline", 3)
+    top_flights       = _select_top_flights(flights, top_flights_count, max_per_airline)
+
     entry = {
         "date":         _today(),
         "best_price":   best_price,
@@ -1972,7 +1997,7 @@ def process_route(route: dict, cfg: dict, history: dict, search: SearchFlights):
         "stops":        flights[0]["stops"],
         "duration_str": flights[0]["duration_str"],
         "top_flights":  [{k: v for k, v in f.items() if k != "raw"}
-                         for f in flights[:30]],
+                         for f in top_flights],
     }
     add_entry(history, rid, label, entry)
 

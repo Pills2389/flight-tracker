@@ -133,6 +133,7 @@ generate_dashboard()          Writes docs/index.html
     "exclude_self_transfer":      true,
     "bags":                       0,
     "max_per_airline":            3,
+    "top_flights_count":          30,
     "departure_window": { "enabled": true, "from": "20:00", "to": "23:59", "mode": "soft" },
     "max_price_alert":            1500,
     "notifications": {
@@ -332,8 +333,10 @@ any of these areas, since the reasoning isn't obvious from the code alone:
 - **Duration filtering is client-side** — `max_outbound/return_duration_hours`
   aren't passed to fli (it only supports one combined `max_duration`); they're
   applied after the API call in `search_route()`.
-- **`price_history.json` size** — up to 30 flights/route/day, 180 days, full
-  leg data for the dashboard tree.
+- **`price_history.json` size** — up to `top_flights_count` flights/route/day
+  (default 30, capped at `max_per_airline` per airline combination — see
+  `_select_top_flights()` — so one cheap dominant carrier can't crowd out
+  pricier ones), 180 days, full leg data for the dashboard tree.
 - **Windows encoding** — all file opens use `encoding="utf-8"` explicitly
   (route labels contain `→`, U+2192, which breaks cp1252).
 

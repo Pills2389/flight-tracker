@@ -156,6 +156,8 @@
       "_section_8_dashboard": "── Dashboard ──────────────────────────────",
       "max_per_airline": 3,
       "_max_per_airline_note": "Max options shown per airline group in the dashboard. Default 3.",
+      "top_flights_count": 30,
+      "_top_flights_count_note": "How many of the cheapest flights to keep in price_history.json's top_flights (and thus the dashboard) per day. Selection is capped at max_per_airline per airline combination while filling this list, so a single dominant carrier can't crowd out pricier ones — see _select_top_flights(). Default 30.",
 
       "_section_9_alerts": "── Price alerts & notifications ──────────",
       "max_price_alert": 1500,
@@ -246,6 +248,7 @@
 
       "_section_8_dashboard": "── Dashboard ──────────────────────────────",
       "max_per_airline": 3,
+      "top_flights_count": 30,
 
       "_section_9_alerts": "── Price alerts & notifications ──────────",
       "max_price_alert": 150,
@@ -318,6 +321,7 @@
 
       "_section_8_dashboard": "── Dashboard ──────────────────────────────",
       "max_per_airline": 3,
+      "top_flights_count": 30,
 
       "_section_9_alerts": "── Price alerts & notifications ──────────",
       "max_price_alert": 1300,
