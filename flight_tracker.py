@@ -66,16 +66,38 @@ DAYS_OF_WEEK   = ["monday","tuesday","wednesday","thursday","friday","saturday",
 # ─────────────────────────────────────────────────────────────
 # CONFIG
 # ─────────────────────────────────────────────────────────────
+def _merge_route_defaults(route: dict, defaults: dict) -> dict:
+    """
+    Fill in a route's missing fields from route_defaults — the route's own values always win.
+    Dicts are merged key-by-key (recursively) rather than replaced wholesale, so a route can
+    override e.g. just notifications.channels.whatsapp while still inheriting email/ntfy from
+    the defaults; lists and scalars are replaced outright when the route specifies them.
+    """
+    merged = dict(defaults)
+    for key, val in route.items():
+        if isinstance(val, dict) and isinstance(merged.get(key), dict):
+            merged[key] = _merge_route_defaults(val, merged[key])
+        else:
+            merged[key] = val
+    return merged
+
+
 def load_config() -> dict:
     env = os.environ.get("FLIGHT_CONFIG")
     if env:
         log.info("Loading config from FLIGHT_CONFIG env var")
-        return json.loads(env)
-    if Path("config.json").exists():
+        config = json.loads(env)
+    elif Path("config.json").exists():
         with open("config.json", encoding="utf-8") as f:
-            return json.load(f)
-    log.error("No config found. Copy config.example.json → config.json")
-    sys.exit(1)
+            config = json.load(f)
+    else:
+        log.error("No config found. Copy config.example.json → config.json")
+        sys.exit(1)
+
+    defaults = config.get("route_defaults")
+    if defaults:
+        config["routes"] = [_merge_route_defaults(r, defaults) for r in config["routes"]]
+    return config
 
 
 # ─────────────────────────────────────────────────────────────

@@ -1,5 +1,5 @@
 {
-  "_readme": "Copy this to config.json and fill in your values. Keys starting with _ are comments and are ignored by the tracker. Route #1 below is fully annotated field-by-field — routes #2 and #3 reuse the exact same field order/shape with shorter notes, so you can compare them side by side or copy-paste a block as a starting point.",
+  "_readme": "Copy this to config.json and fill in your values. Keys starting with _ are comments and are ignored by the tracker. Route #1 below is fully annotated field-by-field — routes #2 and #3 reuse the exact same field order/shape with shorter notes, so you can compare them side by side or copy-paste a block as a starting point. They're written out in full here for teaching purposes; in your own config.json you'd normally lean on 'route_defaults' (see below) and only list fields that should differ from it, which keeps each route block much shorter once you have more than one or two.",
 
   "_dashboard_url_note": "Optional. Your live GitHub Pages dashboard URL — when set, email and WhatsApp notifications include a link straight to the route's card (e.g. '<dashboard_url>#route-<route id>') so you can tap through for the full collapsible tree and price chart that don't fit in a text message.",
   "dashboard_url": "https://YOUR_GITHUB_USERNAME.github.io/YOUR_REPO_NAME/",
@@ -35,9 +35,40 @@
     }
   },
 
+  "_route_defaults_note": "Optional. If present, every entry in routes[] is merged on top of this object before use — the route's own values always win, dicts (departure_window, notifications.channels, notifications.weekly_summary.channels) are merged key-by-key rather than replaced wholesale, and lists/scalars are replaced outright when the route specifies them. In practice this means a route only needs to list its identity (id/label/enabled), endpoints (origin/destination or trip_type/legs), dates, max_price_alert, and whichever of the fields below it wants to differ on — everything else is inherited from here. The 3 routes below spell every field out in full for teaching purposes; once route_defaults is doing its job, a typical route block shrinks from ~100 lines to ~25.",
+  "route_defaults": {
+    "flexibility_days": 2,
+    "departure_days": [],
+    "return_days": [],
+    "daily_samples": 8,
+    "top_n": 20,
+    "search_retries": 3,
+    "passengers": 1,
+    "currency": "EUR",
+    "search_country": "RO",
+    "search_language": "en",
+    "preferred_airlines": [],
+    "preferred_alliances": [],
+    "preferred_airline_mode": "soft",
+    "max_stopovers": 2,
+    "max_layover_hours": 8,
+    "max_outbound_duration_hours": 22,
+    "max_return_duration_hours": 22,
+    "exclude_self_transfer": true,
+    "bags": 0,
+    "departure_window": { "enabled": true, "from": "20:00", "to": "23:59", "mode": "soft" },
+    "max_per_airline": 3,
+    "notifications": {
+      "daily": { "enabled": true },
+      "price_alert": { "enabled": true },
+      "weekly_summary": { "enabled": false, "day": "sunday" },
+      "channels": { "email": true, "whatsapp": true, "ntfy": true }
+    }
+  },
+
   "routes": [
     {
-      "_info": "═══ ROUTE #1 — fully annotated reference. Every field below has a matching _..._note explaining it. Routes #2/#3 use this exact same field order without repeating the notes. ═══",
+      "_info": "═══ ROUTE #1 — fully annotated reference. Every field below has a matching _..._note explaining it. Routes #2/#3 use this exact same field order without repeating the notes. NOTE: every field here happens to also be documented in route_defaults above — this route spells them all out anyway so you can see what each one does and means; your own routes don't need to repeat a field unless its value should differ from route_defaults. ═══",
 
       "_section_1_identity": "── Identity ──────────────────────────────",
       "id": "otp-akl-2027",

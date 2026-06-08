@@ -102,6 +102,7 @@ generate_dashboard()          Writes docs/index.html
     "ntfy":     { "enabled", "topic", "server", "receive_error_report" }
   },
   "_receive_error_report_note": "Opt-in flag for the batched end-of-run 🔴 error report (see 'Error reports' below) — same property name on all three channels (email/ntfy are single-recipient today, whatsapp is a per-recipient list) so the shape stays consistent if email/ntfy ever grow multi-recipient too. Defaults to false everywhere; independent of the per-route notification routing.",
+  "route_defaults": "Optional sibling of 'routes' — see 'route_defaults (shared route settings)' below. Holds every field shown in the route schema except identity/endpoints/dates/max_price_alert; a route only needs to repeat a field here if its value should differ.",
   "routes": [{
     "id":                         "unique-id",
     "label":                      "Human readable name",
@@ -146,6 +147,40 @@ generate_dashboard()          Writes docs/index.html
   }]
 }
 ```
+
+---
+
+## `route_defaults` (shared route settings)
+
+`config.json` may carry a top-level `route_defaults` object — every entry in
+`routes[]` is merged on top of it via `_merge_route_defaults()` in
+`load_config()` before the rest of the code ever sees it. The route's own
+values always win; **dicts are merged key-by-key (recursively)**, not replaced
+wholesale, so a route can override e.g. just
+`notifications.channels.whatsapp` while still inheriting `email`/`ntfy` from
+the defaults — lists and scalars are replaced outright when the route
+specifies them.
+
+In practice this means a route block only needs:
+- **Identity**: `id`, `label`, `enabled`
+- **Endpoints**: `origin`/`destination` (or `trip_type`/`legs`)
+- **Dates**: `date_from`, `date_to`, `max_return_date`
+- **Price**: `max_price_alert`
+- …plus *only* whichever search/filter/notification fields it wants to differ
+  on — everything else (search behaviour, filters, `departure_window`,
+  `notifications`, …) is inherited from `route_defaults`.
+
+This is what keeps `config.json` from ballooning as routes are added — see
+`config.json`'s `route_defaults` block for the actual shared values in use,
+and routes like `otp-icn-2026` (overrides `preferred_airlines`) or
+`otp-auk-2027` (overrides most filters for a long-haul profile) for examples
+of partial overrides. `config.example.json` documents the same mechanism via
+`_route_defaults_note` (its 3 example routes spell every field out in full for
+teaching purposes instead of relying on it).
+
+Entirely optional and backward compatible — if `route_defaults` is absent
+(e.g. an older `FLIGHT_CONFIG` secret), the merge is a no-op and routes behave
+exactly as if every field were specified inline.
 
 ---
 
@@ -307,8 +342,11 @@ any of these areas, since the reasoning isn't obvious from the code alone:
 ## Common tasks
 
 **Add a new route:**
-Copy an existing route block in `config.json`, change `id`, `origin`, `destination`,
-dates, and notification settings. Update the `FLIGHT_CONFIG` GitHub Secret.
+Copy an existing route block in `config.json` (or start from scratch — see
+[`route_defaults`](#route_defaults-shared-route-settings) above for what a
+route can omit), set `id`, `label`, endpoints, dates, and `max_price_alert`,
+and add only the search/filter/notification fields that should differ from
+`route_defaults`. Update the `FLIGHT_CONFIG` GitHub Secret.
 
 **Add a new open-jaw / multi-city route:**
 Copy the `otp-hkg-nrt-2027` example block in `config.example.json` — set
