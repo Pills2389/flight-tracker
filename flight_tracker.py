@@ -62,6 +62,23 @@ DASHBOARD_DIR  = Path("docs")
 DASHBOARD_FILE = DASHBOARD_DIR / "index.html"
 DAYS_OF_WEEK   = ["monday","tuesday","wednesday","thursday","friday","saturday","sunday"]
 
+# fli ships its own Airline enum and we can't patch it upstream — these are
+# known-stale display names confirmed against the airline's own site for
+# specific itineraries. IATA code VL used to be the Bulgarian charter "Air
+# VIA"; it was reassigned ~20 months ago to the newly formed "Lufthansa City
+# Airlines" (Air Dolomiti/Lufthansa CityLine merger), and fli's enum still
+# carries the old name for that code. "Lufthansa Cargo" likewise shows up on
+# plain Lufthansa passenger fares. Remap on display only — codes are untouched.
+AIRLINE_NAME_FIXES = {
+    "Lufthansa Cargo":  "Lufthansa",
+    "Air VIA":          "Lufthansa City Airlines",
+}
+
+
+def _fix_airline_name(name: str) -> str:
+    """Correct known-bad airline display names from fli's Airline enum."""
+    return AIRLINE_NAME_FIXES.get(name, name)
+
 
 # ─────────────────────────────────────────────────────────────
 # CONFIG
@@ -536,7 +553,7 @@ def _parse_pair(outbound, return_flight, is_multi_city: bool = False) -> dict | 
     dep_time_str  = ""
 
     for i, leg in enumerate(out_legs):
-        al_name = leg.airline.value
+        al_name = _fix_airline_name(leg.airline.value)
         al_code = leg.airline.name
         if al_name and al_name not in airlines:
             airlines.append(al_name)
@@ -1551,7 +1568,7 @@ def _extract_legs(legs: list, layovers: list) -> list:
             "arr_code":     leg.arrival_airport.name,
             "arr_name":     leg.arrival_airport_name or leg.arrival_airport.value,
             "arr_time":     _time_offset(leg.arrival_datetime, ref),
-            "airline":      leg.airline.value,
+            "airline":      _fix_airline_name(leg.airline.value),
             "flight_num":   f"{leg.airline.name}{leg.flight_number}",
             "aircraft":     leg.aircraft or "",
             "duration_str": _minutes_to_hm(leg.duration),
