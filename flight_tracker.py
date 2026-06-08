@@ -370,7 +370,7 @@ def _rank_outbound(flights: list, route: dict) -> list:
         window_ok = (not check_window) or (
             bool(legs) and fh <= legs[0].departure_datetime.hour <= th
         )
-        penalty = (0 if airline_ok else 1) + (0 if window_ok else 2)
+        penalty = (0 if airline_ok else 2) + (0 if window_ok else 1)
         return (penalty, f.price if f.price is not None else float("inf"))
 
     return sorted(flights, key=tier)
