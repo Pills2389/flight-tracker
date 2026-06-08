@@ -402,8 +402,11 @@ def _rank_outbound(flights: list, route: dict) -> list:
 # FLI — RUN & PARSE
 # ─────────────────────────────────────────────────────────────
 def _run_search(search: SearchFlights, route: dict, dates: list[str],
-                top_n: int, debug_label: str = "") -> list[dict]:
-    """Run one two-leg search via the fli Python API and return parsed flights.
+                top_n: int, debug_label: str = "") -> tuple[list[dict], dict]:
+    """Run one two-leg search via the fli Python API and return parsed flights
+    plus the outbound funnel counts {raw, kept, filtered} from
+    `_prefilter_outbound` (for the per-date-pair summary log line in
+    `search_route`).
 
     `dates` is `[departure, return]` — the travel date for each leg, in the
     same order as the segments `_build_filters` builds (round-trip: same
@@ -429,6 +432,7 @@ def _run_search(search: SearchFlights, route: dict, dates: list[str],
     # so a future fli upgrade reshaping them needs to be re-checked here.
     is_multi_city = _is_multi_city(route)
     results = None
+    outbound_stats = {"raw": 0, "kept": 0, "filtered": 0}
     for attempt in range(retries + 1):
         try:
             outbound = search._fetch_flights(
@@ -442,6 +446,8 @@ def _run_search(search: SearchFlights, route: dict, dates: list[str],
                 results = None
             else:
                 kept, skip_dur, skip_self = _prefilter_outbound(outbound, route, is_multi_city)
+                outbound_stats = {"raw": len(outbound), "kept": len(kept),
+                                  "filtered": skip_dur + skip_self}
                 if DEBUG and (skip_dur or skip_self):
                     log.info(f"  [DEBUG] Outbound pre-filter: {len(outbound)} raw → "
                              f"{skip_dur} too long, {skip_self} self-transfer  → {len(kept)} kept")
@@ -466,7 +472,7 @@ def _run_search(search: SearchFlights, route: dict, dates: list[str],
             time.sleep(2)
 
     if not results:
-        return []
+        return [], outbound_stats
 
     pairs = [r for r in results if isinstance(r, tuple) and len(r) == 2]
 
@@ -494,7 +500,7 @@ def _run_search(search: SearchFlights, route: dict, dates: list[str],
                 out.append(f)
         except Exception as e:
             log.debug(f"Skipping unparseable flight: {e}")
-    return out
+    return out, outbound_stats
 
 
 def _parse_pair(outbound, return_flight, is_multi_city: bool = False) -> dict | None:
@@ -749,7 +755,8 @@ def search_route(route: dict, search: SearchFlights) -> tuple[list[dict], dict]:
     drop to zero signals the API itself going quiet rather than our
     filters getting stricter.
     """
-    if _is_multi_city(route):
+    is_multi_city = _is_multi_city(route)
+    if is_multi_city:
         _route_legs(route)  # validates exactly 2 legs, raises with a clear message otherwise
 
     n_samples    = route.get("daily_samples", 8)
@@ -772,8 +779,8 @@ def search_route(route: dict, search: SearchFlights) -> tuple[list[dict], dict]:
                 continue
 
             label   = f"{route['id']}_{dep}_{ret}"
-            flights = _run_search(search, route, [dep, ret], top_n,
-                                  debug_label=label if DEBUG else "")
+            flights, ob_stats = _run_search(search, route, [dep, ret], top_n,
+                                             debug_label=label if DEBUG else "")
 
             api_stats["pairs_searched"] += 1
             api_stats["raw_flights_total"] += len(flights) if flights else 0
@@ -784,8 +791,15 @@ def search_route(route: dict, search: SearchFlights) -> tuple[list[dict], dict]:
                 log.info(f"  {dep} → {ret}: no results")
                 continue
 
+            currency      = route.get("currency", "EUR")
+            prices        = [f["price"] for f in flights]
+            airline_count = len({code for f in flights for code in f.get("airline_codes", [])})
+            options_label = "multi-city options" if is_multi_city else "round-trip options"
             log.info(f"  {dep} → {ret} ({nights}n): "
-                     f"{len(flights)} options, best {flights[0]['price']:.0f} {route.get('currency','EUR')}")
+                     f"outbound {ob_stats['raw']} → {ob_stats['kept']} kept ({ob_stats['filtered']} filtered) → "
+                     f"{len(flights)} {options_label}, "
+                     f"{min(prices):.0f}–{max(prices):.0f} {currency} across {airline_count} airlines, "
+                     f"best {flights[0]['price']:.0f} {currency}")
 
             # Debug: show airline breakdown before filtering
             if DEBUG:
