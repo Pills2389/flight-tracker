@@ -305,6 +305,77 @@ def _build_filters(route: dict, dates: list[str]) -> FlightSearchFilters:
     )
 
 
+def _prefilter_outbound(flights: list, route: dict, is_multi_city: bool) -> tuple[list, int, int]:
+    """Drop raw outbound FlightResults that search_route()'s client-side
+    filters would discard anyway, before they cost an _expand_multi_leg slot.
+
+    Only filters that are decidable from the outbound leg alone are safe here:
+    `max_outbound_duration_hours` (FlightResult.duration is leg-1's duration
+    for both round-trip and multi-city) and, for round-trip routes only,
+    `exclude_self_transfer` (FlightResult.self_transfer — _parse_pair reads
+    the combined-trip flag off `outbound` for round-trip but off the final/
+    return leg for multi-city, so pre-checking it on the raw outbound would
+    use the wrong segment's flag for multi-city and risk dropping good
+    itineraries).
+
+    Returns (kept, skipped_duration, skipped_self_transfer). `kept` preserves
+    fli's cheapest-first order — _rank_outbound reorders it next.
+    """
+    max_out_h = route.get("max_outbound_duration_hours")
+    exclude_self_transfer = route.get("exclude_self_transfer", True)
+
+    kept, skip_dur, skip_self = [], 0, 0
+    for f in flights:
+        if max_out_h and f.duration > max_out_h * 60:
+            skip_dur += 1
+            continue
+        if not is_multi_city and exclude_self_transfer and f.self_transfer:
+            skip_self += 1
+            continue
+        kept.append(f)
+    return kept, skip_dur, skip_self
+
+
+def _rank_outbound(flights: list, route: dict) -> list:
+    """Reorder surviving outbound candidates so _expand_multi_leg's top_n
+    slots go to the flights this route is actually configured to prefer —
+    cheapest within each preference tier — instead of blindly cheapest-overall.
+    Best price isn't everything; an off-hours flight on a non-preferred
+    carrier costs time even when it's a few EUR cheaper.
+
+    Tiers (lower = expanded first): 0 = matches preferred airline/alliance AND
+    departure window, 1 = airline only, 2 = window only, 3 = neither. Routes
+    with neither preference configured put every candidate in tier 0, so the
+    sort collapses back to plain price — unchanged behaviour for those routes.
+
+    Mirrors the match logic search_route() already computes post-hoc as
+    `preferred_airline_match` / `preferred_time`, just evaluated on the raw
+    FlightResult one step earlier (airline codes off `leg.airline.name`,
+    departure hour off `legs[0].departure_datetime`).
+    """
+    preferred = _get_preferred_airlines(route)
+    al_mode   = route.get("preferred_airline_mode", "soft")
+    check_airline = bool(preferred) and al_mode != "off"
+
+    dw = route.get("departure_window", {})
+    check_window = bool(dw.get("enabled"))
+    fh = int(dw["from"].split(":")[0]) if check_window else None
+    th = int(dw["to"].split(":")[0]) if check_window else None
+
+    def tier(f) -> tuple[int, float]:
+        legs = f.legs or []
+        airline_ok = (not check_airline) or any(
+            leg.airline.name in preferred for leg in legs
+        )
+        window_ok = (not check_window) or (
+            bool(legs) and fh <= legs[0].departure_datetime.hour <= th
+        )
+        penalty = (0 if airline_ok else 1) + (0 if window_ok else 2)
+        return (penalty, f.price if f.price is not None else float("inf"))
+
+    return sorted(flights, key=tier)
+
+
 # ─────────────────────────────────────────────────────────────
 # FLI — RUN & PARSE
 # ─────────────────────────────────────────────────────────────
@@ -327,16 +398,40 @@ def _run_search(search: SearchFlights, route: dict, dates: list[str],
     retries = route.get("search_retries", 3)
     leg_label = " → ".join(dates)
 
+    # We call fli's _fetch_flights/_expand_multi_leg directly (not search())
+    # so we can drop outbound candidates our own filters would discard anyway
+    # — and rank the survivors by route preference (airline/alliance,
+    # departure window) rather than pure cheapest-first — before spending
+    # _expand_multi_leg's top_n slots on them. See CLAUDE.md "Outbound
+    # candidate selection" for the rationale; these are private fli methods,
+    # so a future fli upgrade reshaping them needs to be re-checked here.
+    is_multi_city = _is_multi_city(route)
     results = None
     for attempt in range(retries + 1):
         try:
-            results = search.search(
+            outbound = search._fetch_flights(
                 filters,
-                top_n=top_n,
                 currency=route.get("currency", "EUR"),
                 language=route.get("search_language") or None,
                 country=route.get("search_country") or None,
+                capture_session=True,
             )
+            if outbound is None:
+                results = None
+            else:
+                kept, skip_dur, skip_self = _prefilter_outbound(outbound, route, is_multi_city)
+                if DEBUG and (skip_dur or skip_self):
+                    log.info(f"  [DEBUG] Outbound pre-filter: {len(outbound)} raw → "
+                             f"{skip_dur} too long, {skip_self} self-transfer  → {len(kept)} kept")
+                ranked = _rank_outbound(kept, route)
+                results = search._expand_multi_leg(
+                    ranked,
+                    filters,
+                    top_n=top_n,
+                    currency=route.get("currency", "EUR"),
+                    language=route.get("search_language") or None,
+                    country=route.get("search_country") or None,
+                )
         except Exception as e:
             log.error(f"fli search error: {e}")
             results = None
