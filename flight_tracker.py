@@ -16,7 +16,9 @@ import os
 import smtplib
 import sys
 import time
+import threading
 import urllib.parse
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -763,7 +765,7 @@ def _filter_airline_direct(flights: list[dict], route: dict, search: SearchFligh
     return kept
 
 
-def search_route(route: dict, search: SearchFlights) -> tuple[list[dict], dict]:
+def search_route(route: dict) -> tuple[list[dict], dict]:
     """
     Sample departure dates across the window and return all flight
     options found (enriched with outbound/return date info), plus a
@@ -771,121 +773,144 @@ def search_route(route: dict, search: SearchFlights) -> tuple[list[dict], dict]:
     raw_flights_total} — counted *before* client-side filtering, so a
     drop to zero signals the API itself going quiet rather than our
     filters getting stricter.
+
+    Date pairs are searched in parallel (up to 4 workers), each with
+    its own SearchFlights instance — required because SearchFlights
+    caches a session id on self and is not thread-safe. Results are
+    sorted by date before post-processing so log output is deterministic.
     """
     is_multi_city = _is_multi_city(route)
     if is_multi_city:
         _route_legs(route)  # validates exactly 2 legs, raises with a clear message otherwise
 
-    n_samples    = route.get("daily_samples", 8)
-    dep_dates    = _sample_dates(
+    n_samples = route.get("daily_samples", 8)
+    dep_dates = _sample_dates(
         route["date_from"], route["date_to"], n_samples,
         departure_days=route.get("departure_days") or None
     )
 
-    dw     = route.get("departure_window", {})
-    top_n  = route.get("top_n", 20)
-    results = []
+    dw    = route.get("departure_window", {})
+    top_n = route.get("top_n", 20)
 
     api_stats = {"pairs_searched": 0, "pairs_with_results": 0, "raw_flights_total": 0}
 
-    for dep in dep_dates:
-        for ret in _return_dates(dep, route):
-            nights = (datetime.strptime(ret, "%Y-%m-%d") -
-                      datetime.strptime(dep, "%Y-%m-%d")).days
-            if nights < 1:
-                continue
+    # Build the full list of (dep, ret) pairs upfront
+    date_pairs = [
+        (dep, ret)
+        for dep in dep_dates
+        for ret in _return_dates(dep, route)
+        if (datetime.strptime(ret, "%Y-%m-%d") - datetime.strptime(dep, "%Y-%m-%d")).days >= 1
+    ]
 
-            label   = f"{route['id']}_{dep}_{ret}"
-            flights, ob_stats = _run_search(search, route, [dep, ret], top_n,
-                                             debug_label=label if DEBUG else "")
+    def _search_pair(pair: tuple[str, str]) -> tuple[str, str, int, list[dict], dict]:
+        dep, ret = pair
+        nights = (datetime.strptime(ret, "%Y-%m-%d") - datetime.strptime(dep, "%Y-%m-%d")).days
+        label  = f"{route['id']}_{dep}_{ret}"
+        log.info(f"  → {dep} → {ret} ({nights}n): searching…")
+        s = SearchFlights()
+        flights, ob_stats = _run_search(s, route, [dep, ret], top_n,
+                                        debug_label=label if DEBUG else "")
+        return dep, ret, nights, flights, ob_stats
 
-            api_stats["pairs_searched"] += 1
-            api_stats["raw_flights_total"] += len(flights) if flights else 0
-            if flights:
-                api_stats["pairs_with_results"] += 1
+    # Parallel search phase — workers log their start immediately so the
+    # console stays live; results arrive out of order and are sorted below.
+    n_workers = min(4, len(date_pairs)) if date_pairs else 1
+    with ThreadPoolExecutor(max_workers=n_workers) as executor:
+        raw_results = list(executor.map(_search_pair, date_pairs))
 
-            if not flights:
-                log.info(f"  {dep} → {ret}: no results")
-                continue
+    # Sort by (dep, ret) so per-pair log lines and results are date-ordered
+    raw_results.sort(key=lambda x: (x[0], x[1]))
 
-            currency      = route.get("currency", "EUR")
-            prices        = [f["price"] for f in flights]
-            airline_count = len({code for f in flights for code in f.get("airline_codes", [])})
-            options_label = "multi-city options" if is_multi_city else "round-trip options"
-            log.info(f"  {dep} → {ret} ({nights}n): "
-                     f"outbound {ob_stats['raw']} → {ob_stats['kept']} kept ({ob_stats['filtered']} filtered) → "
-                     f"{len(flights)} {options_label}, "
-                     f"{min(prices):.0f}–{max(prices):.0f} {currency} across {airline_count} airlines, "
-                     f"best {flights[0]['price']:.0f} {currency}")
+    results = []
 
-            # Debug: show airline breakdown before filtering
-            if DEBUG:
-                airline_counts: dict[str, int] = {}
-                for f in flights:
-                    for code in f.get("airline_codes", ["?"]):
-                        airline_counts[code] = airline_counts.get(code, 0) + 1
-                log.info(f"  [DEBUG] Airlines in raw results: "
-                         f"{', '.join(f'{k}:{v}' for k,v in sorted(airline_counts.items()))}")
+    for dep, ret, nights, flights, ob_stats in raw_results:
+        api_stats["pairs_searched"] += 1
+        api_stats["raw_flights_total"] += len(flights) if flights else 0
+        if flights:
+            api_stats["pairs_with_results"] += 1
 
-            filtered_in  = 0
-            skip_dur_out = 0
-            skip_dur_ret = 0
-            skip_self_tr = 0
+        if not flights:
+            log.info(f"  {dep} → {ret}: no results")
+            continue
 
+        currency      = route.get("currency", "EUR")
+        prices        = [f["price"] for f in flights]
+        airline_count = len({code for f in flights for code in f.get("airline_codes", [])})
+        options_label = "multi-city options" if is_multi_city else "round-trip options"
+        log.info(f"  {dep} → {ret} ({nights}n): "
+                 f"outbound {ob_stats['raw']} → {ob_stats['kept']} kept ({ob_stats['filtered']} filtered) → "
+                 f"{len(flights)} {options_label}, "
+                 f"{min(prices):.0f}–{max(prices):.0f} {currency} across {airline_count} airlines, "
+                 f"best {flights[0]['price']:.0f} {currency}")
+
+        # Debug: show airline breakdown before filtering
+        if DEBUG:
+            airline_counts: dict[str, int] = {}
             for f in flights:
-                f["outbound_date"] = dep
-                f["return_date"]   = ret
-                f["nights"]        = nights
-                f["origin"]        = endpoint_label(_route_first_origin(route))
-                f["destination"]   = endpoint_label(_route_final_destination(route))
+                for code in f.get("airline_codes", ["?"]):
+                    airline_counts[code] = airline_counts.get(code, 0) + 1
+            log.info(f"  [DEBUG] Airlines in raw results: "
+                     f"{', '.join(f'{k}:{v}' for k,v in sorted(airline_counts.items()))}")
 
-                # Duration filters (outbound and return separately)
-                max_out_h = route.get("max_outbound_duration_hours")
-                max_ret_h = route.get("max_return_duration_hours")
-                if max_out_h and f["outbound_duration_min"] > max_out_h * 60:
-                    skip_dur_out += 1
-                    continue
-                if max_ret_h and f["return_duration_min"] > max_ret_h * 60:
-                    skip_dur_ret += 1
-                    continue
+        filtered_in  = 0
+        skip_dur_out = 0
+        skip_dur_ret = 0
+        skip_self_tr = 0
 
-                # Self-transfer filter
-                f["self_transfer"] = f.get("self_transfer", False)
-                if route.get("exclude_self_transfer", True) and f["self_transfer"]:
-                    skip_self_tr += 1
-                    continue
+        for f in flights:
+            f["outbound_date"] = dep
+            f["return_date"]   = ret
+            f["nights"]        = nights
+            f["origin"]        = endpoint_label(_route_first_origin(route))
+            f["destination"]   = endpoint_label(_route_final_destination(route))
 
-                # Preferred airline flag
-                preferred_list = _get_preferred_airlines(route)
-                al_mode        = route.get("preferred_airline_mode", "soft")
-                if preferred_list and al_mode != "off":
-                    f["preferred_airline_match"] = any(
-                        code in f.get("airline_codes", [])
-                        for code in preferred_list
-                    )
-                else:
-                    f["preferred_airline_match"] = False
+            # Duration filters (outbound and return separately)
+            max_out_h = route.get("max_outbound_duration_hours")
+            max_ret_h = route.get("max_return_duration_hours")
+            if max_out_h and f["outbound_duration_min"] > max_out_h * 60:
+                skip_dur_out += 1
+                continue
+            if max_ret_h and f["return_duration_min"] > max_ret_h * 60:
+                skip_dur_ret += 1
+                continue
 
-                # Soft departure-window flag
-                if dw.get("enabled"):
-                    fh = int(dw["from"].split(":")[0])
-                    th = int(dw["to"].split(":")[0])
-                    f["preferred_time"] = (
-                        f["dep_hour"] is not None and
-                        fh <= f["dep_hour"] <= th
-                    )
-                else:
-                    f["preferred_time"] = False
+            # Self-transfer filter
+            f["self_transfer"] = f.get("self_transfer", False)
+            if route.get("exclude_self_transfer", True) and f["self_transfer"]:
+                skip_self_tr += 1
+                continue
 
-                filtered_in += 1
-                results.append(f)
+            # Preferred airline flag
+            preferred_list = _get_preferred_airlines(route)
+            al_mode        = route.get("preferred_airline_mode", "soft")
+            if preferred_list and al_mode != "off":
+                f["preferred_airline_match"] = any(
+                    code in f.get("airline_codes", [])
+                    for code in preferred_list
+                )
+            else:
+                f["preferred_airline_match"] = False
 
-            if DEBUG and (skip_dur_out or skip_dur_ret or skip_self_tr):
-                log.info(f"  [DEBUG] Filtered out: "
-                         f"{skip_dur_out} outbound too long, "
-                         f"{skip_dur_ret} return too long, "
-                         f"{skip_self_tr} self-transfer  "
-                         f"→ {filtered_in} kept")
+            # Soft departure-window flag
+            if dw.get("enabled"):
+                fh = int(dw["from"].split(":")[0])
+                th = int(dw["to"].split(":")[0])
+                f["preferred_time"] = (
+                    f["dep_hour"] is not None and
+                    fh <= f["dep_hour"] <= th
+                )
+            else:
+                f["preferred_time"] = False
+
+            filtered_in += 1
+            results.append(f)
+
+        if DEBUG and (skip_dur_out or skip_dur_ret or skip_self_tr):
+            log.info(f"  [DEBUG] Filtered out: "
+                     f"{skip_dur_out} outbound too long, "
+                     f"{skip_dur_ret} return too long, "
+                     f"{skip_self_tr} self-transfer  "
+                     f"→ {filtered_in} kept")
 
     results.sort(key=lambda x: x["price"])
 
@@ -908,7 +933,7 @@ def search_route(route: dict, search: SearchFlights) -> tuple[list[dict], dict]:
     # them too. See _filter_airline_direct.
     if not route.get("allow_agency_fares"):
         before  = len(results)
-        results = _filter_airline_direct(results, route, search)
+        results = _filter_airline_direct(results, route, SearchFlights())
         log.info(f"  Airline-direct filter: {before} → {len(results)} flights")
 
     return results, api_stats
@@ -944,6 +969,9 @@ def add_entry(history: dict, rid: str, label: str, entry: dict):
             "entries": [],
             "last_weekly_summary": None,
             "last_alert_date": None,
+            "last_alert_price": None,
+            "last_daily_date": None,
+            "last_daily_price": None,
         }
     entries = history[rid]["entries"]
     # Older entries are never read back beyond date/best_price (see analyze_trend
@@ -975,6 +1003,9 @@ def add_api_stats(history: dict, rid: str, label: str, stats: dict):
             "entries": [],
             "last_weekly_summary": None,
             "last_alert_date": None,
+            "last_alert_price": None,
+            "last_daily_date": None,
+            "last_daily_price": None,
         }
     health = [h for h in history[rid].get("api_health", []) if h["date"] != _today()]
     health.append({"date": _today(), **stats})
@@ -1075,17 +1106,27 @@ def should_price_alert(route: dict, best_price: float, history: dict) -> bool:
     threshold = route.get("max_price_alert")
     if not threshold or best_price > threshold:
         return False
-    return history.get(route["id"], {}).get("last_alert_date") != _today()
+    rid_hist = history.get(route["id"], {})
+    if rid_hist.get("last_alert_date") != _today():
+        return True  # no alert sent today yet
+    last_price = rid_hist.get("last_alert_price")
+    return last_price is not None and best_price < last_price
 
 
-def should_daily(route: dict, best_price: float, alert_sent: bool) -> bool:
+def should_daily(route: dict, best_price: float, alert_sent: bool, history: dict) -> bool:
     if alert_sent:
         return False
     notif = route.get("notifications", {})
     if not notif.get("daily", {}).get("enabled", True):
         return False
     threshold = route.get("max_price_alert")
-    return best_price <= threshold if threshold else True
+    if threshold and best_price > threshold:
+        return False
+    rid_hist = history.get(route["id"], {})
+    if rid_hist.get("last_daily_date") != _today():
+        return True  # no daily sent today yet
+    last_price = rid_hist.get("last_daily_price")
+    return last_price is not None and best_price < last_price
 
 
 def should_weekly(route: dict, history: dict) -> bool:
@@ -2077,7 +2118,7 @@ def _select_top_flights(flights: list, limit: int, max_per_airline: int) -> list
 # ─────────────────────────────────────────────────────────────
 # MAIN
 # ─────────────────────────────────────────────────────────────
-def process_route(route: dict, cfg: dict, history: dict, search: SearchFlights) -> list[tuple[dict, str]]:
+def process_route(route: dict, cfg: dict, history: dict) -> list[tuple[dict, str]]:
     """Search one route, update history, and return pending notifications.
 
     Returns a list of (content, trigger) tuples to be dispatched by the
@@ -2090,8 +2131,11 @@ def process_route(route: dict, cfg: dict, history: dict, search: SearchFlights) 
     dashboard_url = cfg.get("dashboard_url", "")
     pending: list[tuple[dict, str]] = []
 
+    log.info(f"\n{'═' * 60}")
+    log.info(f"Route: {label}")
+    log.info(f"{'═' * 60}")
     log.info(f"Searching {label} …")
-    flights, api_stats = search_route(route, search)
+    flights, api_stats = search_route(route)
     add_api_stats(history, rid, label, api_stats)
 
     if not flights:
@@ -2138,13 +2182,16 @@ def process_route(route: dict, cfg: dict, history: dict, search: SearchFlights) 
         log.info(f"[{rid}] 🚨 Price alert: {best_price:.0f} {currency}")
         msg = format_message(route, flights, trend, "price_alert", currency, passengers, dashboard_url)
         pending.append((msg, "price_alert"))
-        history[rid]["last_alert_date"] = _today()
+        history[rid]["last_alert_date"]  = _today()
+        history[rid]["last_alert_price"] = best_price
         alert_sent = True
 
-    if should_daily(route, best_price, alert_sent):
+    if should_daily(route, best_price, alert_sent, history):
         log.info(f"[{rid}] 📅 Daily digest")
         msg = format_message(route, flights, trend, "daily", currency, passengers, dashboard_url)
         pending.append((msg, "daily"))
+        history[rid]["last_daily_date"]  = _today()
+        history[rid]["last_daily_price"] = best_price
 
     if should_weekly(route, history):
         log.info(f"[{rid}] 📅 Weekly summary")
@@ -2166,29 +2213,36 @@ def run(debug: bool = False, only_route: str = ""):
     try:
         cfg     = load_config()
         history = load_history()
-        search  = SearchFlights()
 
-        route_errors  = []
+        route_errors: list[tuple[str, str]] = []
         # Collect (route, content, trigger) tuples from all routes; dispatch
         # after the dashboard is written so notifications and the live page
         # are always in sync.
         pending_notifications: list[tuple[dict, dict, str]] = []
+        pending_lock = threading.Lock()
+        errors_lock  = threading.Lock()
 
+        active_routes = []
         for route in cfg.get("routes", []):
             if only_route and route["id"] != only_route:
                 continue
             if not route.get("enabled", True):
                 log.info(f"⏸️  Skipping disabled route: {route.get('label', route['id'])}")
                 continue
-            log.info(f"\n{'═' * 60}")
-            log.info(f"Route: {route.get('label', route['id'])}")
-            log.info(f"{'═' * 60}")
+            active_routes.append(route)
+
+        def _run_route(route: dict) -> None:
             try:
-                for content, trigger in process_route(route, cfg, history, search):
-                    pending_notifications.append((route, content, trigger))
+                for content, trigger in process_route(route, cfg, history):
+                    with pending_lock:
+                        pending_notifications.append((route, content, trigger))
             except Exception as e:
                 log.error(f"Error on route {route.get('id','?')}: {e}", exc_info=True)
-                route_errors.append((route.get("id", "?"), str(e)))
+                with errors_lock:
+                    route_errors.append((route.get("id", "?"), str(e)))
+
+        with ThreadPoolExecutor(max_workers=max(len(active_routes), 1)) as executor:
+            list(executor.map(_run_route, active_routes))
 
         save_history(history)
         log.info("💾 price_history.json saved")
