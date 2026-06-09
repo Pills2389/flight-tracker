@@ -230,17 +230,31 @@ def _parse_duration_hours(val) -> float:
     return float(val)
 
 
-def _discomfort_cost(extra_hours: float, intervals: list) -> float:
-    """Tiered discomfort penalty applied to positive extra hours above baseline."""
-    if extra_hours <= 0 or not intervals:
+def _tiered_cost(hours: float, intervals: list) -> float:
+    """Tiered cost on positive hours using a list of {from_hours, to_hours, rate_eur_per_hour}."""
+    if hours <= 0 or not intervals:
         return 0.0
     cost = 0.0
     for iv in intervals:
         lo   = float(iv.get("from_hours", 0))
         hi   = float(iv.get("to_hours",   99))
         rate = float(iv.get("rate_eur_per_hour", 0))
-        cost += max(0.0, min(extra_hours, hi) - lo) * rate
+        cost += max(0.0, min(hours, hi) - lo) * rate
     return cost
+
+
+def _discomfort_cost(extra_hours: float, intervals: list) -> float:
+    """Tiered discomfort penalty applied to positive extra hours above baseline."""
+    return _tiered_cost(extra_hours, intervals)
+
+
+def _time_value_cost(extra_hours: float, intervals: list) -> float:
+    """Symmetric tiered time value. Positive extra = penalty, negative = credit at same rates."""
+    if not intervals:
+        return 0.0
+    if extra_hours >= 0:
+        return _tiered_cost(extra_hours, intervals)
+    return -_tiered_cost(-extra_hours, intervals)
 
 
 def _outbound_time_score(outbound_dur_min: int, dep_hour: int | None, tv: dict) -> float:
@@ -250,18 +264,16 @@ def _outbound_time_score(outbound_dur_min: int, dep_hour: int | None, tv: dict) 
     for longer). Adds vacation day cost for early departures and tiered discomfort
     penalty for extra hours above baseline.
     """
-    daily_rate  = float(tv.get("daily_rate_eur", 200))
-    work_hours  = float(tv.get("work_hours_per_day", 8))
-    base_out_h  = _parse_duration_hours(tv.get("base_outbound_duration_hours", 0))
-    threshold_h = int(str(tv.get("departure_threshold", "18:00")).split(":")[0])
-    vac_cost    = float(tv.get("vacation_day_cost_eur", daily_rate))
-    hourly_rate = daily_rate / work_hours
-    intervals   = tv.get("discomfort_intervals", [])
+    base_out_h   = _parse_duration_hours(tv.get("base_outbound_duration_hours", 0))
+    threshold_h  = int(str(tv.get("departure_threshold", "18:00")).split(":")[0])
+    vac_cost     = float(tv.get("vacation_day_cost_eur", 200))
+    tv_intervals = tv.get("time_value_intervals", [])
+    disc_ivs     = tv.get("discomfort_intervals", [])
 
     extra_out     = outbound_dur_min / 60 - base_out_h
     vacation_cost = vac_cost if (dep_hour is not None and dep_hour < threshold_h) else 0.0
-    discomfort    = _discomfort_cost(extra_out, intervals)
-    return extra_out * hourly_rate + vacation_cost + discomfort
+    discomfort    = _discomfort_cost(extra_out, disc_ivs)
+    return _time_value_cost(extra_out, tv_intervals) + vacation_cost + discomfort
 
 
 def _compute_effective_cost(price: float, outbound_dur_min: int, return_dur_min: int,
@@ -274,14 +286,12 @@ def _compute_effective_cost(price: float, outbound_dur_min: int, return_dur_min:
     arrival window (both = need an extra vacation day).  Tiered discomfort intervals add a
     separate penalty on extra positive hours per leg.
     """
-    daily_rate   = float(tv.get("daily_rate_eur", 200))
-    work_hours   = float(tv.get("work_hours_per_day", 8))
     base_out_h   = _parse_duration_hours(tv.get("base_outbound_duration_hours", 0))
     base_ret_h   = _parse_duration_hours(tv.get("base_return_duration_hours", 0))
     threshold_h  = int(str(tv.get("departure_threshold", "18:00")).split(":")[0])
-    vac_cost     = float(tv.get("vacation_day_cost_eur", daily_rate))
-    hourly_rate  = daily_rate / work_hours
-    intervals    = tv.get("discomfort_intervals", [])
+    vac_cost     = float(tv.get("vacation_day_cost_eur", 200))
+    tv_intervals = tv.get("time_value_intervals", [])
+    disc_ivs     = tv.get("discomfort_intervals", [])
 
     ret_vac_from = tv.get("return_arrival_vacation_from")
     ret_vac_to   = tv.get("return_arrival_vacation_to")
@@ -299,12 +309,13 @@ def _compute_effective_cost(price: float, outbound_dur_min: int, return_dur_min:
         if from_h <= ret_arr_hour <= to_h:
             vac_ret = ret_vac_cost
 
-    disc_out = _discomfort_cost(extra_out, intervals)
-    disc_ret = _discomfort_cost(extra_ret, intervals)
+    disc_out = _discomfort_cost(extra_out, disc_ivs)
+    disc_ret = _discomfort_cost(extra_ret, disc_ivs)
 
     return round(
         price
-        + (extra_out + extra_ret) * hourly_rate
+        + _time_value_cost(extra_out, tv_intervals)
+        + _time_value_cost(extra_ret, tv_intervals)
         + vac_out + vac_ret
         + disc_out + disc_ret,
         2,
@@ -1026,14 +1037,14 @@ def search_route(route: dict) -> tuple[list[dict], dict]:
                      f"→ {filtered_in} kept")
 
     if tv:
-        hourly_rate  = float(tv.get("daily_rate_eur", 200)) / float(tv.get("work_hours_per_day", 8))
         threshold_h  = int(str(tv.get("departure_threshold", "18:00")).split(":")[0])
         base_out_h   = _parse_duration_hours(tv.get("base_outbound_duration_hours", 0))
         base_ret_h   = _parse_duration_hours(tv.get("base_return_duration_hours", 0))
-        intervals    = tv.get("discomfort_intervals", [])
+        tv_intervals = tv.get("time_value_intervals", [])
+        disc_ivs     = tv.get("discomfort_intervals", [])
         ret_vac_from = tv.get("return_arrival_vacation_from")
         ret_vac_to   = tv.get("return_arrival_vacation_to")
-        vac_cost     = float(tv.get("vacation_day_cost_eur", tv.get("daily_rate_eur", 200)))
+        vac_cost     = float(tv.get("vacation_day_cost_eur", 200))
         ret_vac_cost = float(tv.get("return_vacation_day_cost_eur", vac_cost))
         for f in results:
             f["effective_cost"] = _compute_effective_cost(
@@ -1053,13 +1064,15 @@ def search_route(route: dict) -> tuple[list[dict], dict]:
                 th = int(str(ret_vac_to).split(":")[0])
                 if fh <= ret_arr_h <= th:
                     vac_ret = ret_vac_cost
-            disc_out = _discomfort_cost(extra_out, intervals)
-            disc_ret = _discomfort_cost(extra_ret, intervals)
+            tv_out   = _time_value_cost(extra_out, tv_intervals)
+            tv_ret   = _time_value_cost(extra_ret, tv_intervals)
+            disc_out = _discomfort_cost(extra_out, disc_ivs)
+            disc_ret = _discomfort_cost(extra_ret, disc_ivs)
             arr_str  = f"{ret_arr_h:02d}:xx" if ret_arr_h is not None else "?"
             log.info(
                 f"  [DEBUG] time_value — best eff. cost {best['effective_cost']:.0f} = "
                 f"{best['price']:.0f} price "
-                f"+ {(extra_out + extra_ret) * hourly_rate:.0f} time ({extra_out:+.1f}h out, {extra_ret:+.1f}h ret @ {hourly_rate:.0f}€/h) "
+                f"+ {tv_out + tv_ret:.0f} time-value ({extra_out:+.1f}h out → {tv_out:+.0f}€, {extra_ret:+.1f}h ret → {tv_ret:+.0f}€) "
                 f"+ {vac_out:.0f} vac-out ({best.get('dep_time','?')} dep) "
                 f"+ {vac_ret:.0f} vac-ret ({arr_str} arr) "
                 f"+ {disc_out + disc_ret:.0f} discomfort"
@@ -2043,30 +2056,28 @@ def _route_filter_chips(route: dict) -> tuple[str, str]:
     # Time-value scoring
     tv = _time_value_config(route)
     if tv:
-        daily_rate   = tv.get("daily_rate_eur", 200)
-        work_hours   = tv.get("work_hours_per_day", 8)
         base_out     = tv.get("base_outbound_duration_hours", "?")
         base_ret     = tv.get("base_return_duration_hours", "?")
         threshold    = tv.get("departure_threshold", "18:00")
-        hourly_rate  = float(daily_rate) / float(work_hours)
         ret_vac_from = tv.get("return_arrival_vacation_from")
         ret_vac_to   = tv.get("return_arrival_vacation_to")
-        ret_vac_part = (f" · ret vac {ret_vac_from}–{ret_vac_to}"
-                        if ret_vac_from and ret_vac_to else "")
-        intervals    = tv.get("discomfort_intervals", [])
-        disc_part    = (f" · discomfort {len(intervals)}-tier" if intervals else "")
-        title_parts = [
-            f"price + symmetric time @ {hourly_rate:.0f}€/h",
+        tv_ivs       = tv.get("time_value_intervals", [])
+        disc_ivs     = tv.get("discomfort_intervals", [])
+        tv_tiers     = f"{len(tv_ivs)}-tier" if tv_ivs else "flat"
+        title_parts  = [
+            f"price + symmetric tiered time-value ({tv_tiers})",
             f"vac-out if dep before {threshold}",
         ]
         if ret_vac_from and ret_vac_to:
             title_parts.append(f"vac-ret if arr {ret_vac_from}–{ret_vac_to}")
-        if intervals:
-            title_parts.append(f"discomfort: {len(intervals)}-tier on extra hours")
+        if disc_ivs:
+            title_parts.append(f"discomfort: {len(disc_ivs)}-tier on extra hours")
         chips.append(
             f'<span class="fp-chip fp-chip-tv" title="{" · ".join(title_parts)}">'
-            f'⏱ time-value: {hourly_rate:.0f}€/h · base {base_out} out / {base_ret} ret'
-            f'· vac. dep &lt;{threshold}{ret_vac_part}{disc_part}'
+            f'⏱ time-value: {tv_tiers} · base {base_out} out / {base_ret} ret'
+            f' · vac. dep &lt;{threshold}'
+            f'{f" · ret vac {ret_vac_from}–{ret_vac_to}" if ret_vac_from and ret_vac_to else ""}'
+            f'{f" · discomfort {len(disc_ivs)}-tier" if disc_ivs else ""}'
             f'</span>'
         )
 
