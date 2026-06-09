@@ -57,6 +57,18 @@
     "exclude_self_transfer": true,
     "bags": 0,
     "departure_window": { "enabled": true, "from": "20:00", "to": "23:59", "mode": "soft" },
+
+    "_time_value_note": "Optional. When enabled, replaces the hard max_outbound/return_duration_hours filters with an effective-cost formula: effective_cost = price + extra_hours × hourly_rate + vacation_day_cost (outbound only, when departure is before departure_threshold). Flights are sorted by effective_cost instead of price. base_outbound/return_duration_hours are per-route (the known-good baseline, e.g. your usual TK routing) — extra hours beyond the baseline cost money; hours at or below the baseline add zero penalty. All other fields can live in route_defaults.",
+    "time_value": {
+      "enabled": false,
+      "daily_rate_eur": 200,
+      "work_hours_per_day": 8,
+      "departure_threshold": "18:00",
+      "vacation_day_cost_eur": 200,
+      "base_outbound_duration_hours": 13,
+      "base_return_duration_hours": 13
+    },
+
     "max_per_airline": 3,
     "notifications": {
       "daily": { "enabled": true },
@@ -132,10 +144,21 @@
       "_layover_note": "Max single layover duration in hours. Remove or set null to allow any.",
 
       "max_outbound_duration_hours": 22,
-      "_outbound_duration_note": "Max outbound flight duration in hours (filtered client-side). Remove or set null to allow any.",
+      "_outbound_duration_note": "Max outbound flight duration in hours (filtered client-side). Ignored when time_value.enabled is true — the effective-cost formula handles long-flight penalties instead. Remove or set null to allow any.",
 
       "max_return_duration_hours": 22,
-      "_return_duration_note": "Max return flight duration in hours (filtered client-side). Remove or set null to allow any.",
+      "_return_duration_note": "Max return flight duration in hours (filtered client-side). Ignored when time_value.enabled is true. Remove or set null to allow any.",
+
+      "_time_value_note": "Optional alternative to hard duration filters. When enabled, sorts by effective_cost = price + (extra_outbound_hours + extra_return_hours) × hourly_rate + vacation_day_cost. base_outbound/return_duration_hours are your known-good baseline (e.g. usual TK duration) — only hours beyond those are penalised. vacation_day_cost fires when outbound departs before departure_threshold (a flight at 15:00 requires an extra vacation day; one at 21:00 doesn't). Hard duration filters are ignored when this is enabled. daily_rate_eur/work_hours_per_day/departure_threshold/vacation_day_cost_eur belong in route_defaults; the two base_*_duration_hours are typically per-route since each route has its own known-good duration.",
+      "time_value": {
+        "enabled": false,
+        "daily_rate_eur": 200,
+        "work_hours_per_day": 8,
+        "departure_threshold": "18:00",
+        "vacation_day_cost_eur": 200,
+        "base_outbound_duration_hours": 13,
+        "base_return_duration_hours": 13
+      },
 
       "exclude_self_transfer": true,
       "_self_transfer_note": "true = only show protected single-ticket itineraries. false = also show self-transfer (you buy 2 separate tickets, no protection if you miss connection).",
