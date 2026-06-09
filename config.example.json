@@ -58,15 +58,23 @@
     "bags": 0,
     "departure_window": { "enabled": true, "from": "20:00", "to": "23:59", "mode": "soft" },
 
-    "_time_value_note": "Optional. When enabled, replaces the hard max_outbound/return_duration_hours filters with an effective-cost formula: effective_cost = price + extra_hours × hourly_rate + vacation_day_cost (outbound only, when departure is before departure_threshold). Flights are sorted by effective_cost instead of price. base_outbound/return_duration_hours are per-route (the known-good baseline, e.g. your usual TK routing) — extra hours beyond the baseline cost money; hours at or below the baseline add zero penalty. All other fields can live in route_defaults.",
+    "_time_value_note": "Optional. When enabled, replaces hard max_outbound/return_duration_hours filters with effective_cost = price + symmetric_time_penalty + vacation_costs + discomfort. Time penalty is symmetric (credit for under-baseline, penalty for over). Vacation cost fires for outbound deps before departure_threshold AND for return arrivals inside return_arrival_vacation window. Tiered discomfort intervals add a separate penalty on extra positive hours per leg. base_outbound/return_duration_hours accept 'HH:MM' strings (e.g. '15:20') or a float (e.g. 15.33). Hard duration filters are ignored when enabled. Fields like daily_rate_eur/work_hours/thresholds can live in route_defaults; base_*_duration_hours are typically per-route.",
     "time_value": {
       "enabled": false,
       "daily_rate_eur": 200,
       "work_hours_per_day": 8,
       "departure_threshold": "18:00",
       "vacation_day_cost_eur": 200,
-      "base_outbound_duration_hours": 13,
-      "base_return_duration_hours": 13
+      "base_outbound_duration_hours": "13:00",
+      "base_return_duration_hours": "13:00",
+      "return_arrival_vacation_from": "09:00",
+      "return_arrival_vacation_to": "15:00",
+      "return_vacation_day_cost_eur": 200,
+      "discomfort_intervals": [
+        {"from_hours": 0, "to_hours": 1, "rate_eur_per_hour": 0},
+        {"from_hours": 1, "to_hours": 2, "rate_eur_per_hour": 10},
+        {"from_hours": 2, "to_hours": 99, "rate_eur_per_hour": 20}
+      ]
     },
 
     "max_per_airline": 3,
@@ -149,15 +157,23 @@
       "max_return_duration_hours": 22,
       "_return_duration_note": "Max return flight duration in hours (filtered client-side). Ignored when time_value.enabled is true. Remove or set null to allow any.",
 
-      "_time_value_note": "Optional alternative to hard duration filters. When enabled, sorts by effective_cost = price + (extra_outbound_hours + extra_return_hours) × hourly_rate + vacation_day_cost. base_outbound/return_duration_hours are your known-good baseline (e.g. usual TK duration) — only hours beyond those are penalised. vacation_day_cost fires when outbound departs before departure_threshold (a flight at 15:00 requires an extra vacation day; one at 21:00 doesn't). Hard duration filters are ignored when this is enabled. daily_rate_eur/work_hours_per_day/departure_threshold/vacation_day_cost_eur belong in route_defaults; the two base_*_duration_hours are typically per-route since each route has its own known-good duration.",
+      "_time_value_note": "Optional alternative to hard duration filters. When enabled, sorts by effective_cost = price + symmetric time penalty (credit for under-baseline, penalty for over) + vacation costs (outbound dep before departure_threshold, return arrival in return_arrival_vacation window) + tiered discomfort on extra positive hours. base_*_duration_hours accept 'HH:MM' strings (e.g. '15:20') or a float. Hard duration filters are ignored when enabled.",
       "time_value": {
         "enabled": false,
         "daily_rate_eur": 200,
         "work_hours_per_day": 8,
         "departure_threshold": "18:00",
         "vacation_day_cost_eur": 200,
-        "base_outbound_duration_hours": 13,
-        "base_return_duration_hours": 13
+        "base_outbound_duration_hours": "13:00",
+        "base_return_duration_hours": "13:00",
+        "return_arrival_vacation_from": "09:00",
+        "return_arrival_vacation_to": "15:00",
+        "return_vacation_day_cost_eur": 200,
+        "discomfort_intervals": [
+          {"from_hours": 0, "to_hours": 1, "rate_eur_per_hour": 0},
+          {"from_hours": 1, "to_hours": 2, "rate_eur_per_hour": 10},
+          {"from_hours": 2, "to_hours": 99, "rate_eur_per_hour": 20}
+        ]
       },
 
       "exclude_self_transfer": true,

@@ -222,45 +222,93 @@ def _time_value_config(route: dict) -> dict | None:
     return tv if tv.get("enabled", False) else None
 
 
+def _parse_duration_hours(val) -> float:
+    """Accept 'HH:MM' string or numeric; return fractional hours (e.g. '15:20' → 15.333)."""
+    if isinstance(val, str) and ":" in val:
+        h, m = val.split(":", 1)
+        return int(h) + int(m) / 60
+    return float(val)
+
+
+def _discomfort_cost(extra_hours: float, intervals: list) -> float:
+    """Tiered discomfort penalty applied to positive extra hours above baseline."""
+    if extra_hours <= 0 or not intervals:
+        return 0.0
+    cost = 0.0
+    for iv in intervals:
+        lo   = float(iv.get("from_hours", 0))
+        hi   = float(iv.get("to_hours",   99))
+        rate = float(iv.get("rate_eur_per_hour", 0))
+        cost += max(0.0, min(extra_hours, hi) - lo) * rate
+    return cost
+
+
 def _outbound_time_score(outbound_dur_min: int, dep_hour: int | None, tv: dict) -> float:
     """Stage-1 time cost for pre-expansion outbound ranking (no round-trip price yet).
 
-    Penalises outbound duration beyond the route's baseline and flights departing
-    before the threshold that require taking a vacation day.
+    Measures extra hours symmetrically against baseline (credit for shorter, penalty
+    for longer). Adds vacation day cost for early departures and tiered discomfort
+    penalty for extra hours above baseline.
     """
     daily_rate  = float(tv.get("daily_rate_eur", 200))
     work_hours  = float(tv.get("work_hours_per_day", 8))
-    base_out_h  = float(tv.get("base_outbound_duration_hours", 0))
+    base_out_h  = _parse_duration_hours(tv.get("base_outbound_duration_hours", 0))
     threshold_h = int(str(tv.get("departure_threshold", "18:00")).split(":")[0])
     vac_cost    = float(tv.get("vacation_day_cost_eur", daily_rate))
     hourly_rate = daily_rate / work_hours
+    intervals   = tv.get("discomfort_intervals", [])
 
-    extra_out     = max(0.0, outbound_dur_min / 60 - base_out_h)
+    extra_out     = outbound_dur_min / 60 - base_out_h
     vacation_cost = vac_cost if (dep_hour is not None and dep_hour < threshold_h) else 0.0
-    return extra_out * hourly_rate + vacation_cost
+    discomfort    = _discomfort_cost(extra_out, intervals)
+    return extra_out * hourly_rate + vacation_cost + discomfort
 
 
 def _compute_effective_cost(price: float, outbound_dur_min: int, return_dur_min: int,
-                             dep_hour: int | None, tv: dict) -> float:
-    """Full effective cost = price + time_penalty(outbound + return) + vacation_cost(outbound).
+                             dep_hour: int | None, ret_arr_hour: int | None, tv: dict) -> float:
+    """Full effective cost = price + symmetric time penalty + vacation costs + discomfort.
 
-    extra_hours are measured against per-direction baselines; only hours above
-    the baseline cost money so the baseline flight (e.g. the known TK routing)
-    adds zero penalty.  Vacation cost fires only when outbound departs before
-    the threshold — early departure = need an extra vacation day.
+    extra_hours are measured symmetrically against per-direction baselines — under-baseline
+    flights get a credit, over-baseline flights get penalised.  Vacation cost fires for
+    outbound departures before the threshold and for return arrivals inside the configured
+    arrival window (both = need an extra vacation day).  Tiered discomfort intervals add a
+    separate penalty on extra positive hours per leg.
     """
-    daily_rate  = float(tv.get("daily_rate_eur", 200))
-    work_hours  = float(tv.get("work_hours_per_day", 8))
-    base_out_h  = float(tv.get("base_outbound_duration_hours", 0))
-    base_ret_h  = float(tv.get("base_return_duration_hours", 0))
-    threshold_h = int(str(tv.get("departure_threshold", "18:00")).split(":")[0])
-    vac_cost    = float(tv.get("vacation_day_cost_eur", daily_rate))
-    hourly_rate = daily_rate / work_hours
+    daily_rate   = float(tv.get("daily_rate_eur", 200))
+    work_hours   = float(tv.get("work_hours_per_day", 8))
+    base_out_h   = _parse_duration_hours(tv.get("base_outbound_duration_hours", 0))
+    base_ret_h   = _parse_duration_hours(tv.get("base_return_duration_hours", 0))
+    threshold_h  = int(str(tv.get("departure_threshold", "18:00")).split(":")[0])
+    vac_cost     = float(tv.get("vacation_day_cost_eur", daily_rate))
+    hourly_rate  = daily_rate / work_hours
+    intervals    = tv.get("discomfort_intervals", [])
 
-    extra_out     = max(0.0, outbound_dur_min / 60 - base_out_h)
-    extra_ret     = max(0.0, return_dur_min   / 60 - base_ret_h)
-    vacation_cost = vac_cost if (dep_hour is not None and dep_hour < threshold_h) else 0.0
-    return round(price + (extra_out + extra_ret) * hourly_rate + vacation_cost, 2)
+    ret_vac_from = tv.get("return_arrival_vacation_from")
+    ret_vac_to   = tv.get("return_arrival_vacation_to")
+    ret_vac_cost = float(tv.get("return_vacation_day_cost_eur", vac_cost))
+
+    extra_out = outbound_dur_min / 60 - base_out_h
+    extra_ret = return_dur_min   / 60 - base_ret_h
+
+    vac_out = vac_cost if (dep_hour is not None and dep_hour < threshold_h) else 0.0
+
+    vac_ret = 0.0
+    if ret_arr_hour is not None and ret_vac_from and ret_vac_to:
+        from_h = int(str(ret_vac_from).split(":")[0])
+        to_h   = int(str(ret_vac_to).split(":")[0])
+        if from_h <= ret_arr_hour <= to_h:
+            vac_ret = ret_vac_cost
+
+    disc_out = _discomfort_cost(extra_out, intervals)
+    disc_ret = _discomfort_cost(extra_ret, intervals)
+
+    return round(
+        price
+        + (extra_out + extra_ret) * hourly_rate
+        + vac_out + vac_ret
+        + disc_out + disc_ret,
+        2,
+    )
 
 
 # ─────────────────────────────────────────────────────────────
@@ -636,10 +684,12 @@ def _parse_pair(outbound, return_flight, is_multi_city: bool = False) -> dict | 
 
     return_dep_time = ""
     return_arr_time = ""
+    ret_arr_hour    = None
     if ret_legs:
         ret_ref         = ret_legs[0].departure_datetime
         return_dep_time = ret_ref.strftime("%H:%M")
         return_arr_time = _time_offset(ret_legs[-1].arrival_datetime, ret_ref)
+        ret_arr_hour    = ret_legs[-1].arrival_datetime.hour
 
     # ── Leg details for dashboard tree ───────────────────────
     outbound_legs = _extract_legs(out_legs, out_lays)
@@ -660,6 +710,7 @@ def _parse_pair(outbound, return_flight, is_multi_city: bool = False) -> dict | 
         "max_layover_h":          round(max_layover_min / 60, 1),
         "dep_hour":               dep_hour,
         "dep_time":               dep_time_str,
+        "ret_arr_hour":           ret_arr_hour,
         "outbound_arr_time":      outbound_arr_time,
         "return_dep_time":        return_dep_time,
         "return_arr_time":        return_arr_time,
@@ -975,25 +1026,44 @@ def search_route(route: dict) -> tuple[list[dict], dict]:
                      f"→ {filtered_in} kept")
 
     if tv:
-        hourly_rate = float(tv.get("daily_rate_eur", 200)) / float(tv.get("work_hours_per_day", 8))
-        threshold_h = int(str(tv.get("departure_threshold", "18:00")).split(":")[0])
+        hourly_rate  = float(tv.get("daily_rate_eur", 200)) / float(tv.get("work_hours_per_day", 8))
+        threshold_h  = int(str(tv.get("departure_threshold", "18:00")).split(":")[0])
+        base_out_h   = _parse_duration_hours(tv.get("base_outbound_duration_hours", 0))
+        base_ret_h   = _parse_duration_hours(tv.get("base_return_duration_hours", 0))
+        intervals    = tv.get("discomfort_intervals", [])
+        ret_vac_from = tv.get("return_arrival_vacation_from")
+        ret_vac_to   = tv.get("return_arrival_vacation_to")
+        vac_cost     = float(tv.get("vacation_day_cost_eur", tv.get("daily_rate_eur", 200)))
+        ret_vac_cost = float(tv.get("return_vacation_day_cost_eur", vac_cost))
         for f in results:
             f["effective_cost"] = _compute_effective_cost(
                 f["price"], f["outbound_duration_min"], f["return_duration_min"],
-                f.get("dep_hour"), tv,
+                f.get("dep_hour"), f.get("ret_arr_hour"), tv,
             )
         results.sort(key=lambda x: x["effective_cost"])
         if DEBUG and results:
-            best = results[0]
-            vac = float(tv.get("vacation_day_cost_eur", tv.get("daily_rate_eur", 200)))
-            vac_applied = vac if (best.get("dep_hour") is not None and best["dep_hour"] < threshold_h) else 0
-            extra_out = max(0.0, best["outbound_duration_min"] / 60 - float(tv.get("base_outbound_duration_hours", 0)))
-            extra_ret = max(0.0, best["return_duration_min"] / 60 - float(tv.get("base_return_duration_hours", 0)))
-            log.info(f"  [DEBUG] time_value active — best eff. cost: "
-                     f"{best['effective_cost']:.0f} = {best['price']:.0f} price "
-                     f"+ {(extra_out + extra_ret) * hourly_rate:.0f} time penalty "
-                     f"({extra_out:.1f}h out + {extra_ret:.1f}h ret × {hourly_rate:.0f}€/h) "
-                     f"+ {vac_applied:.0f} vacation ({best.get('dep_time','?')} dep)")
+            best        = results[0]
+            extra_out   = best["outbound_duration_min"] / 60 - base_out_h
+            extra_ret   = best["return_duration_min"]   / 60 - base_ret_h
+            vac_out     = vac_cost if (best.get("dep_hour") is not None and best["dep_hour"] < threshold_h) else 0
+            vac_ret     = 0.0
+            ret_arr_h   = best.get("ret_arr_hour")
+            if ret_arr_h is not None and ret_vac_from and ret_vac_to:
+                fh = int(str(ret_vac_from).split(":")[0])
+                th = int(str(ret_vac_to).split(":")[0])
+                if fh <= ret_arr_h <= th:
+                    vac_ret = ret_vac_cost
+            disc_out = _discomfort_cost(extra_out, intervals)
+            disc_ret = _discomfort_cost(extra_ret, intervals)
+            arr_str  = f"{ret_arr_h:02d}:xx" if ret_arr_h is not None else "?"
+            log.info(
+                f"  [DEBUG] time_value — best eff. cost {best['effective_cost']:.0f} = "
+                f"{best['price']:.0f} price "
+                f"+ {(extra_out + extra_ret) * hourly_rate:.0f} time ({extra_out:+.1f}h out, {extra_ret:+.1f}h ret @ {hourly_rate:.0f}€/h) "
+                f"+ {vac_out:.0f} vac-out ({best.get('dep_time','?')} dep) "
+                f"+ {vac_ret:.0f} vac-ret ({arr_str} arr) "
+                f"+ {disc_out + disc_ret:.0f} discomfort"
+            )
     else:
         results.sort(key=lambda x: x["price"])
 
@@ -1061,7 +1131,7 @@ def add_entry(history: dict, rid: str, label: str, entry: dict):
     # and the dashboard's best-ever/chart calcs) — drop their top_flights/leg data
     # so history doesn't carry ~30 full itineraries per route per day forever.
     entries = [
-        {"date": e["date"], "best_price": e["best_price"]}
+        {k: v for k, v in e.items() if k in ("date", "best_price", "best_eff_cost")}
         for e in entries
         if e["date"] != _today()
     ]
@@ -1967,16 +2037,30 @@ def _route_filter_chips(route: dict) -> tuple[str, str]:
     # Time-value scoring
     tv = _time_value_config(route)
     if tv:
-        daily_rate  = tv.get("daily_rate_eur", 200)
-        work_hours  = tv.get("work_hours_per_day", 8)
-        base_out    = tv.get("base_outbound_duration_hours", "?")
-        base_ret    = tv.get("base_return_duration_hours", "?")
-        threshold   = tv.get("departure_threshold", "18:00")
-        hourly_rate = float(daily_rate) / float(work_hours)
+        daily_rate   = tv.get("daily_rate_eur", 200)
+        work_hours   = tv.get("work_hours_per_day", 8)
+        base_out     = tv.get("base_outbound_duration_hours", "?")
+        base_ret     = tv.get("base_return_duration_hours", "?")
+        threshold    = tv.get("departure_threshold", "18:00")
+        hourly_rate  = float(daily_rate) / float(work_hours)
+        ret_vac_from = tv.get("return_arrival_vacation_from")
+        ret_vac_to   = tv.get("return_arrival_vacation_to")
+        ret_vac_part = (f" · ret vac {ret_vac_from}–{ret_vac_to}"
+                        if ret_vac_from and ret_vac_to else "")
+        intervals    = tv.get("discomfort_intervals", [])
+        disc_part    = (f" · discomfort {len(intervals)}-tier" if intervals else "")
+        title_parts = [
+            f"price + symmetric time @ {hourly_rate:.0f}€/h",
+            f"vac-out if dep before {threshold}",
+        ]
+        if ret_vac_from and ret_vac_to:
+            title_parts.append(f"vac-ret if arr {ret_vac_from}–{ret_vac_to}")
+        if intervals:
+            title_parts.append(f"discomfort: {len(intervals)}-tier on extra hours")
         chips.append(
-            f'<span class="fp-chip fp-chip-tv" '
-            f'title="effective cost = price + extra hours × {hourly_rate:.0f}€/h + vacation day if dep before {threshold}">'
-            f'⏱ time-value: {hourly_rate:.0f}€/h · base {base_out}h out / {base_ret}h ret · vac. before {threshold}'
+            f'<span class="fp-chip fp-chip-tv" title="{" · ".join(title_parts)}">'
+            f'⏱ time-value: {hourly_rate:.0f}€/h · base {base_out} out / {base_ret} ret'
+            f'· vac. dep &lt;{threshold}{ret_vac_part}{disc_part}'
             f'</span>'
         )
 
@@ -1995,15 +2079,20 @@ def generate_dashboard(routes: list, history: dict) -> str:
         entries  = history.get(rid, {}).get("entries", [])
 
         if not entries:
-            price_str   = "—"
-            best_ever   = "—"
-            trend_sig   = "No data yet"
-            tc          = "#95a5a6"
-            flights_tbl = "<p style='color:#999'>No data yet.</p>"
+            price_str    = "—"
+            best_ever    = "—"
+            eff_cost_str = ""
+            trend_sig    = "No data yet"
+            tc           = "#95a5a6"
+            flights_tbl  = "<p style='color:#999'>No data yet.</p>"
         else:
-            last      = entries[-1]
-            price_str = f"{last['best_price']:.0f}"
-            best_ever = f"{min(e['best_price'] for e in entries):.0f}"
+            last         = entries[-1]
+            price_str    = f"{last['best_price']:.0f}"
+            best_ever    = f"{min(e['best_price'] for e in entries):.0f}"
+            last_eff     = last.get("best_eff_cost")
+            eff_cost_str = (f'<span style="font-size:14px;font-weight:600;color:#7d3c98;margin-left:10px">'
+                            f'eff.&nbsp;{last_eff:.0f}</span>'
+                            if last_eff is not None else "")
             trend     = analyze_trend(entries, currency)
             trend_sig = trend["signal"]
             tc        = _tc(trend["direction"])
@@ -2020,21 +2109,26 @@ def generate_dashboard(routes: list, history: dict) -> str:
             ) if groups else "<p style='color:#999'>No flights today.</p>"
             flights_tbl = f"<div class='options'>{options_html}</div>"
 
-        chart_labels = [e["date"][5:] for e in entries[-30:]]
-        chart_prices = [e["best_price"]  for e in entries[-30:]]
+        chart_labels     = [e["date"][5:] for e in entries[-30:]]
+        chart_prices     = [e["best_price"] for e in entries[-30:]]
+        chart_eff_costs  = [e.get("best_eff_cost") for e in entries[-30:]]
+        has_eff_costs    = any(v is not None for v in chart_eff_costs)
         avg14 = (analyze_trend(entries, currency).get("avg_14d")
                  if len(entries) >= 2 else None)
         chart_data += (f"{{id:'{rid}',label:{json.dumps(label)},"
                        f"labels:{json.dumps(chart_labels)},"
                        f"prices:{json.dumps(chart_prices)},"
+                       f"effCosts:{json.dumps(chart_eff_costs if has_eff_costs else [])},"
                        f"avg14:{json.dumps(avg14)},currency:'{currency}'}},\n")
 
         mp = route.get("max_price_alert")
         alert_badge = ""
         if mp and entries:
-            below  = entries[-1]["best_price"] <= mp
-            col    = "#27ae60" if below else "#c0392b"
-            txt    = f"{'✅ Below' if below else '❌ Above'} target {mp:.0f} {currency}"
+            cmp_val = entries[-1].get("best_eff_cost", entries[-1]["best_price"])
+            below   = cmp_val <= mp
+            col     = "#27ae60" if below else "#c0392b"
+            lbl     = "eff." if entries[-1].get("best_eff_cost") is not None else ""
+            txt     = f"{'✅ Below' if below else '❌ Above'} target {mp:.0f} {currency}{' (' + lbl + ')' if lbl else ''}"
             alert_badge = (f'<span style="background:{col};color:#fff;padding:2px 8px;'
                            f'border-radius:10px;font-size:11px">{txt}</span>')
 
@@ -2053,9 +2147,10 @@ def generate_dashboard(routes: list, history: dict) -> str:
               <div class="fparams-body">{fp_details}</div>
             </details>
           </div>
-          <div style="display:flex;align-items:baseline;gap:12px;margin:10px 0">
+          <div style="display:flex;align-items:baseline;gap:12px;margin:10px 0;flex-wrap:wrap">
             <span style="font-size:38px;font-weight:700;color:#1a5276">{price_str}</span>
             <span style="color:#888;font-size:16px">{currency}</span>
+            {eff_cost_str}
             <span style="color:#aaa;font-size:12px">All-time best: <b>{best_ever} {currency}</b></span>
           </div>
           <div style="color:{tc};font-size:13px;font-weight:600;margin-bottom:10px">{trend_sig}</div>
@@ -2196,13 +2291,17 @@ const routes=[{chart_data}];
 routes.forEach(r=>{{
   const ctx=document.getElementById('chart-'+r.id);
   if(!ctx||!r.prices.length)return;
-  const ds=[{{label:'Best price',data:r.prices,borderColor:'#2980b9',
+  const hasEff=r.effCosts&&r.effCosts.some(v=>v!==null);
+  const ds=[{{label:'Ticket price',data:r.prices,borderColor:'#2980b9',
     backgroundColor:'rgba(41,128,185,.07)',tension:0.35,fill:true,pointRadius:3}}];
+  if(hasEff)ds.push({{label:'Eff. cost',data:r.effCosts,borderColor:'#7d3c98',
+    backgroundColor:'rgba(125,60,152,.04)',tension:0.35,fill:false,
+    pointRadius:3,borderDash:[4,2]}});
   if(r.avg14!==null)ds.push({{label:'14d avg',data:r.labels.map(()=>r.avg14),
     borderColor:'#e67e22',borderDash:[5,5],borderWidth:1.5,pointRadius:0,fill:false}});
   new Chart(ctx,{{type:'line',data:{{labels:r.labels,datasets:ds}},
     options:{{responsive:true,maintainAspectRatio:false,
-      plugins:{{legend:{{display:false}}}},
+      plugins:{{legend:{{display:hasEff,labels:{{font:{{size:10}},boxWidth:20,padding:8}}}}}},
       scales:{{
         y:{{ticks:{{callback:v=>v+' '+r.currency,font:{{size:10}}}},grid:{{color:'#f0f0f0'}}}},
         x:{{ticks:{{font:{{size:10}}}},grid:{{display:false}}}}}}}}}});
@@ -2265,8 +2364,11 @@ def process_route(route: dict, cfg: dict, history: dict) -> list[tuple[dict, str
             history[rid]["last_weekly_summary"] = _today()
         return pending
 
-    best_price = flights[0]["price"]
-    log.info(f"[{rid}] Best price today: {best_price:.0f} {currency} "
+    best_price    = flights[0]["price"]
+    best_eff_cost = flights[0].get("effective_cost") if _time_value_config(route) else None
+    cmp_price     = best_eff_cost if best_eff_cost is not None else best_price
+    eff_log       = f" | eff. {best_eff_cost:.0f}" if best_eff_cost is not None else ""
+    log.info(f"[{rid}] Best price today: {best_price:.0f}{eff_log} {currency} "
              f"({flights[0]['outbound_date']} → {flights[0]['return_date']}, "
              f"{flights[0]['nights']}n, {flights[0]['airline']})")
 
@@ -2275,18 +2377,19 @@ def process_route(route: dict, cfg: dict, history: dict) -> list[tuple[dict, str
     top_flights       = _select_top_flights(flights, top_flights_count, max_per_airline)
 
     entry = {
-        "date":         _today(),
-        "best_price":   best_price,
-        "currency":     currency,
+        "date":          _today(),
+        "best_price":    best_price,
+        "best_eff_cost": best_eff_cost,
+        "currency":      currency,
         "outbound_date": flights[0]["outbound_date"],
-        "dep_time":     flights[0].get("dep_time", ""),
-        "return_date":  flights[0]["return_date"],
-        "nights":       flights[0]["nights"],
-        "airline":      flights[0]["airline"],
-        "stops":        flights[0]["stops"],
-        "duration_str": flights[0]["duration_str"],
-        "top_flights":  [{k: v for k, v in f.items() if k != "raw"}
-                         for f in top_flights],
+        "dep_time":      flights[0].get("dep_time", ""),
+        "return_date":   flights[0]["return_date"],
+        "nights":        flights[0]["nights"],
+        "airline":       flights[0]["airline"],
+        "stops":         flights[0]["stops"],
+        "duration_str":  flights[0]["duration_str"],
+        "top_flights":   [{k: v for k, v in f.items() if k != "raw"}
+                          for f in top_flights],
     }
     add_entry(history, rid, label, entry)
 
@@ -2295,20 +2398,20 @@ def process_route(route: dict, cfg: dict, history: dict) -> list[tuple[dict, str
 
     alert_sent = False
 
-    if should_price_alert(route, best_price, history):
-        log.info(f"[{rid}] 🚨 Price alert: {best_price:.0f} {currency}")
+    if should_price_alert(route, cmp_price, history):
+        log.info(f"[{rid}] 🚨 Price alert: {cmp_price:.0f} {currency}{eff_log}")
         msg = format_message(route, flights, trend, "price_alert", currency, passengers, dashboard_url)
         pending.append((msg, "price_alert"))
         history[rid]["last_alert_date"]  = _today()
-        history[rid]["last_alert_price"] = best_price
+        history[rid]["last_alert_price"] = cmp_price
         alert_sent = True
 
-    if should_daily(route, best_price, alert_sent, history):
+    if should_daily(route, cmp_price, alert_sent, history):
         log.info(f"[{rid}] 📅 Daily digest")
         msg = format_message(route, flights, trend, "daily", currency, passengers, dashboard_url)
         pending.append((msg, "daily"))
         history[rid]["last_daily_date"]  = _today()
-        history[rid]["last_daily_price"] = best_price
+        history[rid]["last_daily_price"] = cmp_price
 
     if should_weekly(route, history):
         log.info(f"[{rid}] 📅 Weekly summary")
