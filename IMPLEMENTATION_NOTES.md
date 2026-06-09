@@ -206,3 +206,140 @@ Each flight includes full leg data for the dashboard tree view.
 All file opens use `encoding="utf-8"` explicitly. Route labels contain `→` (U+2192)
 which breaks Windows default cp1252 encoding. Log messages with emoji use the
 UTF-8 stream handler workaround in the logging setup.
+
+---
+
+## Effective cost (time_value formula)
+
+When `time_value.enabled = true` for a route, every flight gets an `effective_cost`
+that normalises raw ticket price for time, vacation days, and discomfort — so a
+cheap but painfully long flight can be compared fairly against a pricier comfortable
+one. The result is used to sort flights and trigger alerts (`max_price_alert`
+compares against `effective_cost`, not `price`). The dashboard chart shows both
+lines.
+
+### Full formula
+
+```
+effective_cost = price
+  + _time_value_cost(extra_out, time_value_intervals)   ← symmetric, per leg
+  + _time_value_cost(extra_ret, time_value_intervals)   ← negative = credit
+  + vac_out                                              ← outbound vacation day
+  + vac_ret                                              ← return vacation day
+  + discomfort_out                                       ← tiered, positive extra only
+  + discomfort_ret
+```
+
+Where:
+- `extra_out = outbound_duration_h − base_outbound_duration_hours`
+- `extra_ret = return_duration_h  − base_return_duration_hours`
+- `_time_value_cost(x, intervals)`: tiered symmetric — positive extra → penalty,
+  negative extra → credit at the same tier rates (mirrored)
+- `discomfort_out/ret`: `_discomfort_cost(extra_h, discomfort_intervals)` —
+  same tiered logic but only applied when `extra_h > 0` (no discomfort credit for
+  short flights)
+
+### Config fields
+
+Shared fields live in `route_defaults.time_value`; per-route only needs `enabled`
++ `base_outbound_duration_hours` + `base_return_duration_hours` (plus any
+other fields that should differ from defaults).
+
+| Field | Where | Meaning |
+|---|---|---|
+| `enabled` | per-route | Switch on/off |
+| `base_outbound_duration_hours` | per-route | Baseline outbound duration; `"HH:MM"` string or float |
+| `base_return_duration_hours` | per-route | Baseline return duration; `"HH:MM"` string or float |
+| `time_value_intervals` | route_defaults | Tiered rate list for symmetric time cost |
+| `departure_threshold` | route_defaults | Outbound dep hour (e.g. `"18:00"`) — if dep hour < threshold, costs a vacation day |
+| `vacation_day_cost_eur` | route_defaults | Cost of outbound vacation day |
+| `return_arrival_vacation_from/to` | route_defaults | Return arrival window (e.g. `"09:00"`–`"15:00"`) — arrival inside = vacation day |
+| `return_vacation_day_cost_eur` | route_defaults | Cost of return vacation day (defaults to `vacation_day_cost_eur`) |
+| `discomfort_intervals` | route_defaults | Separate tiered penalty on positive extra hours per leg |
+
+**`"HH:MM"` string parsing** (`_parse_duration_hours`): `"15:35"` → `15 + 35/60 = 15.5833h`.
+Use exact fractions — don't round.
+
+### Two separate interval lists
+
+`time_value_intervals` and `discomfort_intervals` both use the same format
+(`[{"from_hours": N, "to_hours": M, "rate_eur_per_hour": R}]`) but serve different
+purposes:
+
+- **`time_value_intervals`** — symmetric time value. Applied to every leg, positive
+  or negative. First tier is typically a free tolerance zone (e.g. `[0–1h: €0]`)
+  so minor deviations from baseline have zero cost. Beyond that, over-baseline costs
+  and under-baseline credits at the same rate.
+- **`discomfort_intervals`** — additional penalty on positive extra hours only.
+  No credit for under-baseline (a short flight isn't more comfortable, just faster).
+
+### Boundary rules (easy to get wrong)
+
+- **Departure vacation** threshold is **strict `<`** — `dep_hour < threshold_h`.
+  A 18:00 departure with `departure_threshold: "18:00"` does **not** trigger a
+  vacation day (18 < 18 is False).
+- **Return vacation** window is **inclusive on both ends** — `from_h <= ret_arr_hour <= to_h`.
+- **`+1` in arrival time** (e.g. `06:40+1`) means next calendar day; the **hour is
+  still the literal value shown** — `ret_arr_hour = 6`, not 30.
+- **Discomfort** only fires when `extra_hours > 0`. Under-baseline legs get a
+  time-value credit but zero discomfort.
+
+### Worked example
+
+Route `otp-hkd-2026` baselines: outbound `"13:20"` → 13.333h, return `"15:35"` → 15.583h.
+Shared config (route_defaults): `time_value_intervals = [0–1h:€0, 1–99h:€25]`,
+`vacation_day_cost_eur = 150`, threshold `18:00`, return window `09:00–15:00`,
+`discomfort_intervals = [0–1h:€0, 1–2h:€10, 2–99h:€10]`.
+
+**Flight: 941 EUR · OTP 16:20 → HKG 14:50+1 (16h30m) | HKG 18:05 → OTP 06:40+1 (18h35m)**
+
+```
+extra_out  = 16.5   − 13.333 = +3.167h  →  tv_out = 0 + 2.167×25 = €54.17
+extra_ret  = 18.583 − 15.583 = +3.0h    →  tv_ret = 0 + 2.0×25   = €50.00
+vac_out    = 150  (dep 16 < 18)
+vac_ret    = 0    (arr 6, outside 9–15)
+disc_out   = 0 + 1.167×10 = €11.67      (discomfort_intervals [1–2:10, 2–99:10])
+disc_ret   = 0 + 1.0×10   = €10.00
+eff = 941 + 54.17 + 50 + 150 + 0 + 11.67 + 10 = 1216.84 → 1217
+```
+
+**Baseline flight: 1046 EUR · OTP 21:45 → HKG 17:05+1 (13h20m) | HKG 23:15 → OTP 08:50+1 (15h35m)**
+```
+extra_out = 0, extra_ret = 0, vac_out = 0, vac_ret = 0 (arr 8 outside 9–15)
+eff = 1046
+```
+
+---
+
+## Debugging tools
+
+### `_analyze_debug.py` — inspect raw fli output
+
+`_analyze_debug.py` in the repo root analyses the `[outbound, return]` pair dumps
+written to `debug/` when running with `--debug`. It groups pairs by
+`(departure datetime, airline, price)` and prints how many return options each
+distinct outbound candidate was expanded into — useful for answering "why does the
+dashboard only show N options for airline X?".
+
+Run `python flight_tracker.py --debug --route ROUTE_ID` first to generate dumps,
+then point the script's `glob.glob(...)` patterns at the relevant files. Adjust
+the pattern if you want to target a specific route or date range.
+
+Example question it answers: "Turkish Airlines shows only 1 option per day" →
+script confirms TK surfaces exactly 1 outbound candidate after filtering, because
+`max_layover_hours: 5` / `max_outbound_duration_hours: 18` cut its other daily
+departures before they reach expansion.
+
+### `debug/run_reference.md` — per-run performance log
+
+`debug/run_reference.md` tracks one entry per full GitHub Actions job run.
+When job logs are pasted into the conversation, the expected workflow is:
+
+1. Read `debug/run_reference.md` to see the previous entry format and values
+2. Extract from the pasted log: total run time, per-route best price/date/airline,
+   notification fired, 429 count, empty-retry volume, pairs with no results
+3. Append a new dated entry in the same format
+4. Call out notable changes vs the previous run (speed, API health, price movements)
+
+The user may say "analyze this run" or just paste raw log output — either way,
+read the file first before appending.

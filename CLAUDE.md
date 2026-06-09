@@ -339,6 +339,15 @@ any of these areas, since the reasoning isn't obvious from the code alone:
   pricier ones), 180 days, full leg data for the dashboard tree.
 - **Windows encoding** — all file opens use `encoding="utf-8"` explicitly
   (route labels contain `→`, U+2192, which breaks cp1252).
+- **Effective cost (`time_value`)** — when enabled, replaces raw price sorting with
+  `effective_cost = price + tiered symmetric time-value + vacation day costs +
+  tiered discomfort`. Formula, all config fields, boundary rules (`<` vs `<=`),
+  `+1` arrival parsing, and worked examples →
+  [IMPLEMENTATION_NOTES.md § Effective cost](IMPLEMENTATION_NOTES.md#effective-cost-time_value-formula).
+- **Debugging tools** — `_analyze_debug.py` (inspects raw fli output in `debug/`)
+  and `debug/run_reference.md` (per-run performance log; append a new entry when
+  job logs are pasted) →
+  [IMPLEMENTATION_NOTES.md § Debugging tools](IMPLEMENTATION_NOTES.md#debugging-tools).
 
 ---
 
