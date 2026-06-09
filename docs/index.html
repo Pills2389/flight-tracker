@@ -113,7 +113,7 @@
 <body>
 <header>
   <h1>✈️ Flight Price Tracker</h1>
-  <span class="upd">Updated: 2026-06-09 17:59 UTC</span>
+  <span class="upd">Updated: 2026-06-09 19:25 UTC</span>
 </header>
 <div class="grid">
         <div class="card" id="route-otp-hkd-2026">
@@ -121,19 +121,20 @@
             <h3>Bucharest → HK (1 Oct - 23 Nov 2026)</h3>
             <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
               <span class="badge">OTP → HKG</span>
-              <span style="background:#27ae60;color:#fff;padding:2px 8px;border-radius:10px;font-size:11px">✅ Below target 1000 EUR</span>
+              <span style="background:#c0392b;color:#fff;padding:2px 8px;border-radius:10px;font-size:11px">❌ Above target 1000 EUR (eff.)</span>
             </div>
             <details class="fparams">
               <summary><span class="fp-stay">12–18 nights</span> &nbsp;·&nbsp; <span class="fp-days">Thu Fri dep &nbsp;·&nbsp; Sun ret</span></summary>
-              <div class="fparams-body"><span class="fp-chip">max 2 stops</span> <span class="fp-chip">TK, QR preferred <span class="fp-mode-badge" data-tooltip="soft: all airlines shown, preferred ones get 🏷️">soft</span></span> <span class="fp-chip">flight duration: ≤18h out / ≤18h ret</span> <span class="fp-chip">dep 20:00–23:59 <span class="fp-mode-badge" data-tooltip="soft: flights outside this window are shown but not highlighted">soft</span></span> <span class="fp-chip">≤5h layover</span> <span class="fp-chip fp-chip-tv" title="effective cost = price + extra hours × 25€/h + vacation day if dep before 18:00">⏱ time-value: 25€/h · base 15h out / 15h ret · vac. before 18:00</span></div>
+              <div class="fparams-body"><span class="fp-chip">max 2 stops</span> <span class="fp-chip">TK, QR preferred <span class="fp-mode-badge" data-tooltip="soft: all airlines shown, preferred ones get 🏷️">soft</span></span> <span class="fp-chip">flight duration: ≤18h out / ≤18h ret</span> <span class="fp-chip">dep 20:00–23:59 <span class="fp-mode-badge" data-tooltip="soft: flights outside this window are shown but not highlighted">soft</span></span> <span class="fp-chip">≤5h layover</span> <span class="fp-chip fp-chip-tv" title="price + symmetric time @ 25€/h · vac-out if dep before 18:00 · vac-ret if arr 09:00–15:00 · discomfort: 3-tier on extra hours">⏱ time-value: 25€/h · base 13:20 out / 15:35 ret· vac. dep &lt;18:00 · ret vac 09:00–15:00 · discomfort 3-tier</span></div>
             </details>
           </div>
-          <div style="display:flex;align-items:baseline;gap:12px;margin:10px 0">
-            <span style="font-size:38px;font-weight:700;color:#1a5276">827</span>
+          <div style="display:flex;align-items:baseline;gap:12px;margin:10px 0;flex-wrap:wrap">
+            <span style="font-size:38px;font-weight:700;color:#1a5276">1046</span>
             <span style="color:#888;font-size:16px">EUR</span>
-            <span style="color:#aaa;font-size:12px">All-time best: <b>827 EUR</b></span>
+            <span style="font-size:14px;font-weight:600;color:#7d3c98;margin-left:10px">eff.&nbsp;1046</span>
+            <span style="color:#aaa;font-size:12px">All-time best: <b>894 EUR</b></span>
           </div>
-          <div style="color:#95a5a6;font-size:13px;font-weight:600;margin-bottom:10px">🎯 Below 14-day avg by 125 EUR — decent time to buy</div>
+          <div style="color:#95a5a6;font-size:13px;font-weight:600;margin-bottom:10px">➡️ Prices stable — no urgency</div>
           <div style="position:relative;height:140px;margin-bottom:14px">
             <canvas id="chart-otp-hkd-2026"></canvas>
           </div>
@@ -144,243 +145,301 @@
               <span style="color:#2980b9;font-weight:bold">■</span> preferred time &nbsp;
               🌙 overnight layover &nbsp;· Click rows to expand
             </div>
-            <div class='options'><details class='ag'>
+            <div class='options'><details class='ag ag-pref'>
     <summary class='ag-sum'>
-      <span class='ag-name'>KLM</span>
-      <span class='ag-cnt'>4 options</span>
-      <span class='ag-best'>from 827 EUR</span>
-      
+      <span class='ag-name'>Turkish Airlines</span>
+      <span class='ag-cnt'>5 options</span>
+      <span class='ag-best'>from 1046 EUR</span>
+      <span style="margin-left:4px">🏷️</span>
     </summary>
-    <div class='ag-body'><details class='opt'>
+    <div class='ag-body'><details class='opt pref-al pref-time'>
     <summary>
       <span class='onum'>1</span>
-      <span class='oprice'>827 <span class='cur'>EUR</span> <span class='efc' title='effective cost = price + time + vacation'>eff.&nbsp;975</span></span>
+      <span class='oprice'>1046 <span class='cur'>EUR</span></span>
       <span class='odates'>
-        <span class='dout'><b>OTP</b> <b>18:00</b> Nov 05 → <b>HKG</b> <b>16:20+1</b> <span class='dmeta'>16h 20m · 1 stop</span></span>
+        <span class='dout'><b>OTP</b> <b>21:45</b> Nov 06 → <b>HKG</b> <b>17:05+1</b> <span class='dmeta'>13h 20m · 1 stop</span></span>
         <span class='dsep'>↔</span>
-        <span class='dret'><b>HKG</b> <b>23:25</b> Nov 22 → <b>OTP</b> <b>13:00+1</b> <span class='dmeta'>19h 35m · 1 stop</span></span>
+        <span class='dret'><b>HKG</b> <b>23:15</b> Nov 22 → <b>OTP</b> <b>08:50+1</b> <span class='dmeta'>15h 35m · 1 stop</span></span>
       </span>
-      <span class='ometa'>17n · KLM · 2 stop(s) </span>
+      <span class='ometa'>16n · Turkish Airlines · 2 stop(s) 🏷️ ⭐ </span>
     </summary>
     <div class='obody'><details class='dir outbound'>
-      <summary>✈️ Outbound &nbsp;·&nbsp; 16h 20m &nbsp;·&nbsp; 1 stop</summary>
+      <summary>✈️ Outbound &nbsp;·&nbsp; 13h 20m &nbsp;·&nbsp; 1 stop</summary>
       <div class='legs'>
         <div class='leg'>
           <div class='leg-ap'>
             <span class='ap'><b>OTP</b><span class='ap-name'>Bucharest Henri Coandă International Airport</span></span>
-            <span class='lt'><b>18:00</b></span>
+            <span class='lt'><b>21:45</b></span>
             <span class='arr'>→</span>
-            <span class='ap'><b>AMS</b><span class='ap-name'>Amsterdam Airport Schiphol</span></span>
-            <span class='lt'><b>20:00</b></span>
+            <span class='ap'><b>IST</b><span class='ap-name'>Istanbul Airport</span></span>
+            <span class='lt'><b>00:15+1</b></span>
           </div>
-          <div class='leg-info'>KLM · KL1376 · Airbus A321neo · 3h 00m</div>
-        </div><div class='layover'>⏱ Layover <b>AMS</b> (Amsterdam Airport Schiphol) · 1h 25m</div>
+          <div class='leg-info'>Turkish Airlines · TK1046 · Boeing 787 · 1h 30m</div>
+        </div><div class='layover'>⏱ Layover <b>IST</b> (Istanbul Airport) · 1h 30m</div>
         <div class='leg'>
           <div class='leg-ap'>
-            <span class='ap'><b>AMS</b><span class='ap-name'>Amsterdam Airport Schiphol</span></span>
-            <span class='lt'><b>21:25</b></span>
+            <span class='ap'><b>IST</b><span class='ap-name'>Istanbul Airport</span></span>
+            <span class='lt'><b>01:45+1</b></span>
             <span class='arr'>→</span>
             <span class='ap'><b>HKG</b><span class='ap-name'>Hong Kong International Airport</span></span>
-            <span class='lt'><b>16:20+1</b></span>
+            <span class='lt'><b>17:05+1</b></span>
           </div>
-          <div class='leg-info'>KLM · KL887 · Boeing 787 · 11h 55m</div>
+          <div class='leg-info'>Turkish Airlines · TK70 · Boeing 777 · 10h 20m</div>
         </div></div>
     </details><details class='dir return-dir'>
-      <summary>↩️ Return &nbsp;·&nbsp; 19h 35m &nbsp;·&nbsp; 1 stop</summary>
+      <summary>↩️ Return &nbsp;·&nbsp; 15h 35m &nbsp;·&nbsp; 1 stop</summary>
       <div class='legs'>
         <div class='leg'>
           <div class='leg-ap'>
             <span class='ap'><b>HKG</b><span class='ap-name'>Hong Kong International Airport</span></span>
-            <span class='lt'><b>23:25</b></span>
+            <span class='lt'><b>23:15</b></span>
             <span class='arr'>→</span>
-            <span class='ap'><b>AMS</b><span class='ap-name'>Amsterdam Airport Schiphol</span></span>
-            <span class='lt'><b>06:20+1</b></span>
+            <span class='ap'><b>IST</b><span class='ap-name'>Istanbul Airport</span></span>
+            <span class='lt'><b>06:10+1</b></span>
           </div>
-          <div class='leg-info'>KLM · KL888 · Boeing 787 · 13h 55m</div>
-        </div><div class='layover'>⏱ Layover <b>AMS</b> (Amsterdam Airport Schiphol) · 3h 00m</div>
+          <div class='leg-info'>Turkish Airlines · TK71 · Boeing 777 · 11h 55m</div>
+        </div><div class='layover'>⏱ Layover <b>IST</b> (Istanbul Airport) · 2h 20m</div>
         <div class='leg'>
           <div class='leg-ap'>
-            <span class='ap'><b>AMS</b><span class='ap-name'>Amsterdam Airport Schiphol</span></span>
-            <span class='lt'><b>09:20+1</b></span>
+            <span class='ap'><b>IST</b><span class='ap-name'>Istanbul Airport</span></span>
+            <span class='lt'><b>08:30+1</b></span>
             <span class='arr'>→</span>
             <span class='ap'><b>OTP</b><span class='ap-name'>Bucharest Henri Coandă International Airport</span></span>
-            <span class='lt'><b>13:00+1</b></span>
+            <span class='lt'><b>08:50+1</b></span>
           </div>
-          <div class='leg-info'>KLM · KL1373 · Airbus A321neo · 2h 40m</div>
+          <div class='leg-info'>Turkish Airlines · TK1043 · Boeing 787 · 1h 20m</div>
         </div></div>
     </details></div>
-  </details><details class='opt'>
+  </details><details class='opt pref-al pref-time'>
     <summary>
       <span class='onum'>2</span>
-      <span class='oprice'>870 <span class='cur'>EUR</span> <span class='efc' title='effective cost = price + time + vacation'>eff.&nbsp;1018</span></span>
+      <span class='oprice'>1049 <span class='cur'>EUR</span></span>
       <span class='odates'>
-        <span class='dout'><b>OTP</b> <b>18:00</b> Oct 29 → <b>HKG</b> <b>16:20+1</b> <span class='dmeta'>16h 20m · 1 stop</span></span>
+        <span class='dout'><b>OTP</b> <b>21:45</b> Nov 05 → <b>HKG</b> <b>17:05+1</b> <span class='dmeta'>13h 20m · 1 stop</span></span>
         <span class='dsep'>↔</span>
-        <span class='dret'><b>HKG</b> <b>23:25</b> Nov 15 → <b>OTP</b> <b>13:00+1</b> <span class='dmeta'>19h 35m · 1 stop</span></span>
+        <span class='dret'><b>HKG</b> <b>23:15</b> Nov 22 → <b>OTP</b> <b>08:50+1</b> <span class='dmeta'>15h 35m · 1 stop</span></span>
       </span>
-      <span class='ometa'>17n · KLM · 2 stop(s) </span>
+      <span class='ometa'>17n · Turkish Airlines · 2 stop(s) 🏷️ ⭐ </span>
     </summary>
     <div class='obody'><details class='dir outbound'>
-      <summary>✈️ Outbound &nbsp;·&nbsp; 16h 20m &nbsp;·&nbsp; 1 stop</summary>
+      <summary>✈️ Outbound &nbsp;·&nbsp; 13h 20m &nbsp;·&nbsp; 1 stop</summary>
       <div class='legs'>
         <div class='leg'>
           <div class='leg-ap'>
             <span class='ap'><b>OTP</b><span class='ap-name'>Bucharest Henri Coandă International Airport</span></span>
-            <span class='lt'><b>18:00</b></span>
+            <span class='lt'><b>21:45</b></span>
             <span class='arr'>→</span>
-            <span class='ap'><b>AMS</b><span class='ap-name'>Amsterdam Airport Schiphol</span></span>
-            <span class='lt'><b>20:00</b></span>
+            <span class='ap'><b>IST</b><span class='ap-name'>Istanbul Airport</span></span>
+            <span class='lt'><b>00:15+1</b></span>
           </div>
-          <div class='leg-info'>KLM · KL1376 · Airbus A321neo · 3h 00m</div>
-        </div><div class='layover'>⏱ Layover <b>AMS</b> (Amsterdam Airport Schiphol) · 1h 25m</div>
+          <div class='leg-info'>Turkish Airlines · TK1046 · Boeing 787 · 1h 30m</div>
+        </div><div class='layover'>⏱ Layover <b>IST</b> (Istanbul Airport) · 1h 30m</div>
         <div class='leg'>
           <div class='leg-ap'>
-            <span class='ap'><b>AMS</b><span class='ap-name'>Amsterdam Airport Schiphol</span></span>
-            <span class='lt'><b>21:25</b></span>
+            <span class='ap'><b>IST</b><span class='ap-name'>Istanbul Airport</span></span>
+            <span class='lt'><b>01:45+1</b></span>
             <span class='arr'>→</span>
             <span class='ap'><b>HKG</b><span class='ap-name'>Hong Kong International Airport</span></span>
-            <span class='lt'><b>16:20+1</b></span>
+            <span class='lt'><b>17:05+1</b></span>
           </div>
-          <div class='leg-info'>KLM · KL887 · Boeing 787 · 11h 55m</div>
+          <div class='leg-info'>Turkish Airlines · TK70 · Boeing 777 · 10h 20m</div>
         </div></div>
     </details><details class='dir return-dir'>
-      <summary>↩️ Return &nbsp;·&nbsp; 19h 35m &nbsp;·&nbsp; 1 stop</summary>
+      <summary>↩️ Return &nbsp;·&nbsp; 15h 35m &nbsp;·&nbsp; 1 stop</summary>
       <div class='legs'>
         <div class='leg'>
           <div class='leg-ap'>
             <span class='ap'><b>HKG</b><span class='ap-name'>Hong Kong International Airport</span></span>
-            <span class='lt'><b>23:25</b></span>
+            <span class='lt'><b>23:15</b></span>
             <span class='arr'>→</span>
-            <span class='ap'><b>AMS</b><span class='ap-name'>Amsterdam Airport Schiphol</span></span>
-            <span class='lt'><b>06:20+1</b></span>
+            <span class='ap'><b>IST</b><span class='ap-name'>Istanbul Airport</span></span>
+            <span class='lt'><b>06:10+1</b></span>
           </div>
-          <div class='leg-info'>KLM · KL888 · Boeing 787 · 13h 55m</div>
-        </div><div class='layover'>⏱ Layover <b>AMS</b> (Amsterdam Airport Schiphol) · 3h 00m</div>
+          <div class='leg-info'>Turkish Airlines · TK71 · Boeing 777 · 11h 55m</div>
+        </div><div class='layover'>⏱ Layover <b>IST</b> (Istanbul Airport) · 2h 20m</div>
         <div class='leg'>
           <div class='leg-ap'>
-            <span class='ap'><b>AMS</b><span class='ap-name'>Amsterdam Airport Schiphol</span></span>
-            <span class='lt'><b>09:20+1</b></span>
+            <span class='ap'><b>IST</b><span class='ap-name'>Istanbul Airport</span></span>
+            <span class='lt'><b>08:30+1</b></span>
             <span class='arr'>→</span>
             <span class='ap'><b>OTP</b><span class='ap-name'>Bucharest Henri Coandă International Airport</span></span>
-            <span class='lt'><b>13:00+1</b></span>
+            <span class='lt'><b>08:50+1</b></span>
           </div>
-          <div class='leg-info'>KLM · KL1373 · Airbus A321neo · 2h 40m</div>
+          <div class='leg-info'>Turkish Airlines · TK1043 · Boeing 787 · 1h 20m</div>
         </div></div>
     </details></div>
-  </details><details class='opt'>
+  </details><details class='opt pref-al pref-time'>
     <summary>
       <span class='onum'>3</span>
-      <span class='oprice'>827 <span class='cur'>EUR</span> <span class='efc' title='effective cost = price + time + vacation'>eff.&nbsp;1023</span></span>
+      <span class='oprice'>1046 <span class='cur'>EUR</span> <span class='efc' title='effective cost = price + time + vacation'>eff.&nbsp;1074</span></span>
       <span class='odates'>
-        <span class='dout'><b>OTP</b> <b>18:00</b> Nov 05 → <b>HKG</b> <b>16:20+1</b> <span class='dmeta'>16h 20m · 1 stop</span></span>
+        <span class='dout'><b>OTP</b> <b>21:45</b> Nov 06 → <b>HKG</b> <b>17:05+1</b> <span class='dmeta'>13h 20m · 1 stop</span></span>
         <span class='dsep'>↔</span>
-        <span class='dret'><b>HKG</b> <b>22:40</b> Nov 22 → <b>OTP</b> <b>14:10+1</b> <span class='dmeta'>21h 30m · 1 stop</span></span>
+        <span class='dret'><b>HKG</b> <b>09:45</b> Nov 22 → <b>OTP</b> <b>20:25</b> <span class='dmeta'>16h 40m · 1 stop</span></span>
       </span>
-      <span class='ometa'>17n · KLM · 2 stop(s) </span>
+      <span class='ometa'>16n · Turkish Airlines · 2 stop(s) 🏷️ ⭐ </span>
     </summary>
     <div class='obody'><details class='dir outbound'>
-      <summary>✈️ Outbound &nbsp;·&nbsp; 16h 20m &nbsp;·&nbsp; 1 stop</summary>
+      <summary>✈️ Outbound &nbsp;·&nbsp; 13h 20m &nbsp;·&nbsp; 1 stop</summary>
       <div class='legs'>
         <div class='leg'>
           <div class='leg-ap'>
             <span class='ap'><b>OTP</b><span class='ap-name'>Bucharest Henri Coandă International Airport</span></span>
-            <span class='lt'><b>18:00</b></span>
+            <span class='lt'><b>21:45</b></span>
             <span class='arr'>→</span>
-            <span class='ap'><b>AMS</b><span class='ap-name'>Amsterdam Airport Schiphol</span></span>
-            <span class='lt'><b>20:00</b></span>
+            <span class='ap'><b>IST</b><span class='ap-name'>Istanbul Airport</span></span>
+            <span class='lt'><b>00:15+1</b></span>
           </div>
-          <div class='leg-info'>KLM · KL1376 · Airbus A321neo · 3h 00m</div>
-        </div><div class='layover'>⏱ Layover <b>AMS</b> (Amsterdam Airport Schiphol) · 1h 25m</div>
+          <div class='leg-info'>Turkish Airlines · TK1046 · Boeing 787 · 1h 30m</div>
+        </div><div class='layover'>⏱ Layover <b>IST</b> (Istanbul Airport) · 1h 30m</div>
         <div class='leg'>
           <div class='leg-ap'>
-            <span class='ap'><b>AMS</b><span class='ap-name'>Amsterdam Airport Schiphol</span></span>
-            <span class='lt'><b>21:25</b></span>
+            <span class='ap'><b>IST</b><span class='ap-name'>Istanbul Airport</span></span>
+            <span class='lt'><b>01:45+1</b></span>
             <span class='arr'>→</span>
             <span class='ap'><b>HKG</b><span class='ap-name'>Hong Kong International Airport</span></span>
-            <span class='lt'><b>16:20+1</b></span>
+            <span class='lt'><b>17:05+1</b></span>
           </div>
-          <div class='leg-info'>KLM · KL887 · Boeing 787 · 11h 55m</div>
+          <div class='leg-info'>Turkish Airlines · TK70 · Boeing 777 · 10h 20m</div>
         </div></div>
     </details><details class='dir return-dir'>
-      <summary>↩️ Return &nbsp;·&nbsp; 21h 30m &nbsp;·&nbsp; 1 stop</summary>
+      <summary>↩️ Return &nbsp;·&nbsp; 16h 40m &nbsp;·&nbsp; 1 stop</summary>
       <div class='legs'>
         <div class='leg'>
           <div class='leg-ap'>
             <span class='ap'><b>HKG</b><span class='ap-name'>Hong Kong International Airport</span></span>
-            <span class='lt'><b>22:40</b></span>
+            <span class='lt'><b>09:45</b></span>
             <span class='arr'>→</span>
-            <span class='ap'><b>CDG</b><span class='ap-name'>Paris Charles de Gaulle Airport</span></span>
-            <span class='lt'><b>05:45+1</b></span>
+            <span class='ap'><b>IST</b><span class='ap-name'>Istanbul Airport</span></span>
+            <span class='lt'><b>16:45</b></span>
           </div>
-          <div class='leg-info'>Air France · AF185 · Airbus A350 · 14h 05m</div>
-        </div><div class='layover'>⏱ Layover <b>CDG</b> (Paris Charles de Gaulle Airport) · 4h 30m</div>
+          <div class='leg-info'>Turkish Airlines · TK171 · Boeing 787 · 12h 00m</div>
+        </div><div class='layover'>⏱ Layover <b>IST</b> (Istanbul Airport) · 3h 20m</div>
         <div class='leg'>
           <div class='leg-ap'>
-            <span class='ap'><b>CDG</b><span class='ap-name'>Paris Charles de Gaulle Airport</span></span>
-            <span class='lt'><b>10:15+1</b></span>
+            <span class='ap'><b>IST</b><span class='ap-name'>Istanbul Airport</span></span>
+            <span class='lt'><b>20:05</b></span>
             <span class='arr'>→</span>
             <span class='ap'><b>OTP</b><span class='ap-name'>Bucharest Henri Coandă International Airport</span></span>
-            <span class='lt'><b>14:10+1</b></span>
+            <span class='lt'><b>20:25</b></span>
           </div>
-          <div class='leg-info'>Air France · AF1888 · Airbus A220-300 Passenger · 2h 55m</div>
+          <div class='leg-info'>Turkish Airlines · TK1045 · Boeing 787 · 1h 20m</div>
         </div></div>
     </details></div>
-  </details><details class='opt'>
+  </details><details class='opt pref-al pref-time'>
     <summary>
       <span class='onum'>4</span>
-      <span class='oprice'>870 <span class='cur'>EUR</span> <span class='efc' title='effective cost = price + time + vacation'>eff.&nbsp;1066</span></span>
+      <span class='oprice'>1083 <span class='cur'>EUR</span></span>
       <span class='odates'>
-        <span class='dout'><b>OTP</b> <b>18:00</b> Oct 29 → <b>HKG</b> <b>16:20+1</b> <span class='dmeta'>16h 20m · 1 stop</span></span>
+        <span class='dout'><b>OTP</b> <b>21:45</b> Oct 30 → <b>HKG</b> <b>17:05+1</b> <span class='dmeta'>13h 20m · 1 stop</span></span>
         <span class='dsep'>↔</span>
-        <span class='dret'><b>HKG</b> <b>22:40</b> Nov 15 → <b>OTP</b> <b>14:10+1</b> <span class='dmeta'>21h 30m · 1 stop</span></span>
+        <span class='dret'><b>HKG</b> <b>23:15</b> Nov 15 → <b>OTP</b> <b>08:50+1</b> <span class='dmeta'>15h 35m · 1 stop</span></span>
       </span>
-      <span class='ometa'>17n · KLM · 2 stop(s) </span>
+      <span class='ometa'>16n · Turkish Airlines · 2 stop(s) 🏷️ ⭐ </span>
     </summary>
     <div class='obody'><details class='dir outbound'>
-      <summary>✈️ Outbound &nbsp;·&nbsp; 16h 20m &nbsp;·&nbsp; 1 stop</summary>
+      <summary>✈️ Outbound &nbsp;·&nbsp; 13h 20m &nbsp;·&nbsp; 1 stop</summary>
       <div class='legs'>
         <div class='leg'>
           <div class='leg-ap'>
             <span class='ap'><b>OTP</b><span class='ap-name'>Bucharest Henri Coandă International Airport</span></span>
-            <span class='lt'><b>18:00</b></span>
+            <span class='lt'><b>21:45</b></span>
             <span class='arr'>→</span>
-            <span class='ap'><b>AMS</b><span class='ap-name'>Amsterdam Airport Schiphol</span></span>
-            <span class='lt'><b>20:00</b></span>
+            <span class='ap'><b>IST</b><span class='ap-name'>Istanbul Airport</span></span>
+            <span class='lt'><b>00:15+1</b></span>
           </div>
-          <div class='leg-info'>KLM · KL1376 · Airbus A321neo · 3h 00m</div>
-        </div><div class='layover'>⏱ Layover <b>AMS</b> (Amsterdam Airport Schiphol) · 1h 25m</div>
+          <div class='leg-info'>Turkish Airlines · TK1046 · Boeing 787 · 1h 30m</div>
+        </div><div class='layover'>⏱ Layover <b>IST</b> (Istanbul Airport) · 1h 30m</div>
         <div class='leg'>
           <div class='leg-ap'>
-            <span class='ap'><b>AMS</b><span class='ap-name'>Amsterdam Airport Schiphol</span></span>
-            <span class='lt'><b>21:25</b></span>
+            <span class='ap'><b>IST</b><span class='ap-name'>Istanbul Airport</span></span>
+            <span class='lt'><b>01:45+1</b></span>
             <span class='arr'>→</span>
             <span class='ap'><b>HKG</b><span class='ap-name'>Hong Kong International Airport</span></span>
-            <span class='lt'><b>16:20+1</b></span>
+            <span class='lt'><b>17:05+1</b></span>
           </div>
-          <div class='leg-info'>KLM · KL887 · Boeing 787 · 11h 55m</div>
+          <div class='leg-info'>Turkish Airlines · TK70 · Boeing 777 · 10h 20m</div>
         </div></div>
     </details><details class='dir return-dir'>
-      <summary>↩️ Return &nbsp;·&nbsp; 21h 30m &nbsp;·&nbsp; 1 stop</summary>
+      <summary>↩️ Return &nbsp;·&nbsp; 15h 35m &nbsp;·&nbsp; 1 stop</summary>
       <div class='legs'>
         <div class='leg'>
           <div class='leg-ap'>
             <span class='ap'><b>HKG</b><span class='ap-name'>Hong Kong International Airport</span></span>
-            <span class='lt'><b>22:40</b></span>
+            <span class='lt'><b>23:15</b></span>
             <span class='arr'>→</span>
-            <span class='ap'><b>CDG</b><span class='ap-name'>Paris Charles de Gaulle Airport</span></span>
-            <span class='lt'><b>05:45+1</b></span>
+            <span class='ap'><b>IST</b><span class='ap-name'>Istanbul Airport</span></span>
+            <span class='lt'><b>06:10+1</b></span>
           </div>
-          <div class='leg-info'>Air France · AF185 · Airbus A350 · 14h 05m</div>
-        </div><div class='layover'>⏱ Layover <b>CDG</b> (Paris Charles de Gaulle Airport) · 4h 30m</div>
+          <div class='leg-info'>Turkish Airlines · TK71 · Boeing 777 · 11h 55m</div>
+        </div><div class='layover'>⏱ Layover <b>IST</b> (Istanbul Airport) · 2h 20m</div>
         <div class='leg'>
           <div class='leg-ap'>
-            <span class='ap'><b>CDG</b><span class='ap-name'>Paris Charles de Gaulle Airport</span></span>
-            <span class='lt'><b>10:15+1</b></span>
+            <span class='ap'><b>IST</b><span class='ap-name'>Istanbul Airport</span></span>
+            <span class='lt'><b>08:30+1</b></span>
             <span class='arr'>→</span>
             <span class='ap'><b>OTP</b><span class='ap-name'>Bucharest Henri Coandă International Airport</span></span>
-            <span class='lt'><b>14:10+1</b></span>
+            <span class='lt'><b>08:50+1</b></span>
           </div>
-          <div class='leg-info'>Air France · AF1888 · Airbus A220-300 Passenger · 2h 55m</div>
+          <div class='leg-info'>Turkish Airlines · TK1043 · Boeing 787 · 1h 20m</div>
+        </div></div>
+    </details></div>
+  </details><details class='opt pref-al pref-time'>
+    <summary>
+      <span class='onum'>5</span>
+      <span class='oprice'>1083 <span class='cur'>EUR</span> <span class='efc' title='effective cost = price + time + vacation'>eff.&nbsp;1111</span></span>
+      <span class='odates'>
+        <span class='dout'><b>OTP</b> <b>21:45</b> Oct 30 → <b>HKG</b> <b>17:05+1</b> <span class='dmeta'>13h 20m · 1 stop</span></span>
+        <span class='dsep'>↔</span>
+        <span class='dret'><b>HKG</b> <b>09:45</b> Nov 15 → <b>OTP</b> <b>20:25</b> <span class='dmeta'>16h 40m · 1 stop</span></span>
+      </span>
+      <span class='ometa'>16n · Turkish Airlines · 2 stop(s) 🏷️ ⭐ </span>
+    </summary>
+    <div class='obody'><details class='dir outbound'>
+      <summary>✈️ Outbound &nbsp;·&nbsp; 13h 20m &nbsp;·&nbsp; 1 stop</summary>
+      <div class='legs'>
+        <div class='leg'>
+          <div class='leg-ap'>
+            <span class='ap'><b>OTP</b><span class='ap-name'>Bucharest Henri Coandă International Airport</span></span>
+            <span class='lt'><b>21:45</b></span>
+            <span class='arr'>→</span>
+            <span class='ap'><b>IST</b><span class='ap-name'>Istanbul Airport</span></span>
+            <span class='lt'><b>00:15+1</b></span>
+          </div>
+          <div class='leg-info'>Turkish Airlines · TK1046 · Boeing 787 · 1h 30m</div>
+        </div><div class='layover'>⏱ Layover <b>IST</b> (Istanbul Airport) · 1h 30m</div>
+        <div class='leg'>
+          <div class='leg-ap'>
+            <span class='ap'><b>IST</b><span class='ap-name'>Istanbul Airport</span></span>
+            <span class='lt'><b>01:45+1</b></span>
+            <span class='arr'>→</span>
+            <span class='ap'><b>HKG</b><span class='ap-name'>Hong Kong International Airport</span></span>
+            <span class='lt'><b>17:05+1</b></span>
+          </div>
+          <div class='leg-info'>Turkish Airlines · TK70 · Boeing 777 · 10h 20m</div>
+        </div></div>
+    </details><details class='dir return-dir'>
+      <summary>↩️ Return &nbsp;·&nbsp; 16h 40m &nbsp;·&nbsp; 1 stop</summary>
+      <div class='legs'>
+        <div class='leg'>
+          <div class='leg-ap'>
+            <span class='ap'><b>HKG</b><span class='ap-name'>Hong Kong International Airport</span></span>
+            <span class='lt'><b>09:45</b></span>
+            <span class='arr'>→</span>
+            <span class='ap'><b>IST</b><span class='ap-name'>Istanbul Airport</span></span>
+            <span class='lt'><b>16:45</b></span>
+          </div>
+          <div class='leg-info'>Turkish Airlines · TK171 · Boeing 787 · 12h 00m</div>
+        </div><div class='layover'>⏱ Layover <b>IST</b> (Istanbul Airport) · 3h 20m</div>
+        <div class='leg'>
+          <div class='leg-ap'>
+            <span class='ap'><b>IST</b><span class='ap-name'>Istanbul Airport</span></span>
+            <span class='lt'><b>20:05</b></span>
+            <span class='arr'>→</span>
+            <span class='ap'><b>OTP</b><span class='ap-name'>Bucharest Henri Coandă International Airport</span></span>
+            <span class='lt'><b>20:25</b></span>
+          </div>
+          <div class='leg-info'>Turkish Airlines · TK1045 · Boeing 787 · 1h 20m</div>
         </div></div>
     </details></div>
   </details></div>
@@ -394,7 +453,7 @@
     <div class='ag-body'><details class='opt pref-time'>
     <summary>
       <span class='onum'>1</span>
-      <span class='oprice'>891 <span class='cur'>EUR</span> <span class='efc' title='effective cost = price + time + vacation'>eff.&nbsp;1031</span></span>
+      <span class='oprice'>891 <span class='cur'>EUR</span> <span class='efc' title='effective cost = price + time + vacation'>eff.&nbsp;1141</span></span>
       <span class='odates'>
         <span class='dout'><b>OTP</b> <b>23:10</b> Oct 30 → <b>HKG</b> <b>21:50+1</b> <span class='dmeta'>16h 40m · 1 stop</span></span>
         <span class='dsep'>↔</span>
@@ -452,7 +511,7 @@
   </details><details class='opt pref-time'>
     <summary>
       <span class='onum'>2</span>
-      <span class='oprice'>891 <span class='cur'>EUR</span> <span class='efc' title='effective cost = price + time + vacation'>eff.&nbsp;1031</span></span>
+      <span class='oprice'>891 <span class='cur'>EUR</span> <span class='efc' title='effective cost = price + time + vacation'>eff.&nbsp;1141</span></span>
       <span class='odates'>
         <span class='dout'><b>OTP</b> <b>23:10</b> Nov 06 → <b>HKG</b> <b>21:50+1</b> <span class='dmeta'>16h 40m · 1 stop</span></span>
         <span class='dsep'>↔</span>
@@ -510,7 +569,65 @@
   </details><details class='opt pref-time'>
     <summary>
       <span class='onum'>3</span>
-      <span class='oprice'>891 <span class='cur'>EUR</span> <span class='efc' title='effective cost = price + time + vacation'>eff.&nbsp;1039</span></span>
+      <span class='oprice'>931 <span class='cur'>EUR</span> <span class='efc' title='effective cost = price + time + vacation'>eff.&nbsp;1181</span></span>
+      <span class='odates'>
+        <span class='dout'><b>OTP</b> <b>23:10</b> Nov 05 → <b>HKG</b> <b>21:50+1</b> <span class='dmeta'>16h 40m · 1 stop</span></span>
+        <span class='dsep'>↔</span>
+        <span class='dret'><b>HKG</b> <b>18:05</b> Nov 22 → <b>OTP</b> <b>07:00+1</b> <span class='dmeta'>18h 55m · 1 stop</span></span>
+      </span>
+      <span class='ometa'>17n · flydubai, Emirates · 2 stop(s) ⭐ </span>
+    </summary>
+    <div class='obody'><details class='dir outbound'>
+      <summary>✈️ Outbound &nbsp;·&nbsp; 16h 40m &nbsp;·&nbsp; 1 stop</summary>
+      <div class='legs'>
+        <div class='leg'>
+          <div class='leg-ap'>
+            <span class='ap'><b>OTP</b><span class='ap-name'>Bucharest Henri Coandă International Airport</span></span>
+            <span class='lt'><b>23:10</b></span>
+            <span class='arr'>→</span>
+            <span class='ap'><b>DXB</b><span class='ap-name'>Dubai International Airport</span></span>
+            <span class='lt'><b>06:05+1</b></span>
+          </div>
+          <div class='leg-info'>flydubai · FZ1796 · Boeing 737MAX 8 Passenger · 4h 55m</div>
+        </div><div class='layover'>⏱ Layover <b>DXB</b> (Dubai International Airport) · 4h 35m</div>
+        <div class='leg'>
+          <div class='leg-ap'>
+            <span class='ap'><b>DXB</b><span class='ap-name'>Dubai International Airport</span></span>
+            <span class='lt'><b>10:40+1</b></span>
+            <span class='arr'>→</span>
+            <span class='ap'><b>HKG</b><span class='ap-name'>Hong Kong International Airport</span></span>
+            <span class='lt'><b>21:50+1</b></span>
+          </div>
+          <div class='leg-info'>Emirates · EK380 · Airbus A380 · 7h 10m</div>
+        </div></div>
+    </details><details class='dir return-dir'>
+      <summary>↩️ Return &nbsp;·&nbsp; 18h 55m &nbsp;·&nbsp; 1 stop</summary>
+      <div class='legs'>
+        <div class='leg'>
+          <div class='leg-ap'>
+            <span class='ap'><b>HKG</b><span class='ap-name'>Hong Kong International Airport</span></span>
+            <span class='lt'><b>18:05</b></span>
+            <span class='arr'>→</span>
+            <span class='ap'><b>DXB</b><span class='ap-name'>Dubai International Airport</span></span>
+            <span class='lt'><b>23:00</b></span>
+          </div>
+          <div class='leg-info'>Emirates · EK383 · Airbus A380 · 8h 55m</div>
+        </div><div class='layover overnight'>⏱ Layover <b>DXB</b> (Dubai International Airport) · 4h 30m 🌙 Overnight</div>
+        <div class='leg'>
+          <div class='leg-ap'>
+            <span class='ap'><b>DXB</b><span class='ap-name'>Dubai International Airport</span></span>
+            <span class='lt'><b>03:30+1</b></span>
+            <span class='arr'>→</span>
+            <span class='ap'><b>OTP</b><span class='ap-name'>Bucharest Henri Coandă International Airport</span></span>
+            <span class='lt'><b>07:00+1</b></span>
+          </div>
+          <div class='leg-info'>flydubai · FZ1709 · Boeing 737MAX 8 Passenger · 5h 30m</div>
+        </div></div>
+    </details></div>
+  </details><details class='opt pref-time'>
+    <summary>
+      <span class='onum'>4</span>
+      <span class='oprice'>891 <span class='cur'>EUR</span> <span class='efc' title='effective cost = price + time + vacation'>eff.&nbsp;1306</span></span>
       <span class='odates'>
         <span class='dout'><b>OTP</b> <b>23:10</b> Oct 30 → <b>HKG</b> <b>21:50+1</b> <span class='dmeta'>16h 40m · 1 stop</span></span>
         <span class='dsep'>↔</span>
@@ -567,8 +684,8 @@
     </details></div>
   </details><details class='opt pref-time'>
     <summary>
-      <span class='onum'>4</span>
-      <span class='oprice'>891 <span class='cur'>EUR</span> <span class='efc' title='effective cost = price + time + vacation'>eff.&nbsp;1039</span></span>
+      <span class='onum'>5</span>
+      <span class='oprice'>891 <span class='cur'>EUR</span> <span class='efc' title='effective cost = price + time + vacation'>eff.&nbsp;1306</span></span>
       <span class='odates'>
         <span class='dout'><b>OTP</b> <b>23:10</b> Nov 06 → <b>HKG</b> <b>21:50+1</b> <span class='dmeta'>16h 40m · 1 stop</span></span>
         <span class='dsep'>↔</span>
@@ -623,366 +740,10 @@
           <div class='leg-info'>flydubai · FZ1797 · Boeing 737MAX 8 Passenger · 5h 30m</div>
         </div></div>
     </details></div>
-  </details><details class='opt pref-time'>
-    <summary>
-      <span class='onum'>5</span>
-      <span class='oprice'>931 <span class='cur'>EUR</span> <span class='efc' title='effective cost = price + time + vacation'>eff.&nbsp;1071</span></span>
-      <span class='odates'>
-        <span class='dout'><b>OTP</b> <b>23:10</b> Nov 05 → <b>HKG</b> <b>21:50+1</b> <span class='dmeta'>16h 40m · 1 stop</span></span>
-        <span class='dsep'>↔</span>
-        <span class='dret'><b>HKG</b> <b>18:05</b> Nov 22 → <b>OTP</b> <b>07:00+1</b> <span class='dmeta'>18h 55m · 1 stop</span></span>
-      </span>
-      <span class='ometa'>17n · flydubai, Emirates · 2 stop(s) ⭐ </span>
-    </summary>
-    <div class='obody'><details class='dir outbound'>
-      <summary>✈️ Outbound &nbsp;·&nbsp; 16h 40m &nbsp;·&nbsp; 1 stop</summary>
-      <div class='legs'>
-        <div class='leg'>
-          <div class='leg-ap'>
-            <span class='ap'><b>OTP</b><span class='ap-name'>Bucharest Henri Coandă International Airport</span></span>
-            <span class='lt'><b>23:10</b></span>
-            <span class='arr'>→</span>
-            <span class='ap'><b>DXB</b><span class='ap-name'>Dubai International Airport</span></span>
-            <span class='lt'><b>06:05+1</b></span>
-          </div>
-          <div class='leg-info'>flydubai · FZ1796 · Boeing 737MAX 8 Passenger · 4h 55m</div>
-        </div><div class='layover'>⏱ Layover <b>DXB</b> (Dubai International Airport) · 4h 35m</div>
-        <div class='leg'>
-          <div class='leg-ap'>
-            <span class='ap'><b>DXB</b><span class='ap-name'>Dubai International Airport</span></span>
-            <span class='lt'><b>10:40+1</b></span>
-            <span class='arr'>→</span>
-            <span class='ap'><b>HKG</b><span class='ap-name'>Hong Kong International Airport</span></span>
-            <span class='lt'><b>21:50+1</b></span>
-          </div>
-          <div class='leg-info'>Emirates · EK380 · Airbus A380 · 7h 10m</div>
-        </div></div>
-    </details><details class='dir return-dir'>
-      <summary>↩️ Return &nbsp;·&nbsp; 18h 55m &nbsp;·&nbsp; 1 stop</summary>
-      <div class='legs'>
-        <div class='leg'>
-          <div class='leg-ap'>
-            <span class='ap'><b>HKG</b><span class='ap-name'>Hong Kong International Airport</span></span>
-            <span class='lt'><b>18:05</b></span>
-            <span class='arr'>→</span>
-            <span class='ap'><b>DXB</b><span class='ap-name'>Dubai International Airport</span></span>
-            <span class='lt'><b>23:00</b></span>
-          </div>
-          <div class='leg-info'>Emirates · EK383 · Airbus A380 · 8h 55m</div>
-        </div><div class='layover overnight'>⏱ Layover <b>DXB</b> (Dubai International Airport) · 4h 30m 🌙 Overnight</div>
-        <div class='leg'>
-          <div class='leg-ap'>
-            <span class='ap'><b>DXB</b><span class='ap-name'>Dubai International Airport</span></span>
-            <span class='lt'><b>03:30+1</b></span>
-            <span class='arr'>→</span>
-            <span class='ap'><b>OTP</b><span class='ap-name'>Bucharest Henri Coandă International Airport</span></span>
-            <span class='lt'><b>07:00+1</b></span>
-          </div>
-          <div class='leg-info'>flydubai · FZ1709 · Boeing 737MAX 8 Passenger · 5h 30m</div>
-        </div></div>
-    </details></div>
-  </details></div>
-  </details><details class='ag ag-pref'>
-    <summary class='ag-sum'>
-      <span class='ag-name'>Turkish Airlines</span>
-      <span class='ag-cnt'>5 options</span>
-      <span class='ag-best'>from 1046 EUR</span>
-      <span style="margin-left:4px">🏷️</span>
-    </summary>
-    <div class='ag-body'><details class='opt pref-al pref-time'>
-    <summary>
-      <span class='onum'>1</span>
-      <span class='oprice'>1046 <span class='cur'>EUR</span> <span class='efc' title='effective cost = price + time + vacation'>eff.&nbsp;1061</span></span>
-      <span class='odates'>
-        <span class='dout'><b>OTP</b> <b>21:45</b> Nov 06 → <b>HKG</b> <b>17:05+1</b> <span class='dmeta'>13h 20m · 1 stop</span></span>
-        <span class='dsep'>↔</span>
-        <span class='dret'><b>HKG</b> <b>23:15</b> Nov 22 → <b>OTP</b> <b>08:50+1</b> <span class='dmeta'>15h 35m · 1 stop</span></span>
-      </span>
-      <span class='ometa'>16n · Turkish Airlines · 2 stop(s) 🏷️ ⭐ </span>
-    </summary>
-    <div class='obody'><details class='dir outbound'>
-      <summary>✈️ Outbound &nbsp;·&nbsp; 13h 20m &nbsp;·&nbsp; 1 stop</summary>
-      <div class='legs'>
-        <div class='leg'>
-          <div class='leg-ap'>
-            <span class='ap'><b>OTP</b><span class='ap-name'>Bucharest Henri Coandă International Airport</span></span>
-            <span class='lt'><b>21:45</b></span>
-            <span class='arr'>→</span>
-            <span class='ap'><b>IST</b><span class='ap-name'>Istanbul Airport</span></span>
-            <span class='lt'><b>00:15+1</b></span>
-          </div>
-          <div class='leg-info'>Turkish Airlines · TK1046 · Boeing 787 · 1h 30m</div>
-        </div><div class='layover'>⏱ Layover <b>IST</b> (Istanbul Airport) · 1h 30m</div>
-        <div class='leg'>
-          <div class='leg-ap'>
-            <span class='ap'><b>IST</b><span class='ap-name'>Istanbul Airport</span></span>
-            <span class='lt'><b>01:45+1</b></span>
-            <span class='arr'>→</span>
-            <span class='ap'><b>HKG</b><span class='ap-name'>Hong Kong International Airport</span></span>
-            <span class='lt'><b>17:05+1</b></span>
-          </div>
-          <div class='leg-info'>Turkish Airlines · TK70 · Boeing 777 · 10h 20m</div>
-        </div></div>
-    </details><details class='dir return-dir'>
-      <summary>↩️ Return &nbsp;·&nbsp; 15h 35m &nbsp;·&nbsp; 1 stop</summary>
-      <div class='legs'>
-        <div class='leg'>
-          <div class='leg-ap'>
-            <span class='ap'><b>HKG</b><span class='ap-name'>Hong Kong International Airport</span></span>
-            <span class='lt'><b>23:15</b></span>
-            <span class='arr'>→</span>
-            <span class='ap'><b>IST</b><span class='ap-name'>Istanbul Airport</span></span>
-            <span class='lt'><b>06:10+1</b></span>
-          </div>
-          <div class='leg-info'>Turkish Airlines · TK71 · Boeing 777 · 11h 55m</div>
-        </div><div class='layover'>⏱ Layover <b>IST</b> (Istanbul Airport) · 2h 20m</div>
-        <div class='leg'>
-          <div class='leg-ap'>
-            <span class='ap'><b>IST</b><span class='ap-name'>Istanbul Airport</span></span>
-            <span class='lt'><b>08:30+1</b></span>
-            <span class='arr'>→</span>
-            <span class='ap'><b>OTP</b><span class='ap-name'>Bucharest Henri Coandă International Airport</span></span>
-            <span class='lt'><b>08:50+1</b></span>
-          </div>
-          <div class='leg-info'>Turkish Airlines · TK1043 · Boeing 787 · 1h 20m</div>
-        </div></div>
-    </details></div>
-  </details><details class='opt pref-al pref-time'>
-    <summary>
-      <span class='onum'>2</span>
-      <span class='oprice'>1049 <span class='cur'>EUR</span> <span class='efc' title='effective cost = price + time + vacation'>eff.&nbsp;1064</span></span>
-      <span class='odates'>
-        <span class='dout'><b>OTP</b> <b>21:45</b> Nov 05 → <b>HKG</b> <b>17:05+1</b> <span class='dmeta'>13h 20m · 1 stop</span></span>
-        <span class='dsep'>↔</span>
-        <span class='dret'><b>HKG</b> <b>23:15</b> Nov 22 → <b>OTP</b> <b>08:50+1</b> <span class='dmeta'>15h 35m · 1 stop</span></span>
-      </span>
-      <span class='ometa'>17n · Turkish Airlines · 2 stop(s) 🏷️ ⭐ </span>
-    </summary>
-    <div class='obody'><details class='dir outbound'>
-      <summary>✈️ Outbound &nbsp;·&nbsp; 13h 20m &nbsp;·&nbsp; 1 stop</summary>
-      <div class='legs'>
-        <div class='leg'>
-          <div class='leg-ap'>
-            <span class='ap'><b>OTP</b><span class='ap-name'>Bucharest Henri Coandă International Airport</span></span>
-            <span class='lt'><b>21:45</b></span>
-            <span class='arr'>→</span>
-            <span class='ap'><b>IST</b><span class='ap-name'>Istanbul Airport</span></span>
-            <span class='lt'><b>00:15+1</b></span>
-          </div>
-          <div class='leg-info'>Turkish Airlines · TK1046 · Boeing 787 · 1h 30m</div>
-        </div><div class='layover'>⏱ Layover <b>IST</b> (Istanbul Airport) · 1h 30m</div>
-        <div class='leg'>
-          <div class='leg-ap'>
-            <span class='ap'><b>IST</b><span class='ap-name'>Istanbul Airport</span></span>
-            <span class='lt'><b>01:45+1</b></span>
-            <span class='arr'>→</span>
-            <span class='ap'><b>HKG</b><span class='ap-name'>Hong Kong International Airport</span></span>
-            <span class='lt'><b>17:05+1</b></span>
-          </div>
-          <div class='leg-info'>Turkish Airlines · TK70 · Boeing 777 · 10h 20m</div>
-        </div></div>
-    </details><details class='dir return-dir'>
-      <summary>↩️ Return &nbsp;·&nbsp; 15h 35m &nbsp;·&nbsp; 1 stop</summary>
-      <div class='legs'>
-        <div class='leg'>
-          <div class='leg-ap'>
-            <span class='ap'><b>HKG</b><span class='ap-name'>Hong Kong International Airport</span></span>
-            <span class='lt'><b>23:15</b></span>
-            <span class='arr'>→</span>
-            <span class='ap'><b>IST</b><span class='ap-name'>Istanbul Airport</span></span>
-            <span class='lt'><b>06:10+1</b></span>
-          </div>
-          <div class='leg-info'>Turkish Airlines · TK71 · Boeing 777 · 11h 55m</div>
-        </div><div class='layover'>⏱ Layover <b>IST</b> (Istanbul Airport) · 2h 20m</div>
-        <div class='leg'>
-          <div class='leg-ap'>
-            <span class='ap'><b>IST</b><span class='ap-name'>Istanbul Airport</span></span>
-            <span class='lt'><b>08:30+1</b></span>
-            <span class='arr'>→</span>
-            <span class='ap'><b>OTP</b><span class='ap-name'>Bucharest Henri Coandă International Airport</span></span>
-            <span class='lt'><b>08:50+1</b></span>
-          </div>
-          <div class='leg-info'>Turkish Airlines · TK1043 · Boeing 787 · 1h 20m</div>
-        </div></div>
-    </details></div>
-  </details><details class='opt pref-al pref-time'>
-    <summary>
-      <span class='onum'>3</span>
-      <span class='oprice'>1046 <span class='cur'>EUR</span> <span class='efc' title='effective cost = price + time + vacation'>eff.&nbsp;1088</span></span>
-      <span class='odates'>
-        <span class='dout'><b>OTP</b> <b>21:45</b> Nov 06 → <b>HKG</b> <b>17:05+1</b> <span class='dmeta'>13h 20m · 1 stop</span></span>
-        <span class='dsep'>↔</span>
-        <span class='dret'><b>HKG</b> <b>09:45</b> Nov 22 → <b>OTP</b> <b>20:25</b> <span class='dmeta'>16h 40m · 1 stop</span></span>
-      </span>
-      <span class='ometa'>16n · Turkish Airlines · 2 stop(s) 🏷️ ⭐ </span>
-    </summary>
-    <div class='obody'><details class='dir outbound'>
-      <summary>✈️ Outbound &nbsp;·&nbsp; 13h 20m &nbsp;·&nbsp; 1 stop</summary>
-      <div class='legs'>
-        <div class='leg'>
-          <div class='leg-ap'>
-            <span class='ap'><b>OTP</b><span class='ap-name'>Bucharest Henri Coandă International Airport</span></span>
-            <span class='lt'><b>21:45</b></span>
-            <span class='arr'>→</span>
-            <span class='ap'><b>IST</b><span class='ap-name'>Istanbul Airport</span></span>
-            <span class='lt'><b>00:15+1</b></span>
-          </div>
-          <div class='leg-info'>Turkish Airlines · TK1046 · Boeing 787 · 1h 30m</div>
-        </div><div class='layover'>⏱ Layover <b>IST</b> (Istanbul Airport) · 1h 30m</div>
-        <div class='leg'>
-          <div class='leg-ap'>
-            <span class='ap'><b>IST</b><span class='ap-name'>Istanbul Airport</span></span>
-            <span class='lt'><b>01:45+1</b></span>
-            <span class='arr'>→</span>
-            <span class='ap'><b>HKG</b><span class='ap-name'>Hong Kong International Airport</span></span>
-            <span class='lt'><b>17:05+1</b></span>
-          </div>
-          <div class='leg-info'>Turkish Airlines · TK70 · Boeing 777 · 10h 20m</div>
-        </div></div>
-    </details><details class='dir return-dir'>
-      <summary>↩️ Return &nbsp;·&nbsp; 16h 40m &nbsp;·&nbsp; 1 stop</summary>
-      <div class='legs'>
-        <div class='leg'>
-          <div class='leg-ap'>
-            <span class='ap'><b>HKG</b><span class='ap-name'>Hong Kong International Airport</span></span>
-            <span class='lt'><b>09:45</b></span>
-            <span class='arr'>→</span>
-            <span class='ap'><b>IST</b><span class='ap-name'>Istanbul Airport</span></span>
-            <span class='lt'><b>16:45</b></span>
-          </div>
-          <div class='leg-info'>Turkish Airlines · TK171 · Boeing 787 · 12h 00m</div>
-        </div><div class='layover'>⏱ Layover <b>IST</b> (Istanbul Airport) · 3h 20m</div>
-        <div class='leg'>
-          <div class='leg-ap'>
-            <span class='ap'><b>IST</b><span class='ap-name'>Istanbul Airport</span></span>
-            <span class='lt'><b>20:05</b></span>
-            <span class='arr'>→</span>
-            <span class='ap'><b>OTP</b><span class='ap-name'>Bucharest Henri Coandă International Airport</span></span>
-            <span class='lt'><b>20:25</b></span>
-          </div>
-          <div class='leg-info'>Turkish Airlines · TK1045 · Boeing 787 · 1h 20m</div>
-        </div></div>
-    </details></div>
-  </details><details class='opt pref-al pref-time'>
-    <summary>
-      <span class='onum'>4</span>
-      <span class='oprice'>1049 <span class='cur'>EUR</span> <span class='efc' title='effective cost = price + time + vacation'>eff.&nbsp;1091</span></span>
-      <span class='odates'>
-        <span class='dout'><b>OTP</b> <b>21:45</b> Nov 05 → <b>HKG</b> <b>17:05+1</b> <span class='dmeta'>13h 20m · 1 stop</span></span>
-        <span class='dsep'>↔</span>
-        <span class='dret'><b>HKG</b> <b>09:45</b> Nov 22 → <b>OTP</b> <b>20:25</b> <span class='dmeta'>16h 40m · 1 stop</span></span>
-      </span>
-      <span class='ometa'>17n · Turkish Airlines · 2 stop(s) 🏷️ ⭐ </span>
-    </summary>
-    <div class='obody'><details class='dir outbound'>
-      <summary>✈️ Outbound &nbsp;·&nbsp; 13h 20m &nbsp;·&nbsp; 1 stop</summary>
-      <div class='legs'>
-        <div class='leg'>
-          <div class='leg-ap'>
-            <span class='ap'><b>OTP</b><span class='ap-name'>Bucharest Henri Coandă International Airport</span></span>
-            <span class='lt'><b>21:45</b></span>
-            <span class='arr'>→</span>
-            <span class='ap'><b>IST</b><span class='ap-name'>Istanbul Airport</span></span>
-            <span class='lt'><b>00:15+1</b></span>
-          </div>
-          <div class='leg-info'>Turkish Airlines · TK1046 · Boeing 787 · 1h 30m</div>
-        </div><div class='layover'>⏱ Layover <b>IST</b> (Istanbul Airport) · 1h 30m</div>
-        <div class='leg'>
-          <div class='leg-ap'>
-            <span class='ap'><b>IST</b><span class='ap-name'>Istanbul Airport</span></span>
-            <span class='lt'><b>01:45+1</b></span>
-            <span class='arr'>→</span>
-            <span class='ap'><b>HKG</b><span class='ap-name'>Hong Kong International Airport</span></span>
-            <span class='lt'><b>17:05+1</b></span>
-          </div>
-          <div class='leg-info'>Turkish Airlines · TK70 · Boeing 777 · 10h 20m</div>
-        </div></div>
-    </details><details class='dir return-dir'>
-      <summary>↩️ Return &nbsp;·&nbsp; 16h 40m &nbsp;·&nbsp; 1 stop</summary>
-      <div class='legs'>
-        <div class='leg'>
-          <div class='leg-ap'>
-            <span class='ap'><b>HKG</b><span class='ap-name'>Hong Kong International Airport</span></span>
-            <span class='lt'><b>09:45</b></span>
-            <span class='arr'>→</span>
-            <span class='ap'><b>IST</b><span class='ap-name'>Istanbul Airport</span></span>
-            <span class='lt'><b>16:45</b></span>
-          </div>
-          <div class='leg-info'>Turkish Airlines · TK171 · Boeing 787 · 12h 00m</div>
-        </div><div class='layover'>⏱ Layover <b>IST</b> (Istanbul Airport) · 3h 20m</div>
-        <div class='leg'>
-          <div class='leg-ap'>
-            <span class='ap'><b>IST</b><span class='ap-name'>Istanbul Airport</span></span>
-            <span class='lt'><b>20:05</b></span>
-            <span class='arr'>→</span>
-            <span class='ap'><b>OTP</b><span class='ap-name'>Bucharest Henri Coandă International Airport</span></span>
-            <span class='lt'><b>20:25</b></span>
-          </div>
-          <div class='leg-info'>Turkish Airlines · TK1045 · Boeing 787 · 1h 20m</div>
-        </div></div>
-    </details></div>
-  </details><details class='opt pref-al pref-time'>
-    <summary>
-      <span class='onum'>5</span>
-      <span class='oprice'>1054 <span class='cur'>EUR</span> <span class='efc' title='effective cost = price + time + vacation'>eff.&nbsp;1096</span></span>
-      <span class='odates'>
-        <span class='dout'><b>OTP</b> <b>21:45</b> Oct 29 → <b>HKG</b> <b>17:05+1</b> <span class='dmeta'>13h 20m · 1 stop</span></span>
-        <span class='dsep'>↔</span>
-        <span class='dret'><b>HKG</b> <b>09:45</b> Nov 15 → <b>OTP</b> <b>20:25</b> <span class='dmeta'>16h 40m · 1 stop</span></span>
-      </span>
-      <span class='ometa'>17n · Turkish Airlines · 2 stop(s) 🏷️ ⭐ </span>
-    </summary>
-    <div class='obody'><details class='dir outbound'>
-      <summary>✈️ Outbound &nbsp;·&nbsp; 13h 20m &nbsp;·&nbsp; 1 stop</summary>
-      <div class='legs'>
-        <div class='leg'>
-          <div class='leg-ap'>
-            <span class='ap'><b>OTP</b><span class='ap-name'>Bucharest Henri Coandă International Airport</span></span>
-            <span class='lt'><b>21:45</b></span>
-            <span class='arr'>→</span>
-            <span class='ap'><b>IST</b><span class='ap-name'>Istanbul Airport</span></span>
-            <span class='lt'><b>00:15+1</b></span>
-          </div>
-          <div class='leg-info'>Turkish Airlines · TK1046 · Boeing 787 · 1h 30m</div>
-        </div><div class='layover'>⏱ Layover <b>IST</b> (Istanbul Airport) · 1h 30m</div>
-        <div class='leg'>
-          <div class='leg-ap'>
-            <span class='ap'><b>IST</b><span class='ap-name'>Istanbul Airport</span></span>
-            <span class='lt'><b>01:45+1</b></span>
-            <span class='arr'>→</span>
-            <span class='ap'><b>HKG</b><span class='ap-name'>Hong Kong International Airport</span></span>
-            <span class='lt'><b>17:05+1</b></span>
-          </div>
-          <div class='leg-info'>Turkish Airlines · TK70 · Boeing 777 · 10h 20m</div>
-        </div></div>
-    </details><details class='dir return-dir'>
-      <summary>↩️ Return &nbsp;·&nbsp; 16h 40m &nbsp;·&nbsp; 1 stop</summary>
-      <div class='legs'>
-        <div class='leg'>
-          <div class='leg-ap'>
-            <span class='ap'><b>HKG</b><span class='ap-name'>Hong Kong International Airport</span></span>
-            <span class='lt'><b>09:45</b></span>
-            <span class='arr'>→</span>
-            <span class='ap'><b>IST</b><span class='ap-name'>Istanbul Airport</span></span>
-            <span class='lt'><b>16:45</b></span>
-          </div>
-          <div class='leg-info'>Turkish Airlines · TK171 · Boeing 787 · 12h 00m</div>
-        </div><div class='layover'>⏱ Layover <b>IST</b> (Istanbul Airport) · 3h 20m</div>
-        <div class='leg'>
-          <div class='leg-ap'>
-            <span class='ap'><b>IST</b><span class='ap-name'>Istanbul Airport</span></span>
-            <span class='lt'><b>20:05</b></span>
-            <span class='arr'>→</span>
-            <span class='ap'><b>OTP</b><span class='ap-name'>Bucharest Henri Coandă International Airport</span></span>
-            <span class='lt'><b>20:25</b></span>
-          </div>
-          <div class='leg-info'>Turkish Airlines · TK1045 · Boeing 787 · 1h 20m</div>
-        </div></div>
-    </details></div>
   </details></div>
   </details><details class='ag'>
     <summary class='ag-sum'>
-      <span class='ag-name'>TAROM, KLM</span>
+      <span class='ag-name'>KLM</span>
       <span class='ag-cnt'>2 options</span>
       <span class='ag-best'>from 827 EUR</span>
       
@@ -990,27 +751,27 @@
     <div class='ag-body'><details class='opt'>
     <summary>
       <span class='onum'>1</span>
-      <span class='oprice'>827 <span class='cur'>EUR</span> <span class='efc' title='effective cost = price + time + vacation'>eff.&nbsp;1104</span></span>
+      <span class='oprice'>827 <span class='cur'>EUR</span> <span class='efc' title='effective cost = price + time + vacation'>eff.&nbsp;1242</span></span>
       <span class='odates'>
-        <span class='dout'><b>OTP</b> <b>16:50</b> Nov 05 → <b>HKG</b> <b>16:20+1</b> <span class='dmeta'>17h 30m · 1 stop</span></span>
+        <span class='dout'><b>OTP</b> <b>18:00</b> Nov 05 → <b>HKG</b> <b>16:20+1</b> <span class='dmeta'>16h 20m · 1 stop</span></span>
         <span class='dsep'>↔</span>
         <span class='dret'><b>HKG</b> <b>23:25</b> Nov 22 → <b>OTP</b> <b>13:00+1</b> <span class='dmeta'>19h 35m · 1 stop</span></span>
       </span>
-      <span class='ometa'>17n · TAROM, KLM · 2 stop(s) </span>
+      <span class='ometa'>17n · KLM · 2 stop(s) </span>
     </summary>
     <div class='obody'><details class='dir outbound'>
-      <summary>✈️ Outbound &nbsp;·&nbsp; 17h 30m &nbsp;·&nbsp; 1 stop</summary>
+      <summary>✈️ Outbound &nbsp;·&nbsp; 16h 20m &nbsp;·&nbsp; 1 stop</summary>
       <div class='legs'>
         <div class='leg'>
           <div class='leg-ap'>
             <span class='ap'><b>OTP</b><span class='ap-name'>Bucharest Henri Coandă International Airport</span></span>
-            <span class='lt'><b>16:50</b></span>
+            <span class='lt'><b>18:00</b></span>
             <span class='arr'>→</span>
             <span class='ap'><b>AMS</b><span class='ap-name'>Amsterdam Airport Schiphol</span></span>
-            <span class='lt'><b>18:55</b></span>
+            <span class='lt'><b>20:00</b></span>
           </div>
-          <div class='leg-info'>TAROM · RO363 · Boeing 737 · 3h 05m</div>
-        </div><div class='layover'>⏱ Layover <b>AMS</b> (Amsterdam Airport Schiphol) · 2h 30m</div>
+          <div class='leg-info'>KLM · KL1376 · Airbus A321neo · 3h 00m</div>
+        </div><div class='layover'>⏱ Layover <b>AMS</b> (Amsterdam Airport Schiphol) · 1h 25m</div>
         <div class='leg'>
           <div class='leg-ap'>
             <span class='ap'><b>AMS</b><span class='ap-name'>Amsterdam Airport Schiphol</span></span>
@@ -1048,27 +809,27 @@
   </details><details class='opt'>
     <summary>
       <span class='onum'>2</span>
-      <span class='oprice'>827 <span class='cur'>EUR</span> <span class='efc' title='effective cost = price + time + vacation'>eff.&nbsp;1152</span></span>
+      <span class='oprice'>827 <span class='cur'>EUR</span> <span class='efc' title='effective cost = price + time + vacation'>eff.&nbsp;1328</span></span>
       <span class='odates'>
-        <span class='dout'><b>OTP</b> <b>16:50</b> Nov 05 → <b>HKG</b> <b>16:20+1</b> <span class='dmeta'>17h 30m · 1 stop</span></span>
+        <span class='dout'><b>OTP</b> <b>18:00</b> Nov 05 → <b>HKG</b> <b>16:20+1</b> <span class='dmeta'>16h 20m · 1 stop</span></span>
         <span class='dsep'>↔</span>
         <span class='dret'><b>HKG</b> <b>22:40</b> Nov 22 → <b>OTP</b> <b>14:10+1</b> <span class='dmeta'>21h 30m · 1 stop</span></span>
       </span>
-      <span class='ometa'>17n · TAROM, KLM · 2 stop(s) </span>
+      <span class='ometa'>17n · KLM · 2 stop(s) </span>
     </summary>
     <div class='obody'><details class='dir outbound'>
-      <summary>✈️ Outbound &nbsp;·&nbsp; 17h 30m &nbsp;·&nbsp; 1 stop</summary>
+      <summary>✈️ Outbound &nbsp;·&nbsp; 16h 20m &nbsp;·&nbsp; 1 stop</summary>
       <div class='legs'>
         <div class='leg'>
           <div class='leg-ap'>
             <span class='ap'><b>OTP</b><span class='ap-name'>Bucharest Henri Coandă International Airport</span></span>
-            <span class='lt'><b>16:50</b></span>
+            <span class='lt'><b>18:00</b></span>
             <span class='arr'>→</span>
             <span class='ap'><b>AMS</b><span class='ap-name'>Amsterdam Airport Schiphol</span></span>
-            <span class='lt'><b>18:55</b></span>
+            <span class='lt'><b>20:00</b></span>
           </div>
-          <div class='leg-info'>TAROM · RO363 · Boeing 737 · 3h 05m</div>
-        </div><div class='layover'>⏱ Layover <b>AMS</b> (Amsterdam Airport Schiphol) · 2h 30m</div>
+          <div class='leg-info'>KLM · KL1376 · Airbus A321neo · 3h 00m</div>
+        </div><div class='layover'>⏱ Layover <b>AMS</b> (Amsterdam Airport Schiphol) · 1h 25m</div>
         <div class='leg'>
           <div class='leg-ap'>
             <span class='ap'><b>AMS</b><span class='ap-name'>Amsterdam Airport Schiphol</span></span>
@@ -1106,15 +867,271 @@
   </details></div>
   </details><details class='ag'>
     <summary class='ag-sum'>
-      <span class='ag-name'>Lufthansa</span>
-      <span class='ag-cnt'>3 options</span>
-      <span class='ag-best'>from 879 EUR</span>
+      <span class='ag-name'>Swiss International Air Lines</span>
+      <span class='ag-cnt'>1 option</span>
+      <span class='ag-best'>from 895 EUR</span>
       
     </summary>
     <div class='ag-body'><details class='opt'>
     <summary>
       <span class='onum'>1</span>
-      <span class='oprice'>879 <span class='cur'>EUR</span> <span class='efc' title='effective cost = price + time + vacation'>eff.&nbsp;1114</span></span>
+      <span class='oprice'>895 <span class='cur'>EUR</span> <span class='efc' title='effective cost = price + time + vacation'>eff.&nbsp;1381</span></span>
+      <span class='odates'>
+        <span class='dout'><b>OTP</b> <b>16:40</b> Nov 05 → <b>HKG</b> <b>17:35+1</b> <span class='dmeta'>18h 55m · 1 stop</span></span>
+        <span class='dsep'>↔</span>
+        <span class='dret'><b>HKG</b> <b>18:05</b> Nov 22 → <b>OTP</b> <b>06:40+1</b> <span class='dmeta'>18h 35m · 1 stop</span></span>
+      </span>
+      <span class='ometa'>17n · Swiss International Air Lines · 2 stop(s) </span>
+    </summary>
+    <div class='obody'><details class='dir outbound'>
+      <summary>✈️ Outbound &nbsp;·&nbsp; 18h 55m &nbsp;·&nbsp; 1 stop</summary>
+      <div class='legs'>
+        <div class='leg'>
+          <div class='leg-ap'>
+            <span class='ap'><b>OTP</b><span class='ap-name'>Bucharest Henri Coandă International Airport</span></span>
+            <span class='lt'><b>16:40</b></span>
+            <span class='arr'>→</span>
+            <span class='ap'><b>ZRH</b><span class='ap-name'>Zurich Airport</span></span>
+            <span class='lt'><b>18:20</b></span>
+          </div>
+          <div class='leg-info'>Swiss International Air Lines · LX1889 · Airbus A220-300 Passenger · 2h 40m</div>
+        </div><div class='layover'>⏱ Layover <b>ZRH</b> (Zurich Airport) · 4h 10m</div>
+        <div class='leg'>
+          <div class='leg-ap'>
+            <span class='ap'><b>ZRH</b><span class='ap-name'>Zurich Airport</span></span>
+            <span class='lt'><b>22:30</b></span>
+            <span class='arr'>→</span>
+            <span class='ap'><b>HKG</b><span class='ap-name'>Hong Kong International Airport</span></span>
+            <span class='lt'><b>17:35+1</b></span>
+          </div>
+          <div class='leg-info'>Swiss International Air Lines · LX138 · Boeing 777 · 12h 05m</div>
+        </div></div>
+    </details><details class='dir return-dir'>
+      <summary>↩️ Return &nbsp;·&nbsp; 18h 35m &nbsp;·&nbsp; 1 stop</summary>
+      <div class='legs'>
+        <div class='leg'>
+          <div class='leg-ap'>
+            <span class='ap'><b>HKG</b><span class='ap-name'>Hong Kong International Airport</span></span>
+            <span class='lt'><b>18:05</b></span>
+            <span class='arr'>→</span>
+            <span class='ap'><b>DOH</b><span class='ap-name'>Hamad International Airport</span></span>
+            <span class='lt'><b>22:25</b></span>
+          </div>
+          <div class='leg-info'>Qatar Airways · QR817 · Boeing 777 · 9h 20m</div>
+        </div><div class='layover overnight'>⏱ Layover <b>DOH</b> (Hamad International Airport) · 4h 10m 🌙 Overnight</div>
+        <div class='leg'>
+          <div class='leg-ap'>
+            <span class='ap'><b>DOH</b><span class='ap-name'>Hamad International Airport</span></span>
+            <span class='lt'><b>02:35+1</b></span>
+            <span class='arr'>→</span>
+            <span class='ap'><b>OTP</b><span class='ap-name'>Bucharest Henri Coandă International Airport</span></span>
+            <span class='lt'><b>06:40+1</b></span>
+          </div>
+          <div class='leg-info'>Qatar Airways · QR219 · Airbus A320 · 5h 05m</div>
+        </div></div>
+    </details></div>
+  </details></div>
+  </details><details class='ag'>
+    <summary class='ag-sum'>
+      <span class='ag-name'>Swiss International Air Lines, Cathay Pacific</span>
+      <span class='ag-cnt'>1 option</span>
+      <span class='ag-best'>from 965 EUR</span>
+      
+    </summary>
+    <div class='ag-body'><details class='opt'>
+    <summary>
+      <span class='onum'>1</span>
+      <span class='oprice'>965 <span class='cur'>EUR</span> <span class='efc' title='effective cost = price + time + vacation'>eff.&nbsp;1399</span></span>
+      <span class='odates'>
+        <span class='dout'><b>OTP</b> <b>06:30</b> Nov 05 → <b>HKG</b> <b>06:15+1</b> <span class='dmeta'>17h 45m · 1 stop</span></span>
+        <span class='dsep'>↔</span>
+        <span class='dret'><b>HKG</b> <b>18:05</b> Nov 22 → <b>OTP</b> <b>06:40+1</b> <span class='dmeta'>18h 35m · 1 stop</span></span>
+      </span>
+      <span class='ometa'>17n · Swiss International Air Lines, Cathay Pacific · 2 stop(s) </span>
+    </summary>
+    <div class='obody'><details class='dir outbound'>
+      <summary>✈️ Outbound &nbsp;·&nbsp; 17h 45m &nbsp;·&nbsp; 1 stop</summary>
+      <div class='legs'>
+        <div class='leg'>
+          <div class='leg-ap'>
+            <span class='ap'><b>OTP</b><span class='ap-name'>Bucharest Henri Coandă International Airport</span></span>
+            <span class='lt'><b>06:30</b></span>
+            <span class='arr'>→</span>
+            <span class='ap'><b>ZRH</b><span class='ap-name'>Zurich Airport</span></span>
+            <span class='lt'><b>08:05</b></span>
+          </div>
+          <div class='leg-info'>Swiss International Air Lines · LX1887 · Airbus A220-300 Passenger · 2h 35m</div>
+        </div><div class='layover'>⏱ Layover <b>ZRH</b> (Zurich Airport) · 3h 50m</div>
+        <div class='leg'>
+          <div class='leg-ap'>
+            <span class='ap'><b>ZRH</b><span class='ap-name'>Zurich Airport</span></span>
+            <span class='lt'><b>11:55</b></span>
+            <span class='arr'>→</span>
+            <span class='ap'><b>HKG</b><span class='ap-name'>Hong Kong International Airport</span></span>
+            <span class='lt'><b>06:15+1</b></span>
+          </div>
+          <div class='leg-info'>Cathay Pacific · CX382 · Airbus A350 · 11h 20m</div>
+        </div></div>
+    </details><details class='dir return-dir'>
+      <summary>↩️ Return &nbsp;·&nbsp; 18h 35m &nbsp;·&nbsp; 1 stop</summary>
+      <div class='legs'>
+        <div class='leg'>
+          <div class='leg-ap'>
+            <span class='ap'><b>HKG</b><span class='ap-name'>Hong Kong International Airport</span></span>
+            <span class='lt'><b>18:05</b></span>
+            <span class='arr'>→</span>
+            <span class='ap'><b>DOH</b><span class='ap-name'>Hamad International Airport</span></span>
+            <span class='lt'><b>22:25</b></span>
+          </div>
+          <div class='leg-info'>Qatar Airways · QR817 · Boeing 777 · 9h 20m</div>
+        </div><div class='layover overnight'>⏱ Layover <b>DOH</b> (Hamad International Airport) · 4h 10m 🌙 Overnight</div>
+        <div class='leg'>
+          <div class='leg-ap'>
+            <span class='ap'><b>DOH</b><span class='ap-name'>Hamad International Airport</span></span>
+            <span class='lt'><b>02:35+1</b></span>
+            <span class='arr'>→</span>
+            <span class='ap'><b>OTP</b><span class='ap-name'>Bucharest Henri Coandă International Airport</span></span>
+            <span class='lt'><b>06:40+1</b></span>
+          </div>
+          <div class='leg-info'>Qatar Airways · QR219 · Airbus A320 · 5h 05m</div>
+        </div></div>
+    </details></div>
+  </details></div>
+  </details><details class='ag ag-pref'>
+    <summary class='ag-sum'>
+      <span class='ag-name'>Qatar Airways</span>
+      <span class='ag-cnt'>2 options</span>
+      <span class='ag-best'>from 1034 EUR</span>
+      <span style="margin-left:4px">🏷️</span>
+    </summary>
+    <div class='ag-body'><details class='opt pref-al'>
+    <summary>
+      <span class='onum'>1</span>
+      <span class='oprice'>1034 <span class='cur'>EUR</span> <span class='efc' title='effective cost = price + time + vacation'>eff.&nbsp;1412</span></span>
+      <span class='odates'>
+        <span class='dout'><b>OTP</b> <b>16:20</b> Nov 06 → <b>HKG</b> <b>14:50+1</b> <span class='dmeta'>16h 30m · 1 stop</span></span>
+        <span class='dsep'>↔</span>
+        <span class='dret'><b>HKG</b> <b>18:05</b> Nov 22 → <b>OTP</b> <b>06:40+1</b> <span class='dmeta'>18h 35m · 1 stop</span></span>
+      </span>
+      <span class='ometa'>16n · Qatar Airways · 2 stop(s) 🏷️ </span>
+    </summary>
+    <div class='obody'><details class='dir outbound'>
+      <summary>✈️ Outbound &nbsp;·&nbsp; 16h 30m &nbsp;·&nbsp; 1 stop</summary>
+      <div class='legs'>
+        <div class='leg'>
+          <div class='leg-ap'>
+            <span class='ap'><b>OTP</b><span class='ap-name'>Bucharest Henri Coandă International Airport</span></span>
+            <span class='lt'><b>16:20</b></span>
+            <span class='arr'>→</span>
+            <span class='ap'><b>DOH</b><span class='ap-name'>Hamad International Airport</span></span>
+            <span class='lt'><b>21:50</b></span>
+          </div>
+          <div class='leg-info'>Qatar Airways · QR222 · Airbus A320 · 4h 30m</div>
+        </div><div class='layover overnight'>⏱ Layover <b>DOH</b> (Hamad International Airport) · 4h 15m 🌙 Overnight</div>
+        <div class='leg'>
+          <div class='leg-ap'>
+            <span class='ap'><b>DOH</b><span class='ap-name'>Hamad International Airport</span></span>
+            <span class='lt'><b>02:05+1</b></span>
+            <span class='arr'>→</span>
+            <span class='ap'><b>HKG</b><span class='ap-name'>Hong Kong International Airport</span></span>
+            <span class='lt'><b>14:50+1</b></span>
+          </div>
+          <div class='leg-info'>Qatar Airways · QR818 · Boeing 777 · 7h 45m</div>
+        </div></div>
+    </details><details class='dir return-dir'>
+      <summary>↩️ Return &nbsp;·&nbsp; 18h 35m &nbsp;·&nbsp; 1 stop</summary>
+      <div class='legs'>
+        <div class='leg'>
+          <div class='leg-ap'>
+            <span class='ap'><b>HKG</b><span class='ap-name'>Hong Kong International Airport</span></span>
+            <span class='lt'><b>18:05</b></span>
+            <span class='arr'>→</span>
+            <span class='ap'><b>DOH</b><span class='ap-name'>Hamad International Airport</span></span>
+            <span class='lt'><b>22:25</b></span>
+          </div>
+          <div class='leg-info'>Qatar Airways · QR817 · Boeing 777 · 9h 20m</div>
+        </div><div class='layover overnight'>⏱ Layover <b>DOH</b> (Hamad International Airport) · 4h 10m 🌙 Overnight</div>
+        <div class='leg'>
+          <div class='leg-ap'>
+            <span class='ap'><b>DOH</b><span class='ap-name'>Hamad International Airport</span></span>
+            <span class='lt'><b>02:35+1</b></span>
+            <span class='arr'>→</span>
+            <span class='ap'><b>OTP</b><span class='ap-name'>Bucharest Henri Coandă International Airport</span></span>
+            <span class='lt'><b>06:40+1</b></span>
+          </div>
+          <div class='leg-info'>Qatar Airways · QR219 · Airbus A320 · 5h 05m</div>
+        </div></div>
+    </details></div>
+  </details><details class='opt pref-al'>
+    <summary>
+      <span class='onum'>2</span>
+      <span class='oprice'>1035 <span class='cur'>EUR</span> <span class='efc' title='effective cost = price + time + vacation'>eff.&nbsp;1412</span></span>
+      <span class='odates'>
+        <span class='dout'><b>OTP</b> <b>16:20</b> Oct 30 → <b>HKG</b> <b>14:50+1</b> <span class='dmeta'>16h 30m · 1 stop</span></span>
+        <span class='dsep'>↔</span>
+        <span class='dret'><b>HKG</b> <b>18:05</b> Nov 15 → <b>OTP</b> <b>06:40+1</b> <span class='dmeta'>18h 35m · 1 stop</span></span>
+      </span>
+      <span class='ometa'>16n · Qatar Airways · 2 stop(s) 🏷️ </span>
+    </summary>
+    <div class='obody'><details class='dir outbound'>
+      <summary>✈️ Outbound &nbsp;·&nbsp; 16h 30m &nbsp;·&nbsp; 1 stop</summary>
+      <div class='legs'>
+        <div class='leg'>
+          <div class='leg-ap'>
+            <span class='ap'><b>OTP</b><span class='ap-name'>Bucharest Henri Coandă International Airport</span></span>
+            <span class='lt'><b>16:20</b></span>
+            <span class='arr'>→</span>
+            <span class='ap'><b>DOH</b><span class='ap-name'>Hamad International Airport</span></span>
+            <span class='lt'><b>21:50</b></span>
+          </div>
+          <div class='leg-info'>Qatar Airways · QR222 · Airbus A320 · 4h 30m</div>
+        </div><div class='layover overnight'>⏱ Layover <b>DOH</b> (Hamad International Airport) · 4h 15m 🌙 Overnight</div>
+        <div class='leg'>
+          <div class='leg-ap'>
+            <span class='ap'><b>DOH</b><span class='ap-name'>Hamad International Airport</span></span>
+            <span class='lt'><b>02:05+1</b></span>
+            <span class='arr'>→</span>
+            <span class='ap'><b>HKG</b><span class='ap-name'>Hong Kong International Airport</span></span>
+            <span class='lt'><b>14:50+1</b></span>
+          </div>
+          <div class='leg-info'>Qatar Airways · QR818 · Boeing 777 · 7h 45m</div>
+        </div></div>
+    </details><details class='dir return-dir'>
+      <summary>↩️ Return &nbsp;·&nbsp; 18h 35m &nbsp;·&nbsp; 1 stop</summary>
+      <div class='legs'>
+        <div class='leg'>
+          <div class='leg-ap'>
+            <span class='ap'><b>HKG</b><span class='ap-name'>Hong Kong International Airport</span></span>
+            <span class='lt'><b>18:05</b></span>
+            <span class='arr'>→</span>
+            <span class='ap'><b>DOH</b><span class='ap-name'>Hamad International Airport</span></span>
+            <span class='lt'><b>22:25</b></span>
+          </div>
+          <div class='leg-info'>Qatar Airways · QR817 · Boeing 777 · 9h 20m</div>
+        </div><div class='layover overnight'>⏱ Layover <b>DOH</b> (Hamad International Airport) · 4h 10m 🌙 Overnight</div>
+        <div class='leg'>
+          <div class='leg-ap'>
+            <span class='ap'><b>DOH</b><span class='ap-name'>Hamad International Airport</span></span>
+            <span class='lt'><b>02:35+1</b></span>
+            <span class='arr'>→</span>
+            <span class='ap'><b>OTP</b><span class='ap-name'>Bucharest Henri Coandă International Airport</span></span>
+            <span class='lt'><b>06:40+1</b></span>
+          </div>
+          <div class='leg-info'>Qatar Airways · QR219 · Airbus A320 · 5h 05m</div>
+        </div></div>
+    </details></div>
+  </details></div>
+  </details><details class='ag'>
+    <summary class='ag-sum'>
+      <span class='ag-name'>Lufthansa</span>
+      <span class='ag-cnt'>1 option</span>
+      <span class='ag-best'>from 880 EUR</span>
+      
+    </summary>
+    <div class='ag-body'><details class='opt'>
+    <summary>
+      <span class='onum'>1</span>
+      <span class='oprice'>880 <span class='cur'>EUR</span> <span class='efc' title='effective cost = price + time + vacation'>eff.&nbsp;1422</span></span>
       <span class='odates'>
         <span class='dout'><b>OTP</b> <b>17:35</b> Oct 01 → <b>HKG</b> <b>15:20+1</b> <span class='dmeta'>16h 45m · 1 stop</span></span>
         <span class='dsep'>↔</span>
@@ -1169,225 +1186,27 @@
           <div class='leg-info'>Lufthansa · LH1418 · Airbus A320neo · 2h 20m</div>
         </div></div>
     </details></div>
-  </details><details class='opt'>
-    <summary>
-      <span class='onum'>2</span>
-      <span class='oprice'>879 <span class='cur'>EUR</span> <span class='efc' title='effective cost = price + time + vacation'>eff.&nbsp;1123</span></span>
-      <span class='odates'>
-        <span class='dout'><b>OTP</b> <b>17:35</b> Oct 01 → <b>HKG</b> <b>15:20+1</b> <span class='dmeta'>16h 45m · 1 stop</span></span>
-        <span class='dsep'>↔</span>
-        <span class='dret'><b>HKG</b> <b>19:05</b> Oct 18 → <b>OTP</b> <b>09:05+1</b> <span class='dmeta'>19h 00m · 2 stops</span></span>
-      </span>
-      <span class='ometa'>17n · Lufthansa · 3 stop(s) </span>
-    </summary>
-    <div class='obody'><details class='dir outbound'>
-      <summary>✈️ Outbound &nbsp;·&nbsp; 16h 45m &nbsp;·&nbsp; 1 stop</summary>
-      <div class='legs'>
-        <div class='leg'>
-          <div class='leg-ap'>
-            <span class='ap'><b>OTP</b><span class='ap-name'>Bucharest Henri Coandă International Airport</span></span>
-            <span class='lt'><b>17:35</b></span>
-            <span class='arr'>→</span>
-            <span class='ap'><b>FRA</b><span class='ap-name'>Frankfurt Airport</span></span>
-            <span class='lt'><b>19:10</b></span>
-          </div>
-          <div class='leg-info'>Lufthansa · LH1417 · Airbus A320neo · 2h 35m</div>
-        </div><div class='layover'>⏱ Layover <b>FRA</b> (Frankfurt Airport) · 2h 30m</div>
-        <div class='leg'>
-          <div class='leg-ap'>
-            <span class='ap'><b>FRA</b><span class='ap-name'>Frankfurt Airport</span></span>
-            <span class='lt'><b>21:40</b></span>
-            <span class='arr'>→</span>
-            <span class='ap'><b>HKG</b><span class='ap-name'>Hong Kong International Airport</span></span>
-            <span class='lt'><b>15:20+1</b></span>
-          </div>
-          <div class='leg-info'>Lufthansa · LH796 · Boeing 787 · 11h 40m</div>
-        </div></div>
-    </details><details class='dir return-dir'>
-      <summary>↩️ Return &nbsp;·&nbsp; 19h 00m &nbsp;·&nbsp; 2 stops</summary>
-      <div class='legs'>
-        <div class='leg'>
-          <div class='leg-ap'>
-            <span class='ap'><b>HKG</b><span class='ap-name'>Hong Kong International Airport</span></span>
-            <span class='lt'><b>19:05</b></span>
-            <span class='arr'>→</span>
-            <span class='ap'><b>BKK</b><span class='ap-name'>Suvarnabhumi Airport</span></span>
-            <span class='lt'><b>20:45</b></span>
-          </div>
-          <div class='leg-info'>Thai Airways · TG639 · Boeing 777 · 2h 40m</div>
-        </div><div class='layover'>⏱ Layover <b>BKK</b> (Suvarnabhumi Airport) · 2h 55m</div>
-        <div class='leg'>
-          <div class='leg-ap'>
-            <span class='ap'><b>BKK</b><span class='ap-name'>Suvarnabhumi Airport</span></span>
-            <span class='lt'><b>23:40</b></span>
-            <span class='arr'>→</span>
-            <span class='ap'><b>VIE</b><span class='ap-name'>Vienna International Airport</span></span>
-            <span class='lt'><b>05:35+1</b></span>
-          </div>
-          <div class='leg-info'>Austrian Airlines · OS8 · Boeing 777 · 10h 55m</div>
-        </div><div class='layover'>⏱ Layover <b>VIE</b> (Vienna International Airport) · 0h 55m</div>
-        <div class='leg'>
-          <div class='leg-ap'>
-            <span class='ap'><b>VIE</b><span class='ap-name'>Vienna International Airport</span></span>
-            <span class='lt'><b>06:30+1</b></span>
-            <span class='arr'>→</span>
-            <span class='ap'><b>OTP</b><span class='ap-name'>Bucharest Henri Coandă International Airport</span></span>
-            <span class='lt'><b>09:05+1</b></span>
-          </div>
-          <div class='leg-info'>Austrian Airlines · OS691 · Airbus A320 · 1h 35m</div>
-        </div></div>
-    </details></div>
-  </details><details class='opt'>
-    <summary>
-      <span class='onum'>3</span>
-      <span class='oprice'>879 <span class='cur'>EUR</span> <span class='efc' title='effective cost = price + time + vacation'>eff.&nbsp;1146</span></span>
-      <span class='odates'>
-        <span class='dout'><b>OTP</b> <b>17:35</b> Oct 01 → <b>HKG</b> <b>15:20+1</b> <span class='dmeta'>16h 45m · 1 stop</span></span>
-        <span class='dsep'>↔</span>
-        <span class='dret'><b>HKG</b> <b>00:25</b> Oct 18 → <b>OTP</b> <b>15:20</b> <span class='dmeta'>19h 55m · 1 stop</span></span>
-      </span>
-      <span class='ometa'>17n · Lufthansa · 2 stop(s) </span>
-    </summary>
-    <div class='obody'><details class='dir outbound'>
-      <summary>✈️ Outbound &nbsp;·&nbsp; 16h 45m &nbsp;·&nbsp; 1 stop</summary>
-      <div class='legs'>
-        <div class='leg'>
-          <div class='leg-ap'>
-            <span class='ap'><b>OTP</b><span class='ap-name'>Bucharest Henri Coandă International Airport</span></span>
-            <span class='lt'><b>17:35</b></span>
-            <span class='arr'>→</span>
-            <span class='ap'><b>FRA</b><span class='ap-name'>Frankfurt Airport</span></span>
-            <span class='lt'><b>19:10</b></span>
-          </div>
-          <div class='leg-info'>Lufthansa · LH1417 · Airbus A320neo · 2h 35m</div>
-        </div><div class='layover'>⏱ Layover <b>FRA</b> (Frankfurt Airport) · 2h 30m</div>
-        <div class='leg'>
-          <div class='leg-ap'>
-            <span class='ap'><b>FRA</b><span class='ap-name'>Frankfurt Airport</span></span>
-            <span class='lt'><b>21:40</b></span>
-            <span class='arr'>→</span>
-            <span class='ap'><b>HKG</b><span class='ap-name'>Hong Kong International Airport</span></span>
-            <span class='lt'><b>15:20+1</b></span>
-          </div>
-          <div class='leg-info'>Lufthansa · LH796 · Boeing 787 · 11h 40m</div>
-        </div></div>
-    </details><details class='dir return-dir'>
-      <summary>↩️ Return &nbsp;·&nbsp; 19h 55m &nbsp;·&nbsp; 1 stop</summary>
-      <div class='legs'>
-        <div class='leg'>
-          <div class='leg-ap'>
-            <span class='ap'><b>HKG</b><span class='ap-name'>Hong Kong International Airport</span></span>
-            <span class='lt'><b>00:25</b></span>
-            <span class='arr'>→</span>
-            <span class='ap'><b>ZRH</b><span class='ap-name'>Zurich Airport</span></span>
-            <span class='lt'><b>07:30</b></span>
-          </div>
-          <div class='leg-info'>Cathay Pacific · CX383 · Airbus A350 · 13h 05m</div>
-        </div><div class='layover'>⏱ Layover <b>ZRH</b> (Zurich Airport) · 4h 30m</div>
-        <div class='leg'>
-          <div class='leg-ap'>
-            <span class='ap'><b>ZRH</b><span class='ap-name'>Zurich Airport</span></span>
-            <span class='lt'><b>12:00</b></span>
-            <span class='arr'>→</span>
-            <span class='ap'><b>OTP</b><span class='ap-name'>Bucharest Henri Coandă International Airport</span></span>
-            <span class='lt'><b>15:20</b></span>
-          </div>
-          <div class='leg-info'>Swiss International Air Lines · LX1888 · Airbus A320neo · 2h 20m</div>
-        </div></div>
-    </details></div>
-  </details></div>
-  </details><details class='ag'>
-    <summary class='ag-sum'>
-      <span class='ag-name'>Air France, KLM</span>
-      <span class='ag-cnt'>1 option</span>
-      <span class='ag-best'>from 845 EUR</span>
-      
-    </summary>
-    <div class='ag-body'><details class='opt'>
-    <summary>
-      <span class='onum'>1</span>
-      <span class='oprice'>845 <span class='cur'>EUR</span> <span class='efc' title='effective cost = price + time + vacation'>eff.&nbsp;1164</span></span>
-      <span class='odates'>
-        <span class='dout'><b>OTP</b> <b>15:10</b> Nov 05 → <b>HKG</b> <b>16:20+1</b> <span class='dmeta'>19h 10m · 2 stops</span></span>
-        <span class='dsep'>↔</span>
-        <span class='dret'><b>HKG</b> <b>23:25</b> Nov 22 → <b>OTP</b> <b>13:00+1</b> <span class='dmeta'>19h 35m · 1 stop</span></span>
-      </span>
-      <span class='ometa'>17n · Air France, KLM · 3 stop(s) </span>
-    </summary>
-    <div class='obody'><details class='dir outbound'>
-      <summary>✈️ Outbound &nbsp;·&nbsp; 19h 10m &nbsp;·&nbsp; 2 stops</summary>
-      <div class='legs'>
-        <div class='leg'>
-          <div class='leg-ap'>
-            <span class='ap'><b>OTP</b><span class='ap-name'>Bucharest Henri Coandă International Airport</span></span>
-            <span class='lt'><b>15:10</b></span>
-            <span class='arr'>→</span>
-            <span class='ap'><b>CDG</b><span class='ap-name'>Paris Charles de Gaulle Airport</span></span>
-            <span class='lt'><b>17:20</b></span>
-          </div>
-          <div class='leg-info'>Air France · AF1889 · Airbus A220-300 Passenger · 3h 10m</div>
-        </div><div class='layover'>⏱ Layover <b>CDG</b> (Paris Charles de Gaulle Airport) · 0h 50m</div>
-        <div class='leg'>
-          <div class='leg-ap'>
-            <span class='ap'><b>CDG</b><span class='ap-name'>Paris Charles de Gaulle Airport</span></span>
-            <span class='lt'><b>18:10</b></span>
-            <span class='arr'>→</span>
-            <span class='ap'><b>AMS</b><span class='ap-name'>Amsterdam Airport Schiphol</span></span>
-            <span class='lt'><b>19:35</b></span>
-          </div>
-          <div class='leg-info'>Air France · AF1440 · Airbus A220-300 Passenger · 1h 25m</div>
-        </div><div class='layover'>⏱ Layover <b>AMS</b> (Amsterdam Airport Schiphol) · 1h 50m</div>
-        <div class='leg'>
-          <div class='leg-ap'>
-            <span class='ap'><b>AMS</b><span class='ap-name'>Amsterdam Airport Schiphol</span></span>
-            <span class='lt'><b>21:25</b></span>
-            <span class='arr'>→</span>
-            <span class='ap'><b>HKG</b><span class='ap-name'>Hong Kong International Airport</span></span>
-            <span class='lt'><b>16:20+1</b></span>
-          </div>
-          <div class='leg-info'>KLM · KL887 · Boeing 787 · 11h 55m</div>
-        </div></div>
-    </details><details class='dir return-dir'>
-      <summary>↩️ Return &nbsp;·&nbsp; 19h 35m &nbsp;·&nbsp; 1 stop</summary>
-      <div class='legs'>
-        <div class='leg'>
-          <div class='leg-ap'>
-            <span class='ap'><b>HKG</b><span class='ap-name'>Hong Kong International Airport</span></span>
-            <span class='lt'><b>23:25</b></span>
-            <span class='arr'>→</span>
-            <span class='ap'><b>AMS</b><span class='ap-name'>Amsterdam Airport Schiphol</span></span>
-            <span class='lt'><b>06:20+1</b></span>
-          </div>
-          <div class='leg-info'>KLM · KL888 · Boeing 787 · 13h 55m</div>
-        </div><div class='layover'>⏱ Layover <b>AMS</b> (Amsterdam Airport Schiphol) · 3h 00m</div>
-        <div class='leg'>
-          <div class='leg-ap'>
-            <span class='ap'><b>AMS</b><span class='ap-name'>Amsterdam Airport Schiphol</span></span>
-            <span class='lt'><b>09:20+1</b></span>
-            <span class='arr'>→</span>
-            <span class='ap'><b>OTP</b><span class='ap-name'>Bucharest Henri Coandă International Airport</span></span>
-            <span class='lt'><b>13:00+1</b></span>
-          </div>
-          <div class='leg-info'>KLM · KL1373 · Airbus A321neo · 2h 40m</div>
-        </div></div>
-    </details></div>
   </details></div>
   </details></div>
           </div>
         </div></div>
 <script>
-const routes=[{id:'otp-hkd-2026',label:"Bucharest \u2192 HK (1 Oct - 23 Nov 2026)",labels:["06-06", "06-07", "06-08", "06-09"],prices:[894.0, 1045.0, 1043.0, 827.0],avg14:952.0,currency:'EUR'},
+const routes=[{id:'otp-hkd-2026',label:"Bucharest \u2192 HK (1 Oct - 23 Nov 2026)",labels:["06-06", "06-07", "06-08", "06-09"],prices:[894.0, 1045.0, 1043.0, 1046.0],effCosts:[null, null, null, 1046.0],avg14:1007.0,currency:'EUR'},
 ];
 routes.forEach(r=>{
   const ctx=document.getElementById('chart-'+r.id);
   if(!ctx||!r.prices.length)return;
-  const ds=[{label:'Best price',data:r.prices,borderColor:'#2980b9',
+  const hasEff=r.effCosts&&r.effCosts.some(v=>v!==null);
+  const ds=[{label:'Ticket price',data:r.prices,borderColor:'#2980b9',
     backgroundColor:'rgba(41,128,185,.07)',tension:0.35,fill:true,pointRadius:3}];
+  if(hasEff)ds.push({label:'Eff. cost',data:r.effCosts,borderColor:'#7d3c98',
+    backgroundColor:'rgba(125,60,152,.04)',tension:0.35,fill:false,
+    pointRadius:3,borderDash:[4,2]});
   if(r.avg14!==null)ds.push({label:'14d avg',data:r.labels.map(()=>r.avg14),
     borderColor:'#e67e22',borderDash:[5,5],borderWidth:1.5,pointRadius:0,fill:false});
   new Chart(ctx,{type:'line',data:{labels:r.labels,datasets:ds},
     options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false}},
+      plugins:{legend:{display:hasEff,labels:{font:{size:10},boxWidth:20,padding:8}}},
       scales:{
         y:{ticks:{callback:v=>v+' '+r.currency,font:{size:10}},grid:{color:'#f0f0f0'}},
         x:{ticks:{font:{size:10}},grid:{display:false}}}}});
