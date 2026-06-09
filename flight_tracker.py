@@ -1332,8 +1332,10 @@ def format_message(route: dict, flights: list, trend: dict,
         f"🕐 {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}",
     ]
     if is_alert and threshold:
+        alert_price_str = (f"{best['price']:.0f} (eff. {eff:.0f})" if eff is not None and eff != best["price"]
+                           else f"{best['price']:.0f}")
         header += ["", "─" * 28,
-                   f"🚨 *PRICE ALERT!* {best['price']:.0f} {currency} — below target of {threshold:.0f} {currency}!",
+                   f"🚨 *PRICE ALERT!* {alert_price_str} {currency} — below target of {threshold:.0f} {currency}!",
                    "─" * 28]
     if is_weekly:
         header += ["", "─── *WEEKLY SUMMARY* ───"]
@@ -1389,18 +1391,22 @@ def format_message(route: dict, flights: list, trend: dict,
 
     # ── Subject ──────────────────────────────────────────────
     prefix = "🚨 PRICE ALERT! " if is_alert else ("📅 Weekly: " if is_weekly else "✈️ ")
-    subject = (f"{prefix}{label}: {best['price']:.0f} {currency} "
+    eff     = best.get("effective_cost")
+    eff_sfx = f" (eff. {eff:.0f})" if eff is not None and eff != best["price"] else ""
+    subject = (f"{prefix}{label}: {best['price']:.0f}{eff_sfx} {currency} "
                f"({best['nights']}n) — {datetime.now().strftime('%b %d')}")
 
     # ── HTML (email) ─────────────────────────────────────────
     alert_html = ""
     if is_alert and threshold:
+        eff_html_note = (f" <span style='color:#7d3c98;font-size:14px'>(eff. {eff:.0f} {currency})</span>"
+                         if eff is not None and eff != best["price"] else "")
         alert_html = f"""
         <div style="background:#fff3cd;border:2px solid #e74c3c;padding:16px;margin:16px 0;
                     border-radius:8px;text-align:center">
           <h2 style="margin:0 0 6px;color:#c0392b">🚨 PRICE ALERT!</h2>
           <p style="font-size:18px;margin:0">
-            <strong>{best['price']:.0f} {currency}</strong> is below your target of
+            <strong>{best['price']:.0f} {currency}</strong>{eff_html_note} is below your target of
             <strong>{threshold:.0f} {currency}</strong>
           </p>
         </div>"""
