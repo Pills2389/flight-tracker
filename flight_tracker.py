@@ -1735,6 +1735,99 @@ def _render_option(f: dict, idx: int, currency: str,
 # ─────────────────────────────────────────────────────────────
 # DASHBOARD  (docs/index.html → GitHub Pages)
 # ─────────────────────────────────────────────────────────────
+def _route_filter_chips(route: dict) -> tuple[str, str]:
+    """
+    Build the always-visible summary line and the collapsed details line
+    for a route's search-parameter disclosure widget.
+
+    Returns (summary_html, details_html).
+    """
+    # ── Always-visible ────────────────────────────────────────────
+    nights     = route.get("target_nights", 20)
+    flex       = route.get("flexibility_days", 0)
+    stay_str   = f"{nights - flex}–{nights + flex} nights" if flex else f"{nights} nights"
+
+    dep_days   = route.get("departure_days", [])
+    ret_days   = route.get("return_days",    [])
+    dep_str    = " ".join(d[:3].capitalize() for d in dep_days) if dep_days else "any day"
+    dep_label  = f"{dep_str} dep"
+    ret_label  = (f" &nbsp;·&nbsp; {' '.join(d[:3].capitalize() for d in ret_days)} ret"
+                  if ret_days else "")
+
+    summary_html = (
+        f'<span class="fp-stay">{stay_str}</span>'
+        f' &nbsp;·&nbsp; <span class="fp-days">{dep_label}{ret_label}</span>'
+    )
+
+    # ── Collapsed details ─────────────────────────────────────────
+    chips = []
+
+    # Max stopovers
+    stops = route.get("max_stopovers")
+    if stops is None:
+        stops_str = "any stops"
+    elif stops == 0:
+        stops_str = "direct only"
+    elif stops == 1:
+        stops_str = "max 1 stop"
+    else:
+        stops_str = f"max {stops} stops"
+    chips.append(f'<span class="fp-chip">{stops_str}</span>')
+
+    # Preferred airlines
+    pref = _get_preferred_airlines(route)
+    if pref:
+        mode     = route.get("preferred_airline_mode", "soft")
+        mode_tip = (
+            "soft: all airlines shown, preferred ones get 🏷️"
+            if mode == "soft"
+            else "hard: only preferred airlines are returned"
+        )
+        chips.append(
+            f'<span class="fp-chip">'
+            f'{", ".join(pref)} preferred'
+            f' <span class="fp-mode-badge" data-tooltip="{mode_tip}">{mode}</span>'
+            f'</span>'
+        )
+
+    # Flight duration
+    max_out = route.get("max_outbound_duration_hours")
+    max_ret = route.get("max_return_duration_hours")
+    if max_out or max_ret:
+        parts = []
+        if max_out:
+            parts.append(f"≤{max_out:.0f}h out")
+        if max_ret:
+            parts.append(f"≤{max_ret:.0f}h ret")
+        chips.append(f'<span class="fp-chip">flight duration: {" / ".join(parts)}</span>')
+
+    # Departure window
+    dw = route.get("departure_window", {})
+    if dw.get("enabled"):
+        dw_from = dw.get("from", "")
+        dw_to   = dw.get("to",   "")
+        mode     = dw.get("mode", "soft")
+        mode_tip = (
+            "soft: flights outside this window are shown but not highlighted"
+            if mode == "soft"
+            else "hard: only flights departing in this window are returned"
+        )
+        chips.append(
+            f'<span class="fp-chip">'
+            f'dep {dw_from}–{dw_to}'
+            f' <span class="fp-mode-badge" data-tooltip="{mode_tip}">{mode}</span>'
+            f'</span>'
+        )
+
+    # Max layover
+    max_lay = route.get("max_layover_hours")
+    if max_lay:
+        chips.append(f'<span class="fp-chip">≤{max_lay:.0f}h layover</span>')
+
+    details_html = " ".join(chips)
+    return summary_html, details_html
+
+
 def generate_dashboard(routes: list, history: dict) -> str:
     cards      = ""
     chart_data = ""
@@ -1789,15 +1882,20 @@ def generate_dashboard(routes: list, history: dict) -> str:
             alert_badge = (f'<span style="background:{col};color:#fff;padding:2px 8px;'
                            f'border-radius:10px;font-size:11px">{txt}</span>')
 
+        fp_summary, fp_details = _route_filter_chips(route)
+
         cards += f"""
         <div class="card" id="route-{rid}">
           <div class="card-head">
             <h3>{label}</h3>
             <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
               <span class="badge">{route_endpoint_label(route)}</span>
-              {'<span class="badge">'+route.get('preferred_airline','')+' preferred</span>' if route.get('preferred_airline') else ''}
               {alert_badge}
             </div>
+            <details class="fparams">
+              <summary>{fp_summary}</summary>
+              <div class="fparams-body">{fp_details}</div>
+            </details>
           </div>
           <div style="display:flex;align-items:baseline;gap:12px;margin:10px 0">
             <span style="font-size:38px;font-weight:700;color:#1a5276">{price_str}</span>
@@ -1902,6 +2000,30 @@ def generate_dashboard(routes: list, history: dict) -> str:
     .layover{{padding:3px 8px;margin:3px 0;background:#fff8e1;
               border-radius:4px;font-size:11px;color:#856404}}
     .layover.overnight{{background:#fde8e8;color:#842029}}
+    /* ── Search-parameter disclosure widget ──────────────── */
+    .fparams{{margin-top:8px;font-size:11px;color:#888}}
+    .fparams>summary{{list-style:none;cursor:pointer;display:inline-flex;
+                      align-items:center;gap:0}}
+    .fparams>summary::-webkit-details-marker{{display:none}}
+    .fparams>summary::before{{content:"+ ";color:#2980b9;font-weight:700;
+                              white-space:pre;font-size:12px}}
+    .fparams[open]>summary::before{{content:"− ";}}
+    .fparams-body{{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px;padding-left:14px}}
+    .fp-chip{{background:#f0f4f8;border:1px solid #dde3ea;border-radius:8px;
+              padding:2px 7px;font-size:11px;color:#555}}
+    .fp-mode-badge{{display:inline-block;background:#e8f4fc;color:#2980b9;
+                    border-radius:4px;padding:0 4px;font-size:10px;
+                    font-weight:600;cursor:help;position:relative}}
+    .fp-mode-badge[data-tooltip]:hover::after{{
+      content:attr(data-tooltip);
+      position:absolute;left:50%;transform:translateX(-50%);bottom:calc(100% + 5px);
+      background:#1a1a2e;color:#fff;font-size:10px;font-weight:400;
+      white-space:nowrap;padding:4px 8px;border-radius:5px;
+      pointer-events:none;z-index:10;line-height:1.4}}
+    .fp-mode-badge[data-tooltip]:hover::before{{
+      content:"";position:absolute;left:50%;transform:translateX(-50%);
+      bottom:calc(100% + 1px);border:4px solid transparent;
+      border-top-color:#1a1a2e;pointer-events:none;z-index:10}}
     @media(max-width:600px){{.grid{{grid-template-columns:1fr}}}}
   </style>
 </head>
