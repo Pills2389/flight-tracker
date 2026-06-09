@@ -2077,12 +2077,18 @@ def _select_top_flights(flights: list, limit: int, max_per_airline: int) -> list
 # ─────────────────────────────────────────────────────────────
 # MAIN
 # ─────────────────────────────────────────────────────────────
-def process_route(route: dict, cfg: dict, history: dict, search: SearchFlights):
+def process_route(route: dict, cfg: dict, history: dict, search: SearchFlights) -> list[tuple[dict, str]]:
+    """Search one route, update history, and return pending notifications.
+
+    Returns a list of (content, trigger) tuples to be dispatched by the
+    caller after the dashboard has been regenerated.
+    """
     rid           = route["id"]
     label         = route.get("label", route_endpoint_label(route))
     currency      = route.get("currency", "EUR")
     passengers    = route.get("passengers", 1)
     dashboard_url = cfg.get("dashboard_url", "")
+    pending: list[tuple[dict, str]] = []
 
     log.info(f"Searching {label} …")
     flights, api_stats = search_route(route, search)
@@ -2094,9 +2100,9 @@ def process_route(route: dict, cfg: dict, history: dict, search: SearchFlights):
             log.info(f"[{rid}] 📅 Weekly heartbeat (no matches this week)")
             health = api_health_summary(history, rid)
             msg = format_heartbeat_message(route, currency, health, dashboard_url)
-            dispatch(msg, cfg, route, trigger="weekly")
+            pending.append((msg, "weekly"))
             history[rid]["last_weekly_summary"] = _today()
-        return
+        return pending
 
     best_price = flights[0]["price"]
     log.info(f"[{rid}] Best price today: {best_price:.0f} {currency} "
@@ -2131,21 +2137,23 @@ def process_route(route: dict, cfg: dict, history: dict, search: SearchFlights):
     if should_price_alert(route, best_price, history):
         log.info(f"[{rid}] 🚨 Price alert: {best_price:.0f} {currency}")
         msg = format_message(route, flights, trend, "price_alert", currency, passengers, dashboard_url)
-        dispatch(msg, cfg, route, trigger="price_alert")
+        pending.append((msg, "price_alert"))
         history[rid]["last_alert_date"] = _today()
         alert_sent = True
 
     if should_daily(route, best_price, alert_sent):
         log.info(f"[{rid}] 📅 Daily digest")
         msg = format_message(route, flights, trend, "daily", currency, passengers, dashboard_url)
-        dispatch(msg, cfg, route, trigger="daily")
+        pending.append((msg, "daily"))
 
     if should_weekly(route, history):
         log.info(f"[{rid}] 📅 Weekly summary")
         health = api_health_summary(history, rid)
         msg = format_message(route, flights, trend, "weekly", currency, passengers, dashboard_url, api_health=health)
-        dispatch(msg, cfg, route, trigger="weekly")
+        pending.append((msg, "weekly"))
         history[rid]["last_weekly_summary"] = _today()
+
+    return pending
 
 
 def run(debug: bool = False, only_route: str = ""):
@@ -2160,7 +2168,12 @@ def run(debug: bool = False, only_route: str = ""):
         history = load_history()
         search  = SearchFlights()
 
-        route_errors = []
+        route_errors  = []
+        # Collect (route, content, trigger) tuples from all routes; dispatch
+        # after the dashboard is written so notifications and the live page
+        # are always in sync.
+        pending_notifications: list[tuple[dict, dict, str]] = []
+
         for route in cfg.get("routes", []):
             if only_route and route["id"] != only_route:
                 continue
@@ -2171,12 +2184,11 @@ def run(debug: bool = False, only_route: str = ""):
             log.info(f"Route: {route.get('label', route['id'])}")
             log.info(f"{'═' * 60}")
             try:
-                process_route(route, cfg, history, search)
+                for content, trigger in process_route(route, cfg, history, search):
+                    pending_notifications.append((route, content, trigger))
             except Exception as e:
                 log.error(f"Error on route {route.get('id','?')}: {e}", exc_info=True)
                 route_errors.append((route.get("id", "?"), str(e)))
-
-        dispatch_error_report(route_errors, cfg)
 
         save_history(history)
         log.info("💾 price_history.json saved")
@@ -2187,6 +2199,13 @@ def run(debug: bool = False, only_route: str = ""):
         DASHBOARD_FILE.write_text(generate_dashboard(active_routes, history),
                                   encoding="utf-8")
         log.info(f"🌐 Dashboard → {DASHBOARD_FILE}")
+
+        log.info(f"📤 Sending {len(pending_notifications)} notification(s) …")
+        for route, content, trigger in pending_notifications:
+            dispatch(content, cfg, route, trigger=trigger)
+
+        dispatch_error_report(route_errors, cfg)
+
         log.info("✅ Done.")
     except Exception as e:
         log.error(f"💥 Flight tracker run crashed: {e}", exc_info=True)
