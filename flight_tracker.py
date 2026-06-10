@@ -599,13 +599,13 @@ def _run_search(search: SearchFlights, route: dict, dates: list[str],
                     country=route.get("search_country") or None,
                 )
         except Exception as e:
-            log.error(f"fli search error: {e}")
+            log.error(f"[{route['id']}] {leg_label}: fli search error: {e}")
             results = None
 
         if results:
             break
         if attempt < retries:
-            log.info(f"  {leg_label}: empty response, "
+            log.info(f"  [{route['id']}] {leg_label}: empty response, "
                      f"retrying ({attempt + 1}/{retries})…")
             time.sleep(2)
 
@@ -928,7 +928,7 @@ def search_route(route: dict) -> tuple[list[dict], dict]:
         dep, ret = pair
         nights = (datetime.strptime(ret, "%Y-%m-%d") - datetime.strptime(dep, "%Y-%m-%d")).days
         label  = f"{route['id']}_{dep}_{ret}"
-        log.info(f"  → {dep} → {ret} ({nights}n): searching…")
+        log.info(f"  [{route['id']}] {dep} → {ret} ({nights}n): querying…")
         s = SearchFlights()
         flights, ob_stats = _run_search(s, route, [dep, ret], top_n,
                                         debug_label=label if DEBUG else "")
@@ -953,14 +953,14 @@ def search_route(route: dict) -> tuple[list[dict], dict]:
             api_stats["pairs_with_results"] += 1
 
         if not flights:
-            log.info(f"  {dep} → {ret}: no results")
+            log.info(f"  [{route['id']}] {dep} → {ret}: no results")
             continue
 
         currency      = route.get("currency", "EUR")
         prices        = [f["price"] for f in flights]
         airline_count = len({code for f in flights for code in f.get("airline_codes", [])})
         options_label = "multi-city options" if is_multi_city else "round-trip options"
-        log.info(f"  {dep} → {ret} ({nights}n): "
+        log.info(f"  [{route['id']}] {dep} → {ret} ({nights}n): "
                  f"outbound {ob_stats['raw']} → {ob_stats['kept']} kept ({ob_stats['filtered']} filtered) → "
                  f"{len(flights)} {options_label}, "
                  f"{min(prices):.0f}–{max(prices):.0f} {currency} across {airline_count} airlines, "
