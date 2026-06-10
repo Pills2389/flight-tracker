@@ -66,6 +66,37 @@ in the config schema (`CLAUDE.md`). `_error_report_targets()` resolves them.
 
 ---
 
+## Concurrency control & rate limiting
+
+### Why a global semaphore instead of per-route worker limits
+
+The tracker runs all routes in parallel via an outer `ThreadPoolExecutor(max_workers=len(active_routes))` in `run()`. Each route spawns its own inner `ThreadPoolExecutor(max_workers=min(4, len(date_pairs)))` inside `search_route()`. Without a shared cap, peak concurrency = routes × 4 — e.g. 20 for 5 routes, 32 for 8 routes, 48 for 12. Google begins returning HTTP 429s before the first minute is up, which triggers retries, which add more requests, snowballing.
+
+Reducing `n_workers` per route doesn't scale — it just changes the multiplier. A per-route cap of 2 still gives 16 concurrent for 8 routes. The correct fix is a **module-level `threading.Semaphore`** shared across all routes and all their workers:
+
+```python
+_search_semaphore: threading.Semaphore = threading.Semaphore(5)  # re-initialized in run()
+```
+
+Each `_search_pair` worker acquires it before calling `_run_search()` and releases it when done. This bounds total concurrent API calls to `max_concurrent_searches` (default 5) regardless of how many routes or date pairs are in play.
+
+### Jitter before semaphore acquisition
+
+Even with the semaphore, all workers start simultaneously and the first 5 grab slots at the same instant. A `time.sleep(random.uniform(1, 3))` before `with _search_semaphore:` staggers the initial competition so the slots fill gradually rather than all at t=0. The jitter is intentionally placed *before* the `with` block — sleeping inside the semaphore would hold a slot while doing nothing, blocking other workers unnecessarily.
+
+### Tuning `max_concurrent_searches`
+
+- Default: **5** — one search slot per route on average for a 5-route config, all routes make progress simultaneously
+- Observed: 429s appeared at ~85s in with 20 concurrent (5 routes × 4 workers); with semaphore(5) the rate stays flat throughout the run
+- **Lower to 3–4** if 429s persist in logs; **raise cautiously** (6–8) if the run is clean and fast and you want throughput back
+- The log line `🔀 Concurrent search limit: N` at run start confirms the active value
+
+### Log traceability
+
+Per-pair log lines are prefixed `[route-id]` because routes run in parallel and their workers interleave in the log. Without the prefix it's impossible to tell which route a "no results" or "empty response, retrying" line belongs to, or which route was absorbing 429s. The prefix appears on: "querying…", "empty response, retrying", "no results", the per-pair result summary, and "fli search error" lines.
+
+---
+
 ## fli search internals
 
 ### fli Python API — round-trip search shape

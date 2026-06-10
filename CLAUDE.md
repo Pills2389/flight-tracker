@@ -102,6 +102,8 @@ generate_dashboard()          Writes docs/index.html
     "ntfy":     { "enabled", "topic", "server", "receive_error_report" }
   },
   "_receive_error_report_note": "Opt-in flag for the batched end-of-run 🔴 error report (see 'Error reports' below) — same property name on all three channels (email/ntfy are single-recipient today, whatsapp is a per-recipient list) so the shape stays consistent if email/ntfy ever grow multi-recipient too. Defaults to false everywhere; independent of the per-route notification routing.",
+  "max_concurrent_searches": 5,
+  "_max_concurrent_searches_note": "Global cap on concurrent Google Flights API calls across all routes and their worker threads. Without it, concurrency = routes × 4 workers (e.g. 20 for 5 routes, 32 for 8 routes) which triggers HTTP 429 rate-limiting. A threading.Semaphore shared across all routes enforces this limit. Default 5. Lower to 3-4 if 429s persist; raise cautiously if runs are slow and 429-free.",
   "route_defaults": "Optional sibling of 'routes' — see 'route_defaults (shared route settings)' below. Holds every field shown in the route schema except identity/endpoints/dates/max_price_alert; a route only needs to repeat a field here if its value should differ.",
   "routes": [{
     "id":                         "unique-id",
@@ -321,6 +323,15 @@ any of these areas, since the reasoning isn't obvious from the code alone:
   and how `_run_search()` drives `_fetch_flights()`/`_expand_multi_leg()`
   directly (`_prefilter_outbound()`/`_rank_outbound()`) to spend those
   expansion slots on flights the route actually wants.
+- **Concurrency control & rate limiting** — all routes run in parallel (outer
+  `ThreadPoolExecutor`), each with up to 4 date-pair workers (inner pool). A
+  module-level `_search_semaphore` (re-initialized from `max_concurrent_searches`
+  in `run()`) caps total concurrent Google API calls across all routes — without
+  it, concurrency scales with route count and triggers HTTP 429s. Each worker also
+  sleeps `random.uniform(1, 3)` seconds *before* acquiring the semaphore to stagger
+  the initial burst. Per-pair log lines are prefixed `[route-id]` so interleaved
+  output from parallel routes is traceable. Full rationale →
+  [IMPLEMENTATION_NOTES.md § Concurrency control](IMPLEMENTATION_NOTES.md#concurrency-control--rate-limiting).
 - **Empty-result retries** — Google sporadically returns an empty payload for
   date pairs that genuinely have flights; `_run_search()` retries up to
   `search_retries` (default 3) before giving up.
