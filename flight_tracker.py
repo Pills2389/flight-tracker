@@ -1345,6 +1345,7 @@ def format_message(route: dict, flights: list, trend: dict,
     is_alert  = trigger == "price_alert"
     is_weekly = trigger == "weekly"
     threshold = route.get("max_price_alert")
+    eff       = best.get("effective_cost")
 
     # ── Plain text (WhatsApp markdown: *bold* _italic_) ──────
     header = [
@@ -1411,7 +1412,6 @@ def format_message(route: dict, flights: list, trend: dict,
 
     # ── Subject ──────────────────────────────────────────────
     prefix = "🚨 PRICE ALERT! " if is_alert else ("📅 Weekly: " if is_weekly else "✈️ ")
-    eff     = best.get("effective_cost")
     eff_sfx = f" (eff. {eff:.0f})" if eff is not None and eff != best["price"] else ""
     subject = (f"{prefix}{label}: {best['price']:.0f}{eff_sfx} {currency} "
                f"({best['nights']}n) — {datetime.now().strftime('%b %d')}")
