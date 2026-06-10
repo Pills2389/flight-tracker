@@ -14,7 +14,7 @@ on GitHub Pages, and sends notifications via Email, WhatsApp (CallMeBot), and nt
 | File | Purpose |
 |---|---|
 | `flight_tracker.py` | Single entry point — all logic lives here |
-| `config.json` | User config (gitignored — never commit) |
+| `config.json` | User config (gitignored — never commit) — **read this first when analyzing any route behavior** |
 | `config.example.json` | Documented template for config.json |
 | `price_history.json` | Price history committed to repo (auto-updated by Actions) |
 | `test.py` | Test suite — run before pushing changes |
