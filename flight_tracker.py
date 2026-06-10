@@ -13,6 +13,7 @@ Dashboard    : docs/index.html     → GitHub Pages
 import json
 import logging
 import os
+import random
 import smtplib
 import sys
 import time
@@ -58,6 +59,10 @@ log = logging.getLogger(__name__)
 
 DEBUG      = False   # set to True via --debug flag
 DEBUG_DIR  = Path("debug")
+
+# Global cap on concurrent Google Flights API calls across all routes.
+# Re-initialized in run() from cfg["max_concurrent_searches"] (default 5).
+_search_semaphore: threading.Semaphore = threading.Semaphore(5)
 
 HISTORY_FILE   = "price_history.json"
 DASHBOARD_DIR  = Path("docs")
@@ -928,10 +933,12 @@ def search_route(route: dict) -> tuple[list[dict], dict]:
         dep, ret = pair
         nights = (datetime.strptime(ret, "%Y-%m-%d") - datetime.strptime(dep, "%Y-%m-%d")).days
         label  = f"{route['id']}_{dep}_{ret}"
-        log.info(f"  [{route['id']}] {dep} → {ret} ({nights}n): querying…")
-        s = SearchFlights()
-        flights, ob_stats = _run_search(s, route, [dep, ret], top_n,
-                                        debug_label=label if DEBUG else "")
+        time.sleep(random.uniform(1, 3))
+        with _search_semaphore:
+            log.info(f"  [{route['id']}] {dep} → {ret} ({nights}n): querying…")
+            s = SearchFlights()
+            flights, ob_stats = _run_search(s, route, [dep, ret], top_n,
+                                            debug_label=label if DEBUG else "")
         return dep, ret, nights, flights, ob_stats
 
     # Parallel search phase — workers log their start immediately so the
@@ -2450,6 +2457,11 @@ def run(debug: bool = False, only_route: str = ""):
     try:
         cfg     = load_config()
         history = load_history()
+
+        global _search_semaphore
+        _max_concurrent = cfg.get("max_concurrent_searches", 5)
+        _search_semaphore = threading.Semaphore(_max_concurrent)
+        log.info(f"🔀 Concurrent search limit: {_max_concurrent}")
 
         route_errors: list[tuple[str, str]] = []
         # Collect (route, content, trigger) tuples from all routes; dispatch

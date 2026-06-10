@@ -4,6 +4,9 @@
   "_dashboard_url_note": "Optional. Your live GitHub Pages dashboard URL — when set, email and WhatsApp notifications include a link straight to the route's card (e.g. '<dashboard_url>#route-<route id>') so you can tap through for the full collapsible tree and price chart that don't fit in a text message.",
   "dashboard_url": "https://YOUR_GITHUB_USERNAME.github.io/YOUR_REPO_NAME/",
 
+  "_max_concurrent_searches_note": "Global cap on how many Google Flights API calls run at the same time across all routes. All routes run in parallel, each with multiple date-pair workers — without a cap, concurrency grows with the number of routes (5 routes × 4 workers = 20 simultaneous calls) and triggers HTTP 429 rate-limiting. The semaphore keeps total concurrent calls at this number regardless of how many routes you add. Default: 5.",
+  "max_concurrent_searches": 5,
+
   "notifications": {
     "_section": "Global notification channels — enable/configure the ones you want. Each route can also override 'channels' individually below.",
     "_error_reports_note": "'receive_error_report' (on email/ntfy/whatsapp-recipient) opts that channel/person into the end-of-run error summary — a separate, route-independent notice sent only when one or more routes threw an error this run. Defaults to false everywhere so adding someone for daily/weekly digests doesn't also sign them up for error spam. Kept as the same property name across all three channels because whatsapp is already multi-recipient and email/ntfy may become so too.",
