@@ -3,10 +3,10 @@ name: ✈️ Daily Flight Check
 on:
   schedule:
     # Three times daily. Cron is UTC and doesn't follow DST.
-    # 04:47 UTC = 07:47 EEST (summer) / 06:47 EET (winter)
-    # 10:47 UTC = 13:47 EEST (summer) / 12:47 EET (winter)
-    # 16:47 UTC = 19:47 EEST (summer) / 18:47 EET (winter)
-    - cron: '47 4,10,16 * * *'
+    # 06:11 UTC = 09:11 EEST (summer) / 08:11 EET (winter)
+    # 12:11 UTC = 15:11 EEST (summer) / 14:11 EET (winter)
+    # 16:11 UTC = 19:11 EEST (summer) / 18:11 EET (winter)
+    - cron: '11 6,12,16 * * *'
   workflow_dispatch:
     # Allows manual trigger from the GitHub Actions tab
 
