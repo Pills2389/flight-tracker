@@ -2392,8 +2392,8 @@
       {
         "date": "2026-06-24",
         "pairs_searched": 12,
-        "pairs_with_results": 5,
-        "raw_flights_total": 118
+        "pairs_with_results": 0,
+        "raw_flights_total": 0
       }
     ],
     "last_alert_price": 957.0,
@@ -11907,8 +11907,8 @@
       {
         "date": "2026-06-24",
         "pairs_searched": 12,
-        "pairs_with_results": 9,
-        "raw_flights_total": 166
+        "pairs_with_results": 0,
+        "raw_flights_total": 0
       }
     ]
   },
@@ -13849,8 +13849,8 @@
       {
         "date": "2026-06-24",
         "pairs_searched": 12,
-        "pairs_with_results": 12,
-        "raw_flights_total": 144
+        "pairs_with_results": 0,
+        "raw_flights_total": 0
       }
     ]
   },
@@ -16539,8 +16539,8 @@
       {
         "date": "2026-06-24",
         "pairs_searched": 12,
-        "pairs_with_results": 4,
-        "raw_flights_total": 49
+        "pairs_with_results": 0,
+        "raw_flights_total": 0
       }
     ],
     "last_daily_date": "2026-06-09",
@@ -17993,8 +17993,8 @@
       {
         "date": "2026-06-24",
         "pairs_searched": 12,
-        "pairs_with_results": 9,
-        "raw_flights_total": 106
+        "pairs_with_results": 0,
+        "raw_flights_total": 0
       }
     ],
     "last_daily_date": "2026-06-10",
@@ -19612,8 +19612,8 @@
       {
         "date": "2026-06-24",
         "pairs_searched": 12,
-        "pairs_with_results": 9,
-        "raw_flights_total": 172
+        "pairs_with_results": 0,
+        "raw_flights_total": 0
       }
     ]
   },
@@ -22312,8 +22312,8 @@
       {
         "date": "2026-06-24",
         "pairs_searched": 12,
-        "pairs_with_results": 9,
-        "raw_flights_total": 86
+        "pairs_with_results": 0,
+        "raw_flights_total": 0
       }
     ]
   }
