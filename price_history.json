@@ -266,25 +266,122 @@
       },
       {
         "date": "2026-07-29",
-        "best_price": 961.0,
-        "best_eff_cost": 962.67,
+        "best_price": 830.0,
+        "best_eff_cost": 952.5,
         "currency": "EUR",
-        "outbound_date": "2026-11-05",
-        "dep_time": "21:45",
-        "return_date": "2026-11-22",
+        "outbound_date": "2026-10-01",
+        "dep_time": "18:10",
+        "return_date": "2026-10-18",
         "nights": 17,
-        "airline": "Turkish Airlines",
+        "airline": "KLM",
         "stops": 2,
-        "duration_str": "30h 00m",
+        "duration_str": "35h 40m",
         "top_flights": [
           {
+            "price": 830.0,
+            "duration_min": 2140,
+            "duration_str": "35h 40m",
+            "outbound_duration_min": 975,
+            "outbound_duration_str": "16h 15m",
+            "return_duration_min": 1165,
+            "return_duration_str": "19h 25m",
+            "stops": 2,
+            "airline": "KLM",
+            "airline_codes": [
+              "KL"
+            ],
+            "max_layover_min": 85,
+            "max_layover_h": 1.4,
+            "dep_hour": 18,
+            "dep_time": "18:10",
+            "ret_arr_hour": 12,
+            "outbound_arr_time": "15:25+1",
+            "return_dep_time": "22:20",
+            "return_arr_time": "12:45+1",
+            "outbound_legs": [
+              {
+                "dep_code": "OTP",
+                "dep_name": "Bucharest Henri Coandă International Airport",
+                "dep_time": "18:10",
+                "arr_code": "AMS",
+                "arr_name": "Amsterdam Airport Schiphol",
+                "arr_time": "20:00",
+                "airline": "KLM",
+                "flight_num": "KL1376",
+                "aircraft": "Boeing 737",
+                "duration_str": "2h 50m",
+                "layover_after": {
+                  "code": "AMS",
+                  "name": "Amsterdam Airport Schiphol",
+                  "duration_str": "1h 25m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "AMS",
+                "dep_name": "Amsterdam Airport Schiphol",
+                "dep_time": "21:25",
+                "arr_code": "HKG",
+                "arr_name": "Hong Kong International Airport",
+                "arr_time": "15:25+1",
+                "airline": "KLM",
+                "flight_num": "KL887",
+                "aircraft": "Boeing 787",
+                "duration_str": "12h 00m"
+              }
+            ],
+            "return_legs": [
+              {
+                "dep_code": "HKG",
+                "dep_name": "Hong Kong International Airport",
+                "dep_time": "22:20",
+                "arr_code": "CDG",
+                "arr_name": "Aéroport de Paris-Charles de Gaulle",
+                "arr_time": "05:50+1",
+                "airline": "Air France",
+                "flight_num": "AF185",
+                "aircraft": "Airbus A350",
+                "duration_str": "13h 30m",
+                "layover_after": {
+                  "code": "CDG",
+                  "name": "Aéroport de Paris-Charles de Gaulle",
+                  "duration_str": "3h 00m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "CDG",
+                "dep_name": "Aéroport de Paris-Charles de Gaulle",
+                "dep_time": "08:50+1",
+                "arr_code": "OTP",
+                "arr_name": "Bucharest Henri Coandă International Airport",
+                "arr_time": "12:45+1",
+                "airline": "Air France",
+                "flight_num": "AF1888",
+                "aircraft": "Airbus A220-300 Passenger",
+                "duration_str": "2h 55m"
+              }
+            ],
+            "self_transfer": false,
+            "outbound_date": "2026-10-01",
+            "return_date": "2026-10-18",
+            "nights": 17,
+            "origin": "OTP",
+            "destination": "HKG",
+            "preferred_airline_match": false,
+            "preferred_time": false,
+            "effective_cost": 952.5,
+            "airline_direct": true,
+            "vendor": "KLM"
+          },
+          {
             "price": 961.0,
-            "duration_min": 1800,
-            "duration_str": "30h 00m",
+            "duration_min": 1735,
+            "duration_str": "28h 55m",
             "outbound_duration_min": 800,
             "outbound_duration_str": "13h 20m",
-            "return_duration_min": 1000,
-            "return_duration_str": "16h 40m",
+            "return_duration_min": 935,
+            "return_duration_str": "15h 35m",
             "stops": 2,
             "airline": "Turkish Airlines",
             "airline_codes": [
@@ -294,10 +391,10 @@
             "max_layover_h": 1.5,
             "dep_hour": 21,
             "dep_time": "21:45",
-            "ret_arr_hour": 20,
+            "ret_arr_hour": 8,
             "outbound_arr_time": "17:05+1",
-            "return_dep_time": "09:45",
-            "return_arr_time": "20:25",
+            "return_dep_time": "23:15",
+            "return_arr_time": "08:50+1",
             "outbound_legs": [
               {
                 "dep_code": "OTP",
@@ -334,30 +431,30 @@
               {
                 "dep_code": "HKG",
                 "dep_name": "Hong Kong International Airport",
-                "dep_time": "09:45",
+                "dep_time": "23:15",
                 "arr_code": "IST",
                 "arr_name": "Istanbul Airport",
-                "arr_time": "16:45",
+                "arr_time": "06:10+1",
                 "airline": "Turkish Airlines",
-                "flight_num": "TK171",
-                "aircraft": "Boeing 787",
-                "duration_str": "12h 00m",
+                "flight_num": "TK71",
+                "aircraft": "Boeing 777",
+                "duration_str": "11h 55m",
                 "layover_after": {
                   "code": "IST",
                   "name": "Istanbul Airport",
-                  "duration_str": "3h 20m",
+                  "duration_str": "2h 20m",
                   "overnight": false
                 }
               },
               {
                 "dep_code": "IST",
                 "dep_name": "Istanbul Airport",
-                "dep_time": "20:05",
+                "dep_time": "08:30+1",
                 "arr_code": "OTP",
                 "arr_name": "Bucharest Henri Coandă International Airport",
-                "arr_time": "20:25",
+                "arr_time": "08:50+1",
                 "airline": "Turkish Airlines",
-                "flight_num": "TK1045",
+                "flight_num": "TK1043",
                 "aircraft": "Boeing 787",
                 "duration_str": "1h 20m"
               }
@@ -370,7 +467,7 @@
             "destination": "HKG",
             "preferred_airline_match": true,
             "preferred_time": true,
-            "effective_cost": 962.67,
+            "effective_cost": 961.0,
             "airline_direct": true
           },
           {
@@ -564,7 +661,7 @@
             "preferred_time": false,
             "effective_cost": 1015.0,
             "airline_direct": true,
-            "vendor": "Air France"
+            "vendor": "KLM"
           },
           {
             "price": 873.0,
@@ -1052,103 +1149,6 @@
             "vendor": "Turkish Airlines"
           },
           {
-            "price": 922.0,
-            "duration_min": 2140,
-            "duration_str": "35h 40m",
-            "outbound_duration_min": 975,
-            "outbound_duration_str": "16h 15m",
-            "return_duration_min": 1165,
-            "return_duration_str": "19h 25m",
-            "stops": 2,
-            "airline": "KLM",
-            "airline_codes": [
-              "KL"
-            ],
-            "max_layover_min": 85,
-            "max_layover_h": 1.4,
-            "dep_hour": 18,
-            "dep_time": "18:10",
-            "ret_arr_hour": 12,
-            "outbound_arr_time": "15:25+1",
-            "return_dep_time": "22:20",
-            "return_arr_time": "12:45+1",
-            "outbound_legs": [
-              {
-                "dep_code": "OTP",
-                "dep_name": "Bucharest Henri Coandă International Airport",
-                "dep_time": "18:10",
-                "arr_code": "AMS",
-                "arr_name": "Amsterdam Airport Schiphol",
-                "arr_time": "20:00",
-                "airline": "KLM",
-                "flight_num": "KL1376",
-                "aircraft": "Boeing 737",
-                "duration_str": "2h 50m",
-                "layover_after": {
-                  "code": "AMS",
-                  "name": "Amsterdam Airport Schiphol",
-                  "duration_str": "1h 25m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "AMS",
-                "dep_name": "Amsterdam Airport Schiphol",
-                "dep_time": "21:25",
-                "arr_code": "HKG",
-                "arr_name": "Hong Kong International Airport",
-                "arr_time": "15:25+1",
-                "airline": "KLM",
-                "flight_num": "KL887",
-                "aircraft": "Boeing 787",
-                "duration_str": "12h 00m"
-              }
-            ],
-            "return_legs": [
-              {
-                "dep_code": "HKG",
-                "dep_name": "Hong Kong International Airport",
-                "dep_time": "22:20",
-                "arr_code": "CDG",
-                "arr_name": "Aéroport de Paris-Charles de Gaulle",
-                "arr_time": "05:50+1",
-                "airline": "Air France",
-                "flight_num": "AF185",
-                "aircraft": "Airbus A350",
-                "duration_str": "13h 30m",
-                "layover_after": {
-                  "code": "CDG",
-                  "name": "Aéroport de Paris-Charles de Gaulle",
-                  "duration_str": "3h 00m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "CDG",
-                "dep_name": "Aéroport de Paris-Charles de Gaulle",
-                "dep_time": "08:50+1",
-                "arr_code": "OTP",
-                "arr_name": "Bucharest Henri Coandă International Airport",
-                "arr_time": "12:45+1",
-                "airline": "Air France",
-                "flight_num": "AF1888",
-                "aircraft": "Airbus A220-300 Passenger",
-                "duration_str": "2h 55m"
-              }
-            ],
-            "self_transfer": false,
-            "outbound_date": "2026-10-01",
-            "return_date": "2026-10-18",
-            "nights": 17,
-            "origin": "OTP",
-            "destination": "HKG",
-            "preferred_airline_match": false,
-            "preferred_time": false,
-            "effective_cost": 1044.5,
-            "airline_direct": true,
-            "vendor": "Air France"
-          },
-          {
             "price": 1045.0,
             "duration_min": 1735,
             "duration_str": "28h 55m",
@@ -1533,7 +1533,105 @@
             "preferred_time": false,
             "effective_cost": 1058.0,
             "airline_direct": true,
-            "vendor": "KLM"
+            "vendor": "Air France"
+          },
+          {
+            "price": 936.0,
+            "duration_min": 2155,
+            "duration_str": "35h 55m",
+            "outbound_duration_min": 1000,
+            "outbound_duration_str": "16h 40m",
+            "return_duration_min": 1155,
+            "return_duration_str": "19h 15m",
+            "stops": 2,
+            "airline": "flydubai, Emirates",
+            "airline_codes": [
+              "FZ",
+              "EK"
+            ],
+            "max_layover_min": 275,
+            "max_layover_h": 4.6,
+            "dep_hour": 23,
+            "dep_time": "23:10",
+            "ret_arr_hour": 13,
+            "outbound_arr_time": "21:50+1",
+            "return_dep_time": "00:35",
+            "return_arr_time": "13:50",
+            "outbound_legs": [
+              {
+                "dep_code": "OTP",
+                "dep_name": "Bucharest Henri Coandă International Airport",
+                "dep_time": "23:10",
+                "arr_code": "DXB",
+                "arr_name": "Dubai International Airport",
+                "arr_time": "06:05+1",
+                "airline": "flydubai",
+                "flight_num": "FZ1796",
+                "aircraft": "Boeing 737MAX 8 Passenger",
+                "duration_str": "4h 55m",
+                "layover_after": {
+                  "code": "DXB",
+                  "name": "Dubai International Airport",
+                  "duration_str": "4h 35m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "DXB",
+                "dep_name": "Dubai International Airport",
+                "dep_time": "10:40+1",
+                "arr_code": "HKG",
+                "arr_name": "Hong Kong International Airport",
+                "arr_time": "21:50+1",
+                "airline": "Emirates",
+                "flight_num": "EK380",
+                "aircraft": "Airbus A380",
+                "duration_str": "7h 10m"
+              }
+            ],
+            "return_legs": [
+              {
+                "dep_code": "HKG",
+                "dep_name": "Hong Kong International Airport",
+                "dep_time": "00:35",
+                "arr_code": "DXB",
+                "arr_name": "Dubai International Airport",
+                "arr_time": "05:40",
+                "airline": "Emirates",
+                "flight_num": "EK381",
+                "aircraft": "Airbus A380",
+                "duration_str": "9h 05m",
+                "layover_after": {
+                  "code": "DXB",
+                  "name": "Dubai International Airport",
+                  "duration_str": "4h 40m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "DXB",
+                "dep_name": "Dubai International Airport",
+                "dep_time": "10:20",
+                "arr_code": "OTP",
+                "arr_name": "Bucharest Henri Coandă International Airport",
+                "arr_time": "13:50",
+                "airline": "flydubai",
+                "flight_num": "FZ1797",
+                "aircraft": "Boeing 737MAX 8 Passenger",
+                "duration_str": "5h 30m"
+              }
+            ],
+            "self_transfer": false,
+            "outbound_date": "2026-11-05",
+            "return_date": "2026-11-22",
+            "nights": 17,
+            "origin": "OTP",
+            "destination": "HKG",
+            "preferred_airline_match": false,
+            "preferred_time": true,
+            "effective_cost": 1066.0,
+            "airline_direct": true,
+            "vendor": "Emirates"
           },
           {
             "price": 968.0,
@@ -1634,111 +1732,13 @@
             "vendor": "Emirates"
           },
           {
-            "price": 968.0,
-            "duration_min": 2155,
-            "duration_str": "35h 55m",
-            "outbound_duration_min": 1000,
-            "outbound_duration_str": "16h 40m",
-            "return_duration_min": 1155,
-            "return_duration_str": "19h 15m",
-            "stops": 2,
-            "airline": "flydubai, Emirates",
-            "airline_codes": [
-              "FZ",
-              "EK"
-            ],
-            "max_layover_min": 275,
-            "max_layover_h": 4.6,
-            "dep_hour": 23,
-            "dep_time": "23:10",
-            "ret_arr_hour": 13,
-            "outbound_arr_time": "21:50+1",
-            "return_dep_time": "00:35",
-            "return_arr_time": "13:50",
-            "outbound_legs": [
-              {
-                "dep_code": "OTP",
-                "dep_name": "Bucharest Henri Coandă International Airport",
-                "dep_time": "23:10",
-                "arr_code": "DXB",
-                "arr_name": "Dubai International Airport",
-                "arr_time": "06:05+1",
-                "airline": "flydubai",
-                "flight_num": "FZ1796",
-                "aircraft": "Boeing 737MAX 8 Passenger",
-                "duration_str": "4h 55m",
-                "layover_after": {
-                  "code": "DXB",
-                  "name": "Dubai International Airport",
-                  "duration_str": "4h 35m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "DXB",
-                "dep_name": "Dubai International Airport",
-                "dep_time": "10:40+1",
-                "arr_code": "HKG",
-                "arr_name": "Hong Kong International Airport",
-                "arr_time": "21:50+1",
-                "airline": "Emirates",
-                "flight_num": "EK380",
-                "aircraft": "Airbus A380",
-                "duration_str": "7h 10m"
-              }
-            ],
-            "return_legs": [
-              {
-                "dep_code": "HKG",
-                "dep_name": "Hong Kong International Airport",
-                "dep_time": "00:35",
-                "arr_code": "DXB",
-                "arr_name": "Dubai International Airport",
-                "arr_time": "05:40",
-                "airline": "Emirates",
-                "flight_num": "EK381",
-                "aircraft": "Airbus A380",
-                "duration_str": "9h 05m",
-                "layover_after": {
-                  "code": "DXB",
-                  "name": "Dubai International Airport",
-                  "duration_str": "4h 40m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "DXB",
-                "dep_name": "Dubai International Airport",
-                "dep_time": "10:20",
-                "arr_code": "OTP",
-                "arr_name": "Bucharest Henri Coandă International Airport",
-                "arr_time": "13:50",
-                "airline": "flydubai",
-                "flight_num": "FZ1797",
-                "aircraft": "Boeing 737MAX 8 Passenger",
-                "duration_str": "5h 30m"
-              }
-            ],
-            "self_transfer": false,
-            "outbound_date": "2026-10-29",
-            "return_date": "2026-11-15",
-            "nights": 17,
-            "origin": "OTP",
-            "destination": "HKG",
-            "preferred_airline_match": false,
-            "preferred_time": true,
-            "effective_cost": 1098.0,
-            "airline_direct": true,
-            "vendor": "Emirates"
-          },
-          {
             "price": 830.0,
-            "duration_min": 2250,
-            "duration_str": "37h 30m",
-            "outbound_duration_min": 1050,
-            "outbound_duration_str": "17h 30m",
-            "return_duration_min": 1200,
-            "return_duration_str": "20h 00m",
+            "duration_min": 2220,
+            "duration_str": "37h 00m",
+            "outbound_duration_min": 1055,
+            "outbound_duration_str": "17h 35m",
+            "return_duration_min": 1165,
+            "return_duration_str": "19h 25m",
             "stops": 2,
             "airline": "TAROM, KLM",
             "airline_codes": [
@@ -1749,10 +1749,10 @@
             "max_layover_h": 2.5,
             "dep_hour": 16,
             "dep_time": "16:50",
-            "ret_arr_hour": 13,
-            "outbound_arr_time": "16:20+1",
-            "return_dep_time": "23:00",
-            "return_arr_time": "13:00+1",
+            "ret_arr_hour": 12,
+            "outbound_arr_time": "15:25+1",
+            "return_dep_time": "22:20",
+            "return_arr_time": "12:45+1",
             "outbound_legs": [
               {
                 "dep_code": "OTP",
@@ -1778,140 +1778,43 @@
                 "dep_time": "21:25",
                 "arr_code": "HKG",
                 "arr_name": "Hong Kong International Airport",
-                "arr_time": "16:20+1",
+                "arr_time": "15:25+1",
                 "airline": "KLM",
                 "flight_num": "KL887",
                 "aircraft": "Boeing 787",
-                "duration_str": "11h 55m"
+                "duration_str": "12h 00m"
               }
             ],
             "return_legs": [
               {
                 "dep_code": "HKG",
                 "dep_name": "Hong Kong International Airport",
-                "dep_time": "23:00",
-                "arr_code": "AMS",
-                "arr_name": "Amsterdam Airport Schiphol",
-                "arr_time": "05:55+1",
-                "airline": "KLM",
-                "flight_num": "KL888",
-                "aircraft": "Boeing 787",
-                "duration_str": "13h 55m",
+                "dep_time": "22:20",
+                "arr_code": "CDG",
+                "arr_name": "Aéroport de Paris-Charles de Gaulle",
+                "arr_time": "05:50+1",
+                "airline": "Air France",
+                "flight_num": "AF185",
+                "aircraft": "Airbus A350",
+                "duration_str": "13h 30m",
                 "layover_after": {
-                  "code": "AMS",
-                  "name": "Amsterdam Airport Schiphol",
-                  "duration_str": "3h 25m",
+                  "code": "CDG",
+                  "name": "Aéroport de Paris-Charles de Gaulle",
+                  "duration_str": "3h 00m",
                   "overnight": false
                 }
               },
               {
-                "dep_code": "AMS",
-                "dep_name": "Amsterdam Airport Schiphol",
-                "dep_time": "09:20+1",
+                "dep_code": "CDG",
+                "dep_name": "Aéroport de Paris-Charles de Gaulle",
+                "dep_time": "08:50+1",
                 "arr_code": "OTP",
                 "arr_name": "Bucharest Henri Coandă International Airport",
-                "arr_time": "13:00+1",
-                "airline": "KLM",
-                "flight_num": "KL1373",
-                "aircraft": "Airbus A321neo",
-                "duration_str": "2h 40m"
-              }
-            ],
-            "self_transfer": false,
-            "outbound_date": "2026-11-05",
-            "return_date": "2026-11-22",
-            "nights": 17,
-            "origin": "OTP",
-            "destination": "HKG",
-            "preferred_airline_match": false,
-            "preferred_time": false,
-            "effective_cost": 1127.5,
-            "airline_direct": true,
-            "vendor": "KLM"
-          },
-          {
-            "price": 811.0,
-            "duration_min": 2345,
-            "duration_str": "39h 05m",
-            "outbound_duration_min": 1125,
-            "outbound_duration_str": "18h 45m",
-            "return_duration_min": 1220,
-            "return_duration_str": "20h 20m",
-            "stops": 2,
-            "airline": "British Airways",
-            "airline_codes": [
-              "BA"
-            ],
-            "max_layover_min": 130,
-            "max_layover_h": 2.2,
-            "dep_hour": 15,
-            "dep_time": "15:40",
-            "ret_arr_hour": 14,
-            "outbound_arr_time": "15:25+1",
-            "return_dep_time": "22:45",
-            "return_arr_time": "14:05+1",
-            "outbound_legs": [
-              {
-                "dep_code": "OTP",
-                "dep_name": "Bucharest Henri Coandă International Airport",
-                "dep_time": "15:40",
-                "arr_code": "LHR",
-                "arr_name": "Heathrow Airport",
-                "arr_time": "17:10",
-                "airline": "British Airways",
-                "flight_num": "BA875",
-                "aircraft": "Airbus A320",
-                "duration_str": "3h 30m",
-                "layover_after": {
-                  "code": "LHR",
-                  "name": "Heathrow Airport",
-                  "duration_str": "2h 10m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "LHR",
-                "dep_name": "Heathrow Airport",
-                "dep_time": "19:20",
-                "arr_code": "HKG",
-                "arr_name": "Hong Kong International Airport",
-                "arr_time": "15:25+1",
-                "airline": "British Airways",
-                "flight_num": "BA31",
-                "aircraft": "Airbus A350",
-                "duration_str": "13h 05m"
-              }
-            ],
-            "return_legs": [
-              {
-                "dep_code": "HKG",
-                "dep_name": "Hong Kong International Airport",
-                "dep_time": "22:45",
-                "arr_code": "LHR",
-                "arr_name": "Heathrow Airport",
-                "arr_time": "06:15+1",
-                "airline": "British Airways",
-                "flight_num": "BA32",
-                "aircraft": "Airbus A350",
-                "duration_str": "14h 30m",
-                "layover_after": {
-                  "code": "LHR",
-                  "name": "Heathrow Airport",
-                  "duration_str": "2h 30m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "LHR",
-                "dep_name": "Heathrow Airport",
-                "dep_time": "08:45+1",
-                "arr_code": "OTP",
-                "arr_name": "Bucharest Henri Coandă International Airport",
-                "arr_time": "14:05+1",
-                "airline": "British Airways",
-                "flight_num": "BA874",
-                "aircraft": "Airbus A320",
-                "duration_str": "3h 20m"
+                "arr_time": "12:45+1",
+                "airline": "Air France",
+                "flight_num": "AF1888",
+                "aircraft": "Airbus A220-300 Passenger",
+                "duration_str": "2h 55m"
               }
             ],
             "self_transfer": false,
@@ -1922,8 +1825,9 @@
             "destination": "HKG",
             "preferred_airline_match": false,
             "preferred_time": false,
-            "effective_cost": 1156.0,
-            "airline_direct": true
+            "effective_cost": 1112.5,
+            "airline_direct": true,
+            "vendor": "Air France"
           }
         ]
       }
@@ -2109,7 +2013,7 @@
         "date": "2026-07-29",
         "pairs_searched": 12,
         "pairs_with_results": 12,
-        "raw_flights_total": 186
+        "raw_flights_total": 197
       }
     ],
     "last_alert_price": 957.0,
@@ -10538,7 +10442,7 @@
             "vendor": "KLM"
           },
           {
-            "price": 1239.0,
+            "price": 1240.0,
             "duration_min": 2190,
             "duration_str": "36h 30m",
             "outbound_duration_min": 980,
@@ -10630,7 +10534,7 @@
             "destination": "OTP",
             "preferred_airline_match": false,
             "preferred_time": false,
-            "effective_cost": 1284.83,
+            "effective_cost": 1285.83,
             "airline_direct": true,
             "vendor": "KLM"
           },
@@ -11021,13 +10925,13 @@
             "airline_direct": true
           },
           {
-            "price": 1275.0,
-            "duration_min": 2290,
-            "duration_str": "38h 10m",
-            "outbound_duration_min": 980,
-            "outbound_duration_str": "16h 20m",
-            "return_duration_min": 1310,
-            "return_duration_str": "21h 50m",
+            "price": 1276.0,
+            "duration_min": 2280,
+            "duration_str": "38h 00m",
+            "outbound_duration_min": 975,
+            "outbound_duration_str": "16h 15m",
+            "return_duration_min": 1305,
+            "return_duration_str": "21h 45m",
             "stops": 2,
             "airline": "KLM",
             "airline_codes": [
@@ -11036,23 +10940,23 @@
             "max_layover_min": 85,
             "max_layover_h": 1.4,
             "dep_hour": 18,
-            "dep_time": "18:00",
+            "dep_time": "18:10",
             "ret_arr_hour": 15,
-            "outbound_arr_time": "16:20+1",
-            "return_dep_time": "01:00",
+            "outbound_arr_time": "15:25+1",
+            "return_dep_time": "00:05",
             "return_arr_time": "15:50",
             "outbound_legs": [
               {
                 "dep_code": "OTP",
                 "dep_name": "Bucharest Henri Coandă International Airport",
-                "dep_time": "18:00",
+                "dep_time": "18:10",
                 "arr_code": "AMS",
                 "arr_name": "Amsterdam Airport Schiphol",
                 "arr_time": "20:00",
                 "airline": "KLM",
                 "flight_num": "KL1376",
-                "aircraft": "Airbus A321neo",
-                "duration_str": "3h 00m",
+                "aircraft": "Boeing 737",
+                "duration_str": "2h 50m",
                 "layover_after": {
                   "code": "AMS",
                   "name": "Amsterdam Airport Schiphol",
@@ -11066,21 +10970,21 @@
                 "dep_time": "21:25",
                 "arr_code": "HKG",
                 "arr_name": "Hong Kong International Airport",
-                "arr_time": "16:20+1",
+                "arr_time": "15:25+1",
                 "airline": "KLM",
                 "flight_num": "KL887",
                 "aircraft": "Boeing 787",
-                "duration_str": "11h 55m"
+                "duration_str": "12h 00m"
               }
             ],
             "return_legs": [
               {
                 "dep_code": "HND",
                 "dep_name": "Haneda Airport",
-                "dep_time": "01:00",
+                "dep_time": "00:05",
                 "arr_code": "CDG",
                 "arr_name": "Aéroport de Paris-Charles de Gaulle",
-                "arr_time": "07:55",
+                "arr_time": "08:00",
                 "airline": "Air France",
                 "flight_num": "AF293",
                 "aircraft": "Boeing 777",
@@ -11088,7 +10992,7 @@
                 "layover_after": {
                   "code": "CDG",
                   "name": "Aéroport de Paris-Charles de Gaulle",
-                  "duration_str": "4h 05m",
+                  "duration_str": "4h 00m",
                   "overnight": false
                 }
               },
@@ -11106,14 +11010,14 @@
               }
             ],
             "self_transfer": false,
-            "outbound_date": "2026-11-05",
-            "return_date": "2026-11-22",
+            "outbound_date": "2026-10-01",
+            "return_date": "2026-10-18",
             "nights": 17,
             "origin": "OTP",
             "destination": "OTP",
             "preferred_airline_match": false,
             "preferred_time": false,
-            "effective_cost": 1370.83,
+            "effective_cost": 1367.67,
             "airline_direct": true,
             "vendor": "KLM"
           },
@@ -11206,6 +11110,102 @@
             "outbound_date": "2026-10-22",
             "return_date": "2026-11-08",
             "nights": 17,
+            "origin": "OTP",
+            "destination": "OTP",
+            "preferred_airline_match": true,
+            "preferred_time": true,
+            "effective_cost": 1386.0,
+            "airline_direct": true
+          },
+          {
+            "price": 1386.0,
+            "duration_min": 1945,
+            "duration_str": "32h 25m",
+            "outbound_duration_min": 880,
+            "outbound_duration_str": "14h 40m",
+            "return_duration_min": 1065,
+            "return_duration_str": "17h 45m",
+            "stops": 2,
+            "airline": "Turkish Airlines",
+            "airline_codes": [
+              "TK"
+            ],
+            "max_layover_min": 145,
+            "max_layover_h": 2.4,
+            "dep_hour": 21,
+            "dep_time": "21:35",
+            "ret_arr_hour": 8,
+            "outbound_arr_time": "17:15+1",
+            "return_dep_time": "22:05",
+            "return_arr_time": "08:50+1",
+            "outbound_legs": [
+              {
+                "dep_code": "OTP",
+                "dep_name": "Bucharest Henri Coandă International Airport",
+                "dep_time": "21:35",
+                "arr_code": "IST",
+                "arr_name": "Istanbul Airport",
+                "arr_time": "23:05",
+                "airline": "Turkish Airlines",
+                "flight_num": "TK1046",
+                "aircraft": "Airbus A330",
+                "duration_str": "1h 30m",
+                "layover_after": {
+                  "code": "IST",
+                  "name": "Istanbul Airport",
+                  "duration_str": "2h 25m",
+                  "overnight": true
+                }
+              },
+              {
+                "dep_code": "IST",
+                "dep_name": "Istanbul Airport",
+                "dep_time": "01:30+1",
+                "arr_code": "HKG",
+                "arr_name": "Hong Kong International Airport",
+                "arr_time": "17:15+1",
+                "airline": "Turkish Airlines",
+                "flight_num": "TK70",
+                "aircraft": "Boeing 777",
+                "duration_str": "10h 45m"
+              }
+            ],
+            "return_legs": [
+              {
+                "dep_code": "HND",
+                "dep_name": "Haneda Airport",
+                "dep_time": "22:05",
+                "arr_code": "IST",
+                "arr_name": "Istanbul Airport",
+                "arr_time": "05:45+1",
+                "airline": "Turkish Airlines",
+                "flight_num": "TK199",
+                "aircraft": "Boeing 777",
+                "duration_str": "13h 40m",
+                "layover_after": {
+                  "code": "IST",
+                  "name": "Istanbul Airport",
+                  "duration_str": "2h 45m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "IST",
+                "dep_name": "Istanbul Airport",
+                "dep_time": "08:30+1",
+                "arr_code": "OTP",
+                "arr_name": "Bucharest Henri Coandă International Airport",
+                "arr_time": "08:50+1",
+                "airline": "Turkish Airlines",
+                "flight_num": "TK1043",
+                "aircraft": "Boeing 787",
+                "duration_str": "1h 20m"
+              }
+            ],
+            "self_transfer": false,
+            "outbound_date": "2026-10-23",
+            "return_date": "2026-11-08",
+            "nights": 16,
             "origin": "OTP",
             "destination": "OTP",
             "preferred_airline_match": true,
@@ -11426,102 +11426,6 @@
             "vendor": "Air France"
           },
           {
-            "price": 1423.0,
-            "duration_min": 1830,
-            "duration_str": "30h 30m",
-            "outbound_duration_min": 880,
-            "outbound_duration_str": "14h 40m",
-            "return_duration_min": 950,
-            "return_duration_str": "15h 50m",
-            "stops": 2,
-            "airline": "Turkish Airlines",
-            "airline_codes": [
-              "TK"
-            ],
-            "max_layover_min": 145,
-            "max_layover_h": 2.4,
-            "dep_hour": 21,
-            "dep_time": "21:35",
-            "ret_arr_hour": 20,
-            "outbound_arr_time": "17:15+1",
-            "return_dep_time": "10:25",
-            "return_arr_time": "20:15",
-            "outbound_legs": [
-              {
-                "dep_code": "OTP",
-                "dep_name": "Bucharest Henri Coandă International Airport",
-                "dep_time": "21:35",
-                "arr_code": "IST",
-                "arr_name": "Istanbul Airport",
-                "arr_time": "23:05",
-                "airline": "Turkish Airlines",
-                "flight_num": "TK1046",
-                "aircraft": "Airbus A330",
-                "duration_str": "1h 30m",
-                "layover_after": {
-                  "code": "IST",
-                  "name": "Istanbul Airport",
-                  "duration_str": "2h 25m",
-                  "overnight": true
-                }
-              },
-              {
-                "dep_code": "IST",
-                "dep_name": "Istanbul Airport",
-                "dep_time": "01:30+1",
-                "arr_code": "HKG",
-                "arr_name": "Hong Kong International Airport",
-                "arr_time": "17:15+1",
-                "airline": "Turkish Airlines",
-                "flight_num": "TK70",
-                "aircraft": "Boeing 777",
-                "duration_str": "10h 45m"
-              }
-            ],
-            "return_legs": [
-              {
-                "dep_code": "NRT",
-                "dep_name": "Narita International Airport",
-                "dep_time": "10:25",
-                "arr_code": "IST",
-                "arr_name": "Istanbul Airport",
-                "arr_time": "17:40",
-                "airline": "Turkish Airlines",
-                "flight_num": "TK51",
-                "aircraft": "Boeing 787",
-                "duration_str": "13h 15m",
-                "layover_after": {
-                  "code": "IST",
-                  "name": "Istanbul Airport",
-                  "duration_str": "1h 15m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "IST",
-                "dep_name": "Istanbul Airport",
-                "dep_time": "18:55",
-                "arr_code": "OTP",
-                "arr_name": "Bucharest Henri Coandă International Airport",
-                "arr_time": "20:15",
-                "airline": "Turkish Airlines",
-                "flight_num": "TK1045",
-                "aircraft": "Boeing 787",
-                "duration_str": "1h 20m"
-              }
-            ],
-            "self_transfer": false,
-            "outbound_date": "2026-10-02",
-            "return_date": "2026-10-18",
-            "nights": 16,
-            "origin": "OTP",
-            "destination": "OTP",
-            "preferred_airline_match": true,
-            "preferred_time": true,
-            "effective_cost": 1404.67,
-            "airline_direct": true
-          },
-          {
             "price": 1197.0,
             "duration_min": 2320,
             "duration_str": "38h 40m",
@@ -11620,7 +11524,7 @@
             "vendor": "KLM"
           },
           {
-            "price": 1286.0,
+            "price": 1287.0,
             "duration_min": 2260,
             "duration_str": "37h 40m",
             "outbound_duration_min": 1050,
@@ -11713,7 +11617,7 @@
             "destination": "OTP",
             "preferred_airline_match": false,
             "preferred_time": false,
-            "effective_cost": 1483.5,
+            "effective_cost": 1484.5,
             "airline_direct": true,
             "vendor": "KLM"
           },
@@ -11834,103 +11738,7 @@
             "vendor": "Air France"
           },
           {
-            "price": 1235.0,
-            "duration_min": 2395,
-            "duration_str": "39h 55m",
-            "outbound_duration_min": 1125,
-            "outbound_duration_str": "18h 45m",
-            "return_duration_min": 1270,
-            "return_duration_str": "21h 10m",
-            "stops": 2,
-            "airline": "British Airways",
-            "airline_codes": [
-              "BA"
-            ],
-            "max_layover_min": 130,
-            "max_layover_h": 2.2,
-            "dep_hour": 15,
-            "dep_time": "15:40",
-            "ret_arr_hour": 23,
-            "outbound_arr_time": "15:25+1",
-            "return_dep_time": "09:35",
-            "return_arr_time": "23:45",
-            "outbound_legs": [
-              {
-                "dep_code": "OTP",
-                "dep_name": "Bucharest Henri Coandă International Airport",
-                "dep_time": "15:40",
-                "arr_code": "LHR",
-                "arr_name": "Heathrow Airport",
-                "arr_time": "17:10",
-                "airline": "British Airways",
-                "flight_num": "BA875",
-                "aircraft": "Airbus A320",
-                "duration_str": "3h 30m",
-                "layover_after": {
-                  "code": "LHR",
-                  "name": "Heathrow Airport",
-                  "duration_str": "2h 10m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "LHR",
-                "dep_name": "Heathrow Airport",
-                "dep_time": "19:20",
-                "arr_code": "HKG",
-                "arr_name": "Hong Kong International Airport",
-                "arr_time": "15:25+1",
-                "airline": "British Airways",
-                "flight_num": "BA31",
-                "aircraft": "Airbus A350",
-                "duration_str": "13h 05m"
-              }
-            ],
-            "return_legs": [
-              {
-                "dep_code": "HND",
-                "dep_name": "Haneda Airport",
-                "dep_time": "09:35",
-                "arr_code": "LHR",
-                "arr_name": "Heathrow Airport",
-                "arr_time": "15:35",
-                "airline": "British Airways",
-                "flight_num": "BA8",
-                "aircraft": "Boeing 787",
-                "duration_str": "15h 00m",
-                "layover_after": {
-                  "code": "LHR",
-                  "name": "Heathrow Airport",
-                  "duration_str": "2h 55m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "LHR",
-                "dep_name": "Heathrow Airport",
-                "dep_time": "18:30",
-                "arr_code": "OTP",
-                "arr_name": "Bucharest Henri Coandă International Airport",
-                "arr_time": "23:45",
-                "airline": "British Airways",
-                "flight_num": "BA878",
-                "aircraft": "Airbus A320",
-                "duration_str": "3h 15m"
-              }
-            ],
-            "self_transfer": false,
-            "outbound_date": "2026-10-22",
-            "return_date": "2026-11-08",
-            "nights": 17,
-            "origin": "OTP",
-            "destination": "OTP",
-            "preferred_airline_match": false,
-            "preferred_time": false,
-            "effective_cost": 1500.0,
-            "airline_direct": true
-          },
-          {
-            "price": 1368.0,
+            "price": 1367.0,
             "duration_min": 2070,
             "duration_str": "34h 30m",
             "outbound_duration_min": 1005,
@@ -12023,107 +11831,9 @@
             "destination": "OTP",
             "preferred_airline_match": false,
             "preferred_time": false,
-            "effective_cost": 1510.5,
+            "effective_cost": 1509.5,
             "airline_direct": true,
             "vendor": "Lufthansa"
-          },
-          {
-            "price": 1275.0,
-            "duration_min": 2360,
-            "duration_str": "39h 20m",
-            "outbound_duration_min": 1050,
-            "outbound_duration_str": "17h 30m",
-            "return_duration_min": 1310,
-            "return_duration_str": "21h 50m",
-            "stops": 2,
-            "airline": "TAROM, KLM",
-            "airline_codes": [
-              "RO",
-              "KL"
-            ],
-            "max_layover_min": 150,
-            "max_layover_h": 2.5,
-            "dep_hour": 16,
-            "dep_time": "16:50",
-            "ret_arr_hour": 15,
-            "outbound_arr_time": "16:20+1",
-            "return_dep_time": "01:00",
-            "return_arr_time": "15:50",
-            "outbound_legs": [
-              {
-                "dep_code": "OTP",
-                "dep_name": "Bucharest Henri Coandă International Airport",
-                "dep_time": "16:50",
-                "arr_code": "AMS",
-                "arr_name": "Amsterdam Airport Schiphol",
-                "arr_time": "18:55",
-                "airline": "TAROM",
-                "flight_num": "RO363",
-                "aircraft": "Boeing 737",
-                "duration_str": "3h 05m",
-                "layover_after": {
-                  "code": "AMS",
-                  "name": "Amsterdam Airport Schiphol",
-                  "duration_str": "2h 30m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "AMS",
-                "dep_name": "Amsterdam Airport Schiphol",
-                "dep_time": "21:25",
-                "arr_code": "HKG",
-                "arr_name": "Hong Kong International Airport",
-                "arr_time": "16:20+1",
-                "airline": "KLM",
-                "flight_num": "KL887",
-                "aircraft": "Boeing 787",
-                "duration_str": "11h 55m"
-              }
-            ],
-            "return_legs": [
-              {
-                "dep_code": "HND",
-                "dep_name": "Haneda Airport",
-                "dep_time": "01:00",
-                "arr_code": "CDG",
-                "arr_name": "Aéroport de Paris-Charles de Gaulle",
-                "arr_time": "07:55",
-                "airline": "Air France",
-                "flight_num": "AF293",
-                "aircraft": "Boeing 777",
-                "duration_str": "14h 55m",
-                "layover_after": {
-                  "code": "CDG",
-                  "name": "Aéroport de Paris-Charles de Gaulle",
-                  "duration_str": "4h 05m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "CDG",
-                "dep_name": "Aéroport de Paris-Charles de Gaulle",
-                "dep_time": "12:00",
-                "arr_code": "OTP",
-                "arr_name": "Bucharest Henri Coandă International Airport",
-                "arr_time": "15:50",
-                "airline": "TAROM",
-                "flight_num": "RO382",
-                "aircraft": "Boeing 737",
-                "duration_str": "2h 50m"
-              }
-            ],
-            "self_transfer": false,
-            "outbound_date": "2026-11-05",
-            "return_date": "2026-11-22",
-            "nights": 17,
-            "origin": "OTP",
-            "destination": "OTP",
-            "preferred_airline_match": false,
-            "preferred_time": false,
-            "effective_cost": 1522.5,
-            "airline_direct": true,
-            "vendor": "KLM"
           }
         ]
       }
@@ -12309,7 +12019,7 @@
         "date": "2026-07-29",
         "pairs_searched": 12,
         "pairs_with_results": 12,
-        "raw_flights_total": 224
+        "raw_flights_total": 226
       }
     ]
   },
@@ -12875,6 +12585,198 @@
             "effective_cost": 1281.5,
             "airline_direct": true,
             "vendor": "KLM"
+          },
+          {
+            "price": 1324.0,
+            "duration_min": 1835,
+            "duration_str": "30h 35m",
+            "outbound_duration_min": 900,
+            "outbound_duration_str": "15h 00m",
+            "return_duration_min": 935,
+            "return_duration_str": "15h 35m",
+            "stops": 2,
+            "airline": "Turkish Airlines",
+            "airline_codes": [
+              "TK"
+            ],
+            "max_layover_min": 135,
+            "max_layover_h": 2.2,
+            "dep_hour": 21,
+            "dep_time": "21:45",
+            "ret_arr_hour": 8,
+            "outbound_arr_time": "19:45+1",
+            "return_dep_time": "23:15",
+            "return_arr_time": "08:50+1",
+            "outbound_legs": [
+              {
+                "dep_code": "OTP",
+                "dep_name": "Bucharest Henri Coandă International Airport",
+                "dep_time": "21:45",
+                "arr_code": "IST",
+                "arr_name": "Istanbul Airport",
+                "arr_time": "00:15+1",
+                "airline": "Turkish Airlines",
+                "flight_num": "TK1046",
+                "aircraft": "Boeing 787",
+                "duration_str": "1h 30m",
+                "layover_after": {
+                  "code": "IST",
+                  "name": "Istanbul Airport",
+                  "duration_str": "2h 15m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "IST",
+                "dep_name": "Istanbul Airport",
+                "dep_time": "02:30+1",
+                "arr_code": "HND",
+                "arr_name": "Haneda Airport",
+                "arr_time": "19:45+1",
+                "airline": "Turkish Airlines",
+                "flight_num": "TK198",
+                "aircraft": "Boeing 777",
+                "duration_str": "11h 15m"
+              }
+            ],
+            "return_legs": [
+              {
+                "dep_code": "HKG",
+                "dep_name": "Hong Kong International Airport",
+                "dep_time": "23:15",
+                "arr_code": "IST",
+                "arr_name": "Istanbul Airport",
+                "arr_time": "06:10+1",
+                "airline": "Turkish Airlines",
+                "flight_num": "TK71",
+                "aircraft": "Boeing 777",
+                "duration_str": "11h 55m",
+                "layover_after": {
+                  "code": "IST",
+                  "name": "Istanbul Airport",
+                  "duration_str": "2h 20m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "IST",
+                "dep_name": "Istanbul Airport",
+                "dep_time": "08:30+1",
+                "arr_code": "OTP",
+                "arr_name": "Bucharest Henri Coandă International Airport",
+                "arr_time": "08:50+1",
+                "airline": "Turkish Airlines",
+                "flight_num": "TK1043",
+                "aircraft": "Boeing 787",
+                "duration_str": "1h 20m"
+              }
+            ],
+            "self_transfer": false,
+            "outbound_date": "2026-11-05",
+            "return_date": "2026-11-22",
+            "nights": 17,
+            "origin": "OTP",
+            "destination": "OTP",
+            "preferred_airline_match": true,
+            "preferred_time": true,
+            "effective_cost": 1324.0,
+            "airline_direct": true
+          },
+          {
+            "price": 1324.0,
+            "duration_min": 1900,
+            "duration_str": "31h 40m",
+            "outbound_duration_min": 900,
+            "outbound_duration_str": "15h 00m",
+            "return_duration_min": 1000,
+            "return_duration_str": "16h 40m",
+            "stops": 2,
+            "airline": "Turkish Airlines",
+            "airline_codes": [
+              "TK"
+            ],
+            "max_layover_min": 135,
+            "max_layover_h": 2.2,
+            "dep_hour": 21,
+            "dep_time": "21:45",
+            "ret_arr_hour": 20,
+            "outbound_arr_time": "19:45+1",
+            "return_dep_time": "09:45",
+            "return_arr_time": "20:25",
+            "outbound_legs": [
+              {
+                "dep_code": "OTP",
+                "dep_name": "Bucharest Henri Coandă International Airport",
+                "dep_time": "21:45",
+                "arr_code": "IST",
+                "arr_name": "Istanbul Airport",
+                "arr_time": "00:15+1",
+                "airline": "Turkish Airlines",
+                "flight_num": "TK1046",
+                "aircraft": "Boeing 787",
+                "duration_str": "1h 30m",
+                "layover_after": {
+                  "code": "IST",
+                  "name": "Istanbul Airport",
+                  "duration_str": "2h 15m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "IST",
+                "dep_name": "Istanbul Airport",
+                "dep_time": "02:30+1",
+                "arr_code": "HND",
+                "arr_name": "Haneda Airport",
+                "arr_time": "19:45+1",
+                "airline": "Turkish Airlines",
+                "flight_num": "TK198",
+                "aircraft": "Boeing 777",
+                "duration_str": "11h 15m"
+              }
+            ],
+            "return_legs": [
+              {
+                "dep_code": "HKG",
+                "dep_name": "Hong Kong International Airport",
+                "dep_time": "09:45",
+                "arr_code": "IST",
+                "arr_name": "Istanbul Airport",
+                "arr_time": "16:45",
+                "airline": "Turkish Airlines",
+                "flight_num": "TK171",
+                "aircraft": "Boeing 787",
+                "duration_str": "12h 00m",
+                "layover_after": {
+                  "code": "IST",
+                  "name": "Istanbul Airport",
+                  "duration_str": "3h 20m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "IST",
+                "dep_name": "Istanbul Airport",
+                "dep_time": "20:05",
+                "arr_code": "OTP",
+                "arr_name": "Bucharest Henri Coandă International Airport",
+                "arr_time": "20:25",
+                "airline": "Turkish Airlines",
+                "flight_num": "TK1045",
+                "aircraft": "Boeing 787",
+                "duration_str": "1h 20m"
+              }
+            ],
+            "self_transfer": false,
+            "outbound_date": "2026-11-05",
+            "return_date": "2026-11-22",
+            "nights": 17,
+            "origin": "OTP",
+            "destination": "OTP",
+            "preferred_airline_match": true,
+            "preferred_time": true,
+            "effective_cost": 1325.67,
+            "airline_direct": true
           },
           {
             "price": 1091.0,
@@ -13651,7 +13553,7 @@
             "airline_direct": true
           },
           {
-            "price": 1190.0,
+            "price": 1189.0,
             "duration_min": 2275,
             "duration_str": "37h 55m",
             "outbound_duration_min": 1075,
@@ -13743,7 +13645,7 @@
             "destination": "OTP",
             "preferred_airline_match": false,
             "preferred_time": false,
-            "effective_cost": 1427.5,
+            "effective_cost": 1426.5,
             "airline_direct": true,
             "vendor": "KLM"
           },
@@ -14042,109 +13944,13 @@
             "vendor": "Emirates"
           },
           {
-            "price": 1500.0,
-            "duration_min": 1835,
-            "duration_str": "30h 35m",
+            "price": 1477.0,
+            "duration_min": 1895,
+            "duration_str": "31h 35m",
             "outbound_duration_min": 900,
             "outbound_duration_str": "15h 00m",
-            "return_duration_min": 935,
-            "return_duration_str": "15h 35m",
-            "stops": 2,
-            "airline": "Turkish Airlines",
-            "airline_codes": [
-              "TK"
-            ],
-            "max_layover_min": 135,
-            "max_layover_h": 2.2,
-            "dep_hour": 21,
-            "dep_time": "21:45",
-            "ret_arr_hour": 8,
-            "outbound_arr_time": "19:45+1",
-            "return_dep_time": "23:15",
-            "return_arr_time": "08:50+1",
-            "outbound_legs": [
-              {
-                "dep_code": "OTP",
-                "dep_name": "Bucharest Henri Coandă International Airport",
-                "dep_time": "21:45",
-                "arr_code": "IST",
-                "arr_name": "Istanbul Airport",
-                "arr_time": "00:15+1",
-                "airline": "Turkish Airlines",
-                "flight_num": "TK1046",
-                "aircraft": "Boeing 787",
-                "duration_str": "1h 30m",
-                "layover_after": {
-                  "code": "IST",
-                  "name": "Istanbul Airport",
-                  "duration_str": "2h 15m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "IST",
-                "dep_name": "Istanbul Airport",
-                "dep_time": "02:30+1",
-                "arr_code": "HND",
-                "arr_name": "Haneda Airport",
-                "arr_time": "19:45+1",
-                "airline": "Turkish Airlines",
-                "flight_num": "TK198",
-                "aircraft": "Boeing 777",
-                "duration_str": "11h 15m"
-              }
-            ],
-            "return_legs": [
-              {
-                "dep_code": "HKG",
-                "dep_name": "Hong Kong International Airport",
-                "dep_time": "23:15",
-                "arr_code": "IST",
-                "arr_name": "Istanbul Airport",
-                "arr_time": "06:10+1",
-                "airline": "Turkish Airlines",
-                "flight_num": "TK71",
-                "aircraft": "Boeing 777",
-                "duration_str": "11h 55m",
-                "layover_after": {
-                  "code": "IST",
-                  "name": "Istanbul Airport",
-                  "duration_str": "2h 20m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "IST",
-                "dep_name": "Istanbul Airport",
-                "dep_time": "08:30+1",
-                "arr_code": "OTP",
-                "arr_name": "Bucharest Henri Coandă International Airport",
-                "arr_time": "08:50+1",
-                "airline": "Turkish Airlines",
-                "flight_num": "TK1043",
-                "aircraft": "Boeing 787",
-                "duration_str": "1h 20m"
-              }
-            ],
-            "self_transfer": false,
-            "outbound_date": "2026-11-06",
-            "return_date": "2026-11-22",
-            "nights": 16,
-            "origin": "OTP",
-            "destination": "OTP",
-            "preferred_airline_match": true,
-            "preferred_time": true,
-            "effective_cost": 1500.0,
-            "airline_direct": true
-          },
-          {
-            "price": 1500.0,
-            "duration_min": 1900,
-            "duration_str": "31h 40m",
-            "outbound_duration_min": 900,
-            "outbound_duration_str": "15h 00m",
-            "return_duration_min": 1000,
-            "return_duration_str": "16h 40m",
+            "return_duration_min": 995,
+            "return_duration_str": "16h 35m",
             "stops": 2,
             "airline": "Turkish Airlines",
             "airline_codes": [
@@ -14157,7 +13963,7 @@
             "ret_arr_hour": 20,
             "outbound_arr_time": "19:45+1",
             "return_dep_time": "09:45",
-            "return_arr_time": "20:25",
+            "return_arr_time": "20:20",
             "outbound_legs": [
               {
                 "dep_code": "OTP",
@@ -14205,6 +14011,199 @@
                 "layover_after": {
                   "code": "IST",
                   "name": "Istanbul Airport",
+                  "duration_str": "1h 50m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "IST",
+                "dep_name": "Istanbul Airport",
+                "dep_time": "18:35",
+                "arr_code": "OTP",
+                "arr_name": "Bucharest Henri Coandă International Airport",
+                "arr_time": "20:20",
+                "airline": "TAROM",
+                "flight_num": "RO264",
+                "aircraft": "ATR 72",
+                "duration_str": "2h 45m"
+              }
+            ],
+            "self_transfer": false,
+            "outbound_date": "2026-11-05",
+            "return_date": "2026-11-22",
+            "nights": 17,
+            "origin": "OTP",
+            "destination": "OTP",
+            "preferred_airline_match": true,
+            "preferred_time": true,
+            "effective_cost": 1477.0,
+            "airline_direct": true,
+            "vendor": "Turkish Airlines"
+          },
+          {
+            "price": 1500.0,
+            "duration_min": 1800,
+            "duration_str": "30h 00m",
+            "outbound_duration_min": 865,
+            "outbound_duration_str": "14h 25m",
+            "return_duration_min": 935,
+            "return_duration_str": "15h 35m",
+            "stops": 2,
+            "airline": "Turkish Airlines",
+            "airline_codes": [
+              "TK"
+            ],
+            "max_layover_min": 100,
+            "max_layover_h": 1.7,
+            "dep_hour": 21,
+            "dep_time": "21:45",
+            "ret_arr_hour": 8,
+            "outbound_arr_time": "19:10+1",
+            "return_dep_time": "23:15",
+            "return_arr_time": "08:50+1",
+            "outbound_legs": [
+              {
+                "dep_code": "OTP",
+                "dep_name": "Bucharest Henri Coandă International Airport",
+                "dep_time": "21:45",
+                "arr_code": "IST",
+                "arr_name": "Istanbul Airport",
+                "arr_time": "00:15+1",
+                "airline": "Turkish Airlines",
+                "flight_num": "TK1046",
+                "aircraft": "Boeing 787",
+                "duration_str": "1h 30m",
+                "layover_after": {
+                  "code": "IST",
+                  "name": "Istanbul Airport",
+                  "duration_str": "1h 40m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "IST",
+                "dep_name": "Istanbul Airport",
+                "dep_time": "01:55+1",
+                "arr_code": "NRT",
+                "arr_name": "Narita International Airport",
+                "arr_time": "19:10+1",
+                "airline": "Turkish Airlines",
+                "flight_num": "TK300",
+                "aircraft": "Boeing 787",
+                "duration_str": "11h 15m"
+              }
+            ],
+            "return_legs": [
+              {
+                "dep_code": "HKG",
+                "dep_name": "Hong Kong International Airport",
+                "dep_time": "23:15",
+                "arr_code": "IST",
+                "arr_name": "Istanbul Airport",
+                "arr_time": "06:10+1",
+                "airline": "Turkish Airlines",
+                "flight_num": "TK71",
+                "aircraft": "Boeing 777",
+                "duration_str": "11h 55m",
+                "layover_after": {
+                  "code": "IST",
+                  "name": "Istanbul Airport",
+                  "duration_str": "2h 20m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "IST",
+                "dep_name": "Istanbul Airport",
+                "dep_time": "08:30+1",
+                "arr_code": "OTP",
+                "arr_name": "Bucharest Henri Coandă International Airport",
+                "arr_time": "08:50+1",
+                "airline": "Turkish Airlines",
+                "flight_num": "TK1043",
+                "aircraft": "Boeing 787",
+                "duration_str": "1h 20m"
+              }
+            ],
+            "self_transfer": false,
+            "outbound_date": "2026-11-06",
+            "return_date": "2026-11-22",
+            "nights": 16,
+            "origin": "OTP",
+            "destination": "OTP",
+            "preferred_airline_match": true,
+            "preferred_time": true,
+            "effective_cost": 1493.33,
+            "airline_direct": true
+          },
+          {
+            "price": 1500.0,
+            "duration_min": 1865,
+            "duration_str": "31h 05m",
+            "outbound_duration_min": 865,
+            "outbound_duration_str": "14h 25m",
+            "return_duration_min": 1000,
+            "return_duration_str": "16h 40m",
+            "stops": 2,
+            "airline": "Turkish Airlines",
+            "airline_codes": [
+              "TK"
+            ],
+            "max_layover_min": 100,
+            "max_layover_h": 1.7,
+            "dep_hour": 21,
+            "dep_time": "21:45",
+            "ret_arr_hour": 20,
+            "outbound_arr_time": "19:10+1",
+            "return_dep_time": "09:45",
+            "return_arr_time": "20:25",
+            "outbound_legs": [
+              {
+                "dep_code": "OTP",
+                "dep_name": "Bucharest Henri Coandă International Airport",
+                "dep_time": "21:45",
+                "arr_code": "IST",
+                "arr_name": "Istanbul Airport",
+                "arr_time": "00:15+1",
+                "airline": "Turkish Airlines",
+                "flight_num": "TK1046",
+                "aircraft": "Boeing 787",
+                "duration_str": "1h 30m",
+                "layover_after": {
+                  "code": "IST",
+                  "name": "Istanbul Airport",
+                  "duration_str": "1h 40m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "IST",
+                "dep_name": "Istanbul Airport",
+                "dep_time": "01:55+1",
+                "arr_code": "NRT",
+                "arr_name": "Narita International Airport",
+                "arr_time": "19:10+1",
+                "airline": "Turkish Airlines",
+                "flight_num": "TK300",
+                "aircraft": "Boeing 787",
+                "duration_str": "11h 15m"
+              }
+            ],
+            "return_legs": [
+              {
+                "dep_code": "HKG",
+                "dep_name": "Hong Kong International Airport",
+                "dep_time": "09:45",
+                "arr_code": "IST",
+                "arr_name": "Istanbul Airport",
+                "arr_time": "16:45",
+                "airline": "Turkish Airlines",
+                "flight_num": "TK171",
+                "aircraft": "Boeing 787",
+                "duration_str": "12h 00m",
+                "layover_after": {
+                  "code": "IST",
+                  "name": "Istanbul Airport",
                   "duration_str": "3h 20m",
                   "overnight": false
                 }
@@ -14230,7 +14229,7 @@
             "destination": "OTP",
             "preferred_airline_match": true,
             "preferred_time": true,
-            "effective_cost": 1501.67,
+            "effective_cost": 1495.0,
             "airline_direct": true
           },
           {
@@ -14329,391 +14328,6 @@
             "effective_cost": 1515.0,
             "airline_direct": true,
             "vendor": "KLM"
-          },
-          {
-            "price": 1236.0,
-            "duration_min": 2370,
-            "duration_str": "39h 30m",
-            "outbound_duration_min": 1085,
-            "outbound_duration_str": "18h 05m",
-            "return_duration_min": 1285,
-            "return_duration_str": "21h 25m",
-            "stops": 2,
-            "airline": "KLM",
-            "airline_codes": [
-              "KL"
-            ],
-            "max_layover_min": 105,
-            "max_layover_h": 1.8,
-            "dep_hour": 7,
-            "dep_time": "07:05",
-            "ret_arr_hour": 14,
-            "outbound_arr_time": "07:10+1",
-            "return_dep_time": "22:45",
-            "return_arr_time": "14:10+1",
-            "outbound_legs": [
-              {
-                "dep_code": "OTP",
-                "dep_name": "Bucharest Henri Coandă International Airport",
-                "dep_time": "07:05",
-                "arr_code": "AMS",
-                "arr_name": "Amsterdam Airport Schiphol",
-                "arr_time": "08:55",
-                "airline": "KLM",
-                "flight_num": "KL1372",
-                "aircraft": "Airbus A321neo",
-                "duration_str": "2h 50m",
-                "layover_after": {
-                  "code": "AMS",
-                  "name": "Amsterdam Airport Schiphol",
-                  "duration_str": "1h 45m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "AMS",
-                "dep_name": "Amsterdam Airport Schiphol",
-                "dep_time": "10:40",
-                "arr_code": "NRT",
-                "arr_name": "Narita International Airport",
-                "arr_time": "07:10+1",
-                "airline": "KLM",
-                "flight_num": "KL865",
-                "aircraft": "Boeing 787",
-                "duration_str": "13h 30m"
-              }
-            ],
-            "return_legs": [
-              {
-                "dep_code": "HKG",
-                "dep_name": "Hong Kong International Airport",
-                "dep_time": "22:45",
-                "arr_code": "CDG",
-                "arr_name": "Aéroport de Paris-Charles de Gaulle",
-                "arr_time": "05:50+1",
-                "airline": "Air France",
-                "flight_num": "AF185",
-                "aircraft": "Airbus A350",
-                "duration_str": "14h 05m",
-                "layover_after": {
-                  "code": "CDG",
-                  "name": "Aéroport de Paris-Charles de Gaulle",
-                  "duration_str": "4h 25m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "CDG",
-                "dep_name": "Aéroport de Paris-Charles de Gaulle",
-                "dep_time": "10:15+1",
-                "arr_code": "OTP",
-                "arr_name": "Bucharest Henri Coandă International Airport",
-                "arr_time": "14:10+1",
-                "airline": "Air France",
-                "flight_num": "AF1888",
-                "aircraft": "Airbus A220-300 Passenger",
-                "duration_str": "2h 55m"
-              }
-            ],
-            "self_transfer": false,
-            "outbound_date": "2026-10-23",
-            "return_date": "2026-11-08",
-            "nights": 16,
-            "origin": "OTP",
-            "destination": "OTP",
-            "preferred_airline_match": false,
-            "preferred_time": false,
-            "effective_cost": 1521.0,
-            "airline_direct": true,
-            "vendor": "KLM"
-          },
-          {
-            "price": 1542.0,
-            "duration_min": 1800,
-            "duration_str": "30h 00m",
-            "outbound_duration_min": 865,
-            "outbound_duration_str": "14h 25m",
-            "return_duration_min": 935,
-            "return_duration_str": "15h 35m",
-            "stops": 2,
-            "airline": "Turkish Airlines",
-            "airline_codes": [
-              "TK"
-            ],
-            "max_layover_min": 100,
-            "max_layover_h": 1.7,
-            "dep_hour": 21,
-            "dep_time": "21:45",
-            "ret_arr_hour": 8,
-            "outbound_arr_time": "19:10+1",
-            "return_dep_time": "23:15",
-            "return_arr_time": "08:50+1",
-            "outbound_legs": [
-              {
-                "dep_code": "OTP",
-                "dep_name": "Bucharest Henri Coandă International Airport",
-                "dep_time": "21:45",
-                "arr_code": "IST",
-                "arr_name": "Istanbul Airport",
-                "arr_time": "00:15+1",
-                "airline": "Turkish Airlines",
-                "flight_num": "TK1046",
-                "aircraft": "Boeing 787",
-                "duration_str": "1h 30m",
-                "layover_after": {
-                  "code": "IST",
-                  "name": "Istanbul Airport",
-                  "duration_str": "1h 40m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "IST",
-                "dep_name": "Istanbul Airport",
-                "dep_time": "01:55+1",
-                "arr_code": "NRT",
-                "arr_name": "Narita International Airport",
-                "arr_time": "19:10+1",
-                "airline": "Turkish Airlines",
-                "flight_num": "TK300",
-                "aircraft": "Boeing 787",
-                "duration_str": "11h 15m"
-              }
-            ],
-            "return_legs": [
-              {
-                "dep_code": "HKG",
-                "dep_name": "Hong Kong International Airport",
-                "dep_time": "23:15",
-                "arr_code": "IST",
-                "arr_name": "Istanbul Airport",
-                "arr_time": "06:10+1",
-                "airline": "Turkish Airlines",
-                "flight_num": "TK71",
-                "aircraft": "Boeing 777",
-                "duration_str": "11h 55m",
-                "layover_after": {
-                  "code": "IST",
-                  "name": "Istanbul Airport",
-                  "duration_str": "2h 20m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "IST",
-                "dep_name": "Istanbul Airport",
-                "dep_time": "08:30+1",
-                "arr_code": "OTP",
-                "arr_name": "Bucharest Henri Coandă International Airport",
-                "arr_time": "08:50+1",
-                "airline": "Turkish Airlines",
-                "flight_num": "TK1043",
-                "aircraft": "Boeing 787",
-                "duration_str": "1h 20m"
-              }
-            ],
-            "self_transfer": false,
-            "outbound_date": "2026-10-30",
-            "return_date": "2026-11-15",
-            "nights": 16,
-            "origin": "OTP",
-            "destination": "OTP",
-            "preferred_airline_match": true,
-            "preferred_time": true,
-            "effective_cost": 1535.33,
-            "airline_direct": true
-          },
-          {
-            "price": 1542.0,
-            "duration_min": 1865,
-            "duration_str": "31h 05m",
-            "outbound_duration_min": 865,
-            "outbound_duration_str": "14h 25m",
-            "return_duration_min": 1000,
-            "return_duration_str": "16h 40m",
-            "stops": 2,
-            "airline": "Turkish Airlines",
-            "airline_codes": [
-              "TK"
-            ],
-            "max_layover_min": 100,
-            "max_layover_h": 1.7,
-            "dep_hour": 21,
-            "dep_time": "21:45",
-            "ret_arr_hour": 20,
-            "outbound_arr_time": "19:10+1",
-            "return_dep_time": "09:45",
-            "return_arr_time": "20:25",
-            "outbound_legs": [
-              {
-                "dep_code": "OTP",
-                "dep_name": "Bucharest Henri Coandă International Airport",
-                "dep_time": "21:45",
-                "arr_code": "IST",
-                "arr_name": "Istanbul Airport",
-                "arr_time": "00:15+1",
-                "airline": "Turkish Airlines",
-                "flight_num": "TK1046",
-                "aircraft": "Boeing 787",
-                "duration_str": "1h 30m",
-                "layover_after": {
-                  "code": "IST",
-                  "name": "Istanbul Airport",
-                  "duration_str": "1h 40m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "IST",
-                "dep_name": "Istanbul Airport",
-                "dep_time": "01:55+1",
-                "arr_code": "NRT",
-                "arr_name": "Narita International Airport",
-                "arr_time": "19:10+1",
-                "airline": "Turkish Airlines",
-                "flight_num": "TK300",
-                "aircraft": "Boeing 787",
-                "duration_str": "11h 15m"
-              }
-            ],
-            "return_legs": [
-              {
-                "dep_code": "HKG",
-                "dep_name": "Hong Kong International Airport",
-                "dep_time": "09:45",
-                "arr_code": "IST",
-                "arr_name": "Istanbul Airport",
-                "arr_time": "16:45",
-                "airline": "Turkish Airlines",
-                "flight_num": "TK171",
-                "aircraft": "Boeing 787",
-                "duration_str": "12h 00m",
-                "layover_after": {
-                  "code": "IST",
-                  "name": "Istanbul Airport",
-                  "duration_str": "3h 20m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "IST",
-                "dep_name": "Istanbul Airport",
-                "dep_time": "20:05",
-                "arr_code": "OTP",
-                "arr_name": "Bucharest Henri Coandă International Airport",
-                "arr_time": "20:25",
-                "airline": "Turkish Airlines",
-                "flight_num": "TK1045",
-                "aircraft": "Boeing 787",
-                "duration_str": "1h 20m"
-              }
-            ],
-            "self_transfer": false,
-            "outbound_date": "2026-10-30",
-            "return_date": "2026-11-15",
-            "nights": 16,
-            "origin": "OTP",
-            "destination": "OTP",
-            "preferred_airline_match": true,
-            "preferred_time": true,
-            "effective_cost": 1537.0,
-            "airline_direct": true
-          },
-          {
-            "price": 1577.0,
-            "duration_min": 1915,
-            "duration_str": "31h 55m",
-            "outbound_duration_min": 935,
-            "outbound_duration_str": "15h 35m",
-            "return_duration_min": 980,
-            "return_duration_str": "16h 20m",
-            "stops": 2,
-            "airline": "Turkish Airlines",
-            "airline_codes": [
-              "TK"
-            ],
-            "max_layover_min": 170,
-            "max_layover_h": 2.8,
-            "dep_hour": 21,
-            "dep_time": "21:35",
-            "ret_arr_hour": 20,
-            "outbound_arr_time": "19:10+1",
-            "return_dep_time": "08:55",
-            "return_arr_time": "20:15",
-            "outbound_legs": [
-              {
-                "dep_code": "OTP",
-                "dep_name": "Bucharest Henri Coandă International Airport",
-                "dep_time": "21:35",
-                "arr_code": "IST",
-                "arr_name": "Istanbul Airport",
-                "arr_time": "23:05",
-                "airline": "Turkish Airlines",
-                "flight_num": "TK1046",
-                "aircraft": "Airbus A330",
-                "duration_str": "1h 30m",
-                "layover_after": {
-                  "code": "IST",
-                  "name": "Istanbul Airport",
-                  "duration_str": "2h 50m",
-                  "overnight": true
-                }
-              },
-              {
-                "dep_code": "IST",
-                "dep_name": "Istanbul Airport",
-                "dep_time": "01:55+1",
-                "arr_code": "NRT",
-                "arr_name": "Narita International Airport",
-                "arr_time": "19:10+1",
-                "airline": "Turkish Airlines",
-                "flight_num": "TK300",
-                "aircraft": "Boeing 787",
-                "duration_str": "11h 15m"
-              }
-            ],
-            "return_legs": [
-              {
-                "dep_code": "HKG",
-                "dep_name": "Hong Kong International Airport",
-                "dep_time": "08:55",
-                "arr_code": "IST",
-                "arr_name": "Istanbul Airport",
-                "arr_time": "15:10",
-                "airline": "Turkish Airlines",
-                "flight_num": "TK171",
-                "aircraft": "Boeing 787",
-                "duration_str": "11h 15m",
-                "layover_after": {
-                  "code": "IST",
-                  "name": "Istanbul Airport",
-                  "duration_str": "3h 45m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "IST",
-                "dep_name": "Istanbul Airport",
-                "dep_time": "18:55",
-                "arr_code": "OTP",
-                "arr_name": "Bucharest Henri Coandă International Airport",
-                "arr_time": "20:15",
-                "airline": "Turkish Airlines",
-                "flight_num": "TK1045",
-                "aircraft": "Boeing 787",
-                "duration_str": "1h 20m"
-              }
-            ],
-            "self_transfer": false,
-            "outbound_date": "2026-10-02",
-            "return_date": "2026-10-18",
-            "nights": 16,
-            "origin": "OTP",
-            "destination": "OTP",
-            "preferred_airline_match": true,
-            "preferred_time": true,
-            "effective_cost": 1577.0,
-            "airline_direct": true
           }
         ]
       }
@@ -14899,7 +14513,7 @@
         "date": "2026-07-29",
         "pairs_searched": 12,
         "pairs_with_results": 12,
-        "raw_flights_total": 205
+        "raw_flights_total": 202
       }
     ]
   },
@@ -15165,8 +14779,8 @@
       },
       {
         "date": "2026-07-29",
-        "best_price": 787.0,
-        "best_eff_cost": 922.0,
+        "best_price": 788.0,
+        "best_eff_cost": 923.0,
         "currency": "EUR",
         "outbound_date": "2026-10-29",
         "dep_time": "08:20",
@@ -15177,7 +14791,7 @@
         "duration_str": "31h 40m",
         "top_flights": [
           {
-            "price": 787.0,
+            "price": 788.0,
             "duration_min": 1900,
             "duration_str": "31h 40m",
             "outbound_duration_min": 940,
@@ -15269,7 +14883,7 @@
             "destination": "ICN",
             "preferred_airline_match": true,
             "preferred_time": false,
-            "effective_cost": 922.0,
+            "effective_cost": 923.0,
             "airline_direct": true
           },
           {
@@ -15369,103 +14983,7 @@
             "airline_direct": true
           },
           {
-            "price": 871.0,
-            "duration_min": 1920,
-            "duration_str": "32h 00m",
-            "outbound_duration_min": 960,
-            "outbound_duration_str": "16h 00m",
-            "return_duration_min": 960,
-            "return_duration_str": "16h 00m",
-            "stops": 2,
-            "airline": "LOT Polish Airlines",
-            "airline_codes": [
-              "LO"
-            ],
-            "max_layover_min": 185,
-            "max_layover_h": 3.1,
-            "dep_hour": 8,
-            "dep_time": "08:20",
-            "ret_arr_hour": 17,
-            "outbound_arr_time": "06:20+1",
-            "return_dep_time": "08:40",
-            "return_arr_time": "17:40",
-            "outbound_legs": [
-              {
-                "dep_code": "OTP",
-                "dep_name": "Bucharest Henri Coandă International Airport",
-                "dep_time": "08:20",
-                "arr_code": "WAW",
-                "arr_name": "Warsaw Frederic Chopin",
-                "arr_time": "09:10",
-                "airline": "LOT Polish Airlines",
-                "flight_num": "LO640",
-                "aircraft": "Embraer 190",
-                "duration_str": "1h 50m",
-                "layover_after": {
-                  "code": "WAW",
-                  "name": "Warsaw Frederic Chopin",
-                  "duration_str": "3h 05m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "WAW",
-                "dep_name": "Warsaw Frederic Chopin",
-                "dep_time": "12:15",
-                "arr_code": "ICN",
-                "arr_name": "Incheon International Airport",
-                "arr_time": "06:20+1",
-                "airline": "LOT Polish Airlines",
-                "flight_num": "LO97",
-                "aircraft": "Boeing 787",
-                "duration_str": "11h 05m"
-              }
-            ],
-            "return_legs": [
-              {
-                "dep_code": "ICN",
-                "dep_name": "Incheon International Airport",
-                "dep_time": "08:40",
-                "arr_code": "WAW",
-                "arr_name": "Warsaw Frederic Chopin",
-                "arr_time": "13:45",
-                "airline": "LOT Polish Airlines",
-                "flight_num": "LO98",
-                "aircraft": "Boeing 787",
-                "duration_str": "13h 05m",
-                "layover_after": {
-                  "code": "WAW",
-                  "name": "Warsaw Frederic Chopin",
-                  "duration_str": "1h 05m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "WAW",
-                "dep_name": "Warsaw Frederic Chopin",
-                "dep_time": "14:50",
-                "arr_code": "OTP",
-                "arr_name": "Bucharest Henri Coandă International Airport",
-                "arr_time": "17:40",
-                "airline": "LOT Polish Airlines",
-                "flight_num": "LO645",
-                "aircraft": "Boeing 737MAX 8 Passenger",
-                "duration_str": "1h 50m"
-              }
-            ],
-            "self_transfer": false,
-            "outbound_date": "2026-10-22",
-            "return_date": "2026-11-08",
-            "nights": 17,
-            "origin": "OTP",
-            "destination": "ICN",
-            "preferred_airline_match": true,
-            "preferred_time": false,
-            "effective_cost": 1012.67,
-            "airline_direct": true
-          },
-          {
-            "price": 898.0,
+            "price": 864.0,
             "duration_min": 2210,
             "duration_str": "36h 50m",
             "outbound_duration_min": 955,
@@ -15557,299 +15075,11 @@
             "destination": "ICN",
             "preferred_airline_match": false,
             "preferred_time": false,
-            "effective_cost": 1057.17,
+            "effective_cost": 1023.17,
             "airline_direct": true
           },
           {
-            "price": 898.0,
-            "duration_min": 2210,
-            "duration_str": "36h 50m",
-            "outbound_duration_min": 955,
-            "outbound_duration_str": "15h 55m",
-            "return_duration_min": 1255,
-            "return_duration_str": "20h 55m",
-            "stops": 2,
-            "airline": "KLM",
-            "airline_codes": [
-              "KL"
-            ],
-            "max_layover_min": 60,
-            "max_layover_h": 1.0,
-            "dep_hour": 18,
-            "dep_time": "18:00",
-            "ret_arr_hour": 13,
-            "outbound_arr_time": "16:55+1",
-            "return_dep_time": "23:05",
-            "return_arr_time": "13:00+1",
-            "outbound_legs": [
-              {
-                "dep_code": "OTP",
-                "dep_name": "Bucharest Henri Coandă International Airport",
-                "dep_time": "18:00",
-                "arr_code": "AMS",
-                "arr_name": "Amsterdam Airport Schiphol",
-                "arr_time": "20:00",
-                "airline": "KLM",
-                "flight_num": "KL1376",
-                "aircraft": "Airbus A321neo",
-                "duration_str": "3h 00m",
-                "layover_after": {
-                  "code": "AMS",
-                  "name": "Amsterdam Airport Schiphol",
-                  "duration_str": "1h 00m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "AMS",
-                "dep_name": "Amsterdam Airport Schiphol",
-                "dep_time": "21:00",
-                "arr_code": "ICN",
-                "arr_name": "Incheon International Airport",
-                "arr_time": "16:55+1",
-                "airline": "KLM",
-                "flight_num": "KL855",
-                "aircraft": "Boeing 787",
-                "duration_str": "11h 55m"
-              }
-            ],
-            "return_legs": [
-              {
-                "dep_code": "ICN",
-                "dep_name": "Incheon International Airport",
-                "dep_time": "23:05",
-                "arr_code": "AMS",
-                "arr_name": "Amsterdam Airport Schiphol",
-                "arr_time": "05:20+1",
-                "airline": "KLM",
-                "flight_num": "KL856",
-                "aircraft": "Boeing 787",
-                "duration_str": "14h 15m",
-                "layover_after": {
-                  "code": "AMS",
-                  "name": "Amsterdam Airport Schiphol",
-                  "duration_str": "4h 00m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "AMS",
-                "dep_name": "Amsterdam Airport Schiphol",
-                "dep_time": "09:20+1",
-                "arr_code": "OTP",
-                "arr_name": "Bucharest Henri Coandă International Airport",
-                "arr_time": "13:00+1",
-                "airline": "KLM",
-                "flight_num": "KL1373",
-                "aircraft": "Airbus A321neo",
-                "duration_str": "2h 40m"
-              }
-            ],
-            "self_transfer": false,
-            "outbound_date": "2026-11-06",
-            "return_date": "2026-11-22",
-            "nights": 16,
-            "origin": "OTP",
-            "destination": "ICN",
-            "preferred_airline_match": false,
-            "preferred_time": false,
-            "effective_cost": 1057.17,
-            "airline_direct": true
-          },
-          {
-            "price": 895.0,
-            "duration_min": 2230,
-            "duration_str": "37h 10m",
-            "outbound_duration_min": 975,
-            "outbound_duration_str": "16h 15m",
-            "return_duration_min": 1255,
-            "return_duration_str": "20h 55m",
-            "stops": 2,
-            "airline": "KLM",
-            "airline_codes": [
-              "KL"
-            ],
-            "max_layover_min": 95,
-            "max_layover_h": 1.6,
-            "dep_hour": 18,
-            "dep_time": "18:10",
-            "ret_arr_hour": 13,
-            "outbound_arr_time": "16:25+1",
-            "return_dep_time": "23:05",
-            "return_arr_time": "13:00+1",
-            "outbound_legs": [
-              {
-                "dep_code": "OTP",
-                "dep_name": "Bucharest Henri Coandă International Airport",
-                "dep_time": "18:10",
-                "arr_code": "AMS",
-                "arr_name": "Amsterdam Airport Schiphol",
-                "arr_time": "20:00",
-                "airline": "KLM",
-                "flight_num": "KL1376",
-                "aircraft": "Boeing 737",
-                "duration_str": "2h 50m",
-                "layover_after": {
-                  "code": "AMS",
-                  "name": "Amsterdam Airport Schiphol",
-                  "duration_str": "1h 35m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "AMS",
-                "dep_name": "Amsterdam Airport Schiphol",
-                "dep_time": "21:35",
-                "arr_code": "ICN",
-                "arr_name": "Incheon International Airport",
-                "arr_time": "16:25+1",
-                "airline": "KLM",
-                "flight_num": "KL855",
-                "aircraft": "Boeing 787",
-                "duration_str": "11h 50m"
-              }
-            ],
-            "return_legs": [
-              {
-                "dep_code": "ICN",
-                "dep_name": "Incheon International Airport",
-                "dep_time": "23:05",
-                "arr_code": "AMS",
-                "arr_name": "Amsterdam Airport Schiphol",
-                "arr_time": "05:20+1",
-                "airline": "KLM",
-                "flight_num": "KL856",
-                "aircraft": "Boeing 787",
-                "duration_str": "14h 15m",
-                "layover_after": {
-                  "code": "AMS",
-                  "name": "Amsterdam Airport Schiphol",
-                  "duration_str": "4h 00m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "AMS",
-                "dep_name": "Amsterdam Airport Schiphol",
-                "dep_time": "09:20+1",
-                "arr_code": "OTP",
-                "arr_name": "Bucharest Henri Coandă International Airport",
-                "arr_time": "13:00+1",
-                "airline": "KLM",
-                "flight_num": "KL1373",
-                "aircraft": "Airbus A321neo",
-                "duration_str": "2h 40m"
-              }
-            ],
-            "self_transfer": false,
-            "outbound_date": "2026-10-23",
-            "return_date": "2026-11-08",
-            "nights": 16,
-            "origin": "OTP",
-            "destination": "ICN",
-            "preferred_airline_match": false,
-            "preferred_time": false,
-            "effective_cost": 1062.5,
-            "airline_direct": true
-          },
-          {
-            "price": 863.0,
-            "duration_min": 2345,
-            "duration_str": "39h 05m",
-            "outbound_duration_min": 1090,
-            "outbound_duration_str": "18h 10m",
-            "return_duration_min": 1255,
-            "return_duration_str": "20h 55m",
-            "stops": 2,
-            "airline": "KLM",
-            "airline_codes": [
-              "KL"
-            ],
-            "max_layover_min": 195,
-            "max_layover_h": 3.2,
-            "dep_hour": 18,
-            "dep_time": "18:00",
-            "ret_arr_hour": 13,
-            "outbound_arr_time": "19:10+1",
-            "return_dep_time": "23:05",
-            "return_arr_time": "13:00+1",
-            "outbound_legs": [
-              {
-                "dep_code": "OTP",
-                "dep_name": "Bucharest Henri Coandă International Airport",
-                "dep_time": "18:00",
-                "arr_code": "AMS",
-                "arr_name": "Amsterdam Airport Schiphol",
-                "arr_time": "20:00",
-                "airline": "KLM",
-                "flight_num": "KL1376",
-                "aircraft": "Airbus A321neo",
-                "duration_str": "3h 00m",
-                "layover_after": {
-                  "code": "AMS",
-                  "name": "Amsterdam Airport Schiphol",
-                  "duration_str": "3h 15m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "AMS",
-                "dep_name": "Amsterdam Airport Schiphol",
-                "dep_time": "23:15",
-                "arr_code": "ICN",
-                "arr_name": "Incheon International Airport",
-                "arr_time": "19:10+1",
-                "airline": "KLM",
-                "flight_num": "KL855",
-                "aircraft": "Boeing 787",
-                "duration_str": "11h 55m"
-              }
-            ],
-            "return_legs": [
-              {
-                "dep_code": "ICN",
-                "dep_name": "Incheon International Airport",
-                "dep_time": "23:05",
-                "arr_code": "AMS",
-                "arr_name": "Amsterdam Airport Schiphol",
-                "arr_time": "05:20+1",
-                "airline": "KLM",
-                "flight_num": "KL856",
-                "aircraft": "Boeing 787",
-                "duration_str": "14h 15m",
-                "layover_after": {
-                  "code": "AMS",
-                  "name": "Amsterdam Airport Schiphol",
-                  "duration_str": "4h 00m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "AMS",
-                "dep_name": "Amsterdam Airport Schiphol",
-                "dep_time": "09:20+1",
-                "arr_code": "OTP",
-                "arr_name": "Bucharest Henri Coandă International Airport",
-                "arr_time": "13:00+1",
-                "airline": "KLM",
-                "flight_num": "KL1373",
-                "aircraft": "Airbus A321neo",
-                "duration_str": "2h 40m"
-              }
-            ],
-            "self_transfer": false,
-            "outbound_date": "2026-11-05",
-            "return_date": "2026-11-22",
-            "nights": 17,
-            "origin": "OTP",
-            "destination": "ICN",
-            "preferred_airline_match": false,
-            "preferred_time": false,
-            "effective_cost": 1088.0,
-            "airline_direct": true
-          },
-          {
-            "price": 898.0,
+            "price": 864.0,
             "duration_min": 2280,
             "duration_str": "38h 00m",
             "outbound_duration_min": 955,
@@ -15959,9 +15189,316 @@
             "destination": "ICN",
             "preferred_airline_match": false,
             "preferred_time": false,
-            "effective_cost": 1092.17,
+            "effective_cost": 1058.17,
             "airline_direct": true,
             "vendor": "Air France"
+          },
+          {
+            "price": 864.0,
+            "duration_min": 2280,
+            "duration_str": "38h 00m",
+            "outbound_duration_min": 955,
+            "outbound_duration_str": "15h 55m",
+            "return_duration_min": 1325,
+            "return_duration_str": "22h 05m",
+            "stops": 3,
+            "airline": "KLM",
+            "airline_codes": [
+              "KL"
+            ],
+            "max_layover_min": 60,
+            "max_layover_h": 1.0,
+            "dep_hour": 18,
+            "dep_time": "18:00",
+            "ret_arr_hour": 14,
+            "outbound_arr_time": "16:55+1",
+            "return_dep_time": "23:05",
+            "return_arr_time": "14:10+1",
+            "outbound_legs": [
+              {
+                "dep_code": "OTP",
+                "dep_name": "Bucharest Henri Coandă International Airport",
+                "dep_time": "18:00",
+                "arr_code": "AMS",
+                "arr_name": "Amsterdam Airport Schiphol",
+                "arr_time": "20:00",
+                "airline": "KLM",
+                "flight_num": "KL1376",
+                "aircraft": "Airbus A321neo",
+                "duration_str": "3h 00m",
+                "layover_after": {
+                  "code": "AMS",
+                  "name": "Amsterdam Airport Schiphol",
+                  "duration_str": "1h 00m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "AMS",
+                "dep_name": "Amsterdam Airport Schiphol",
+                "dep_time": "21:00",
+                "arr_code": "ICN",
+                "arr_name": "Incheon International Airport",
+                "arr_time": "16:55+1",
+                "airline": "KLM",
+                "flight_num": "KL855",
+                "aircraft": "Boeing 787",
+                "duration_str": "11h 55m"
+              }
+            ],
+            "return_legs": [
+              {
+                "dep_code": "ICN",
+                "dep_name": "Incheon International Airport",
+                "dep_time": "23:05",
+                "arr_code": "AMS",
+                "arr_name": "Amsterdam Airport Schiphol",
+                "arr_time": "05:20+1",
+                "airline": "KLM",
+                "flight_num": "KL856",
+                "aircraft": "Boeing 787",
+                "duration_str": "14h 15m",
+                "layover_after": {
+                  "code": "AMS",
+                  "name": "Amsterdam Airport Schiphol",
+                  "duration_str": "1h 35m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "AMS",
+                "dep_name": "Amsterdam Airport Schiphol",
+                "dep_time": "06:55+1",
+                "arr_code": "CDG",
+                "arr_name": "Aéroport de Paris-Charles de Gaulle",
+                "arr_time": "08:10+1",
+                "airline": "KLM",
+                "flight_num": "KL1401",
+                "aircraft": "Embraer 195 E2",
+                "duration_str": "1h 15m",
+                "layover_after": {
+                  "code": "CDG",
+                  "name": "Aéroport de Paris-Charles de Gaulle",
+                  "duration_str": "2h 05m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "CDG",
+                "dep_name": "Aéroport de Paris-Charles de Gaulle",
+                "dep_time": "10:15+1",
+                "arr_code": "OTP",
+                "arr_name": "Bucharest Henri Coandă International Airport",
+                "arr_time": "14:10+1",
+                "airline": "Air France",
+                "flight_num": "AF1888",
+                "aircraft": "Airbus A220-300 Passenger",
+                "duration_str": "2h 55m"
+              }
+            ],
+            "self_transfer": false,
+            "outbound_date": "2026-10-30",
+            "return_date": "2026-11-15",
+            "nights": 16,
+            "origin": "OTP",
+            "destination": "ICN",
+            "preferred_airline_match": false,
+            "preferred_time": false,
+            "effective_cost": 1058.17,
+            "airline_direct": true,
+            "vendor": "Air France"
+          },
+          {
+            "price": 899.0,
+            "duration_min": 2210,
+            "duration_str": "36h 50m",
+            "outbound_duration_min": 955,
+            "outbound_duration_str": "15h 55m",
+            "return_duration_min": 1255,
+            "return_duration_str": "20h 55m",
+            "stops": 2,
+            "airline": "KLM",
+            "airline_codes": [
+              "KL"
+            ],
+            "max_layover_min": 60,
+            "max_layover_h": 1.0,
+            "dep_hour": 18,
+            "dep_time": "18:00",
+            "ret_arr_hour": 13,
+            "outbound_arr_time": "16:55+1",
+            "return_dep_time": "23:05",
+            "return_arr_time": "13:00+1",
+            "outbound_legs": [
+              {
+                "dep_code": "OTP",
+                "dep_name": "Bucharest Henri Coandă International Airport",
+                "dep_time": "18:00",
+                "arr_code": "AMS",
+                "arr_name": "Amsterdam Airport Schiphol",
+                "arr_time": "20:00",
+                "airline": "KLM",
+                "flight_num": "KL1376",
+                "aircraft": "Airbus A321neo",
+                "duration_str": "3h 00m",
+                "layover_after": {
+                  "code": "AMS",
+                  "name": "Amsterdam Airport Schiphol",
+                  "duration_str": "1h 00m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "AMS",
+                "dep_name": "Amsterdam Airport Schiphol",
+                "dep_time": "21:00",
+                "arr_code": "ICN",
+                "arr_name": "Incheon International Airport",
+                "arr_time": "16:55+1",
+                "airline": "KLM",
+                "flight_num": "KL855",
+                "aircraft": "Boeing 787",
+                "duration_str": "11h 55m"
+              }
+            ],
+            "return_legs": [
+              {
+                "dep_code": "ICN",
+                "dep_name": "Incheon International Airport",
+                "dep_time": "23:05",
+                "arr_code": "AMS",
+                "arr_name": "Amsterdam Airport Schiphol",
+                "arr_time": "05:20+1",
+                "airline": "KLM",
+                "flight_num": "KL856",
+                "aircraft": "Boeing 787",
+                "duration_str": "14h 15m",
+                "layover_after": {
+                  "code": "AMS",
+                  "name": "Amsterdam Airport Schiphol",
+                  "duration_str": "4h 00m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "AMS",
+                "dep_name": "Amsterdam Airport Schiphol",
+                "dep_time": "09:20+1",
+                "arr_code": "OTP",
+                "arr_name": "Bucharest Henri Coandă International Airport",
+                "arr_time": "13:00+1",
+                "airline": "KLM",
+                "flight_num": "KL1373",
+                "aircraft": "Airbus A321neo",
+                "duration_str": "2h 40m"
+              }
+            ],
+            "self_transfer": false,
+            "outbound_date": "2026-11-06",
+            "return_date": "2026-11-22",
+            "nights": 16,
+            "origin": "OTP",
+            "destination": "ICN",
+            "preferred_airline_match": false,
+            "preferred_time": false,
+            "effective_cost": 1058.17,
+            "airline_direct": true
+          },
+          {
+            "price": 896.0,
+            "duration_min": 2230,
+            "duration_str": "37h 10m",
+            "outbound_duration_min": 975,
+            "outbound_duration_str": "16h 15m",
+            "return_duration_min": 1255,
+            "return_duration_str": "20h 55m",
+            "stops": 2,
+            "airline": "KLM",
+            "airline_codes": [
+              "KL"
+            ],
+            "max_layover_min": 95,
+            "max_layover_h": 1.6,
+            "dep_hour": 18,
+            "dep_time": "18:10",
+            "ret_arr_hour": 13,
+            "outbound_arr_time": "16:25+1",
+            "return_dep_time": "23:05",
+            "return_arr_time": "13:00+1",
+            "outbound_legs": [
+              {
+                "dep_code": "OTP",
+                "dep_name": "Bucharest Henri Coandă International Airport",
+                "dep_time": "18:10",
+                "arr_code": "AMS",
+                "arr_name": "Amsterdam Airport Schiphol",
+                "arr_time": "20:00",
+                "airline": "KLM",
+                "flight_num": "KL1376",
+                "aircraft": "Boeing 737",
+                "duration_str": "2h 50m",
+                "layover_after": {
+                  "code": "AMS",
+                  "name": "Amsterdam Airport Schiphol",
+                  "duration_str": "1h 35m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "AMS",
+                "dep_name": "Amsterdam Airport Schiphol",
+                "dep_time": "21:35",
+                "arr_code": "ICN",
+                "arr_name": "Incheon International Airport",
+                "arr_time": "16:25+1",
+                "airline": "KLM",
+                "flight_num": "KL855",
+                "aircraft": "Boeing 787",
+                "duration_str": "11h 50m"
+              }
+            ],
+            "return_legs": [
+              {
+                "dep_code": "ICN",
+                "dep_name": "Incheon International Airport",
+                "dep_time": "23:05",
+                "arr_code": "AMS",
+                "arr_name": "Amsterdam Airport Schiphol",
+                "arr_time": "05:20+1",
+                "airline": "KLM",
+                "flight_num": "KL856",
+                "aircraft": "Boeing 787",
+                "duration_str": "14h 15m",
+                "layover_after": {
+                  "code": "AMS",
+                  "name": "Amsterdam Airport Schiphol",
+                  "duration_str": "4h 00m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "AMS",
+                "dep_name": "Amsterdam Airport Schiphol",
+                "dep_time": "09:20+1",
+                "arr_code": "OTP",
+                "arr_name": "Bucharest Henri Coandă International Airport",
+                "arr_time": "13:00+1",
+                "airline": "KLM",
+                "flight_num": "KL1373",
+                "aircraft": "Airbus A321neo",
+                "duration_str": "2h 40m"
+              }
+            ],
+            "self_transfer": false,
+            "outbound_date": "2026-10-23",
+            "return_date": "2026-11-08",
+            "nights": 16,
+            "origin": "OTP",
+            "destination": "ICN",
+            "preferred_airline_match": false,
+            "preferred_time": false,
+            "effective_cost": 1063.5,
+            "airline_direct": true
           },
           {
             "price": 927.0,
@@ -16058,104 +15595,6 @@
             "preferred_airline_match": false,
             "preferred_time": false,
             "effective_cost": 1102.0,
-            "airline_direct": true,
-            "vendor": "Lufthansa"
-          },
-          {
-            "price": 927.0,
-            "duration_min": 2010,
-            "duration_str": "33h 30m",
-            "outbound_duration_min": 900,
-            "outbound_duration_str": "15h 00m",
-            "return_duration_min": 1110,
-            "return_duration_str": "18h 30m",
-            "stops": 2,
-            "airline": "Lufthansa City Airlines, Lufthansa",
-            "airline_codes": [
-              "VL",
-              "LH"
-            ],
-            "max_layover_min": 95,
-            "max_layover_h": 1.6,
-            "dep_hour": 13,
-            "dep_time": "13:15",
-            "ret_arr_hour": 1,
-            "outbound_arr_time": "11:15+1",
-            "return_dep_time": "13:30",
-            "return_arr_time": "01:00+1",
-            "outbound_legs": [
-              {
-                "dep_code": "OTP",
-                "dep_name": "Bucharest Henri Coandă International Airport",
-                "dep_time": "13:15",
-                "arr_code": "MUC",
-                "arr_name": "Munich International Airport",
-                "arr_time": "14:30",
-                "airline": "Lufthansa City Airlines",
-                "flight_num": "VL1651",
-                "aircraft": "Airbus A320neo",
-                "duration_str": "2h 15m",
-                "layover_after": {
-                  "code": "MUC",
-                  "name": "Munich International Airport",
-                  "duration_str": "1h 35m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "MUC",
-                "dep_name": "Munich International Airport",
-                "dep_time": "16:05",
-                "arr_code": "ICN",
-                "arr_name": "Incheon International Airport",
-                "arr_time": "11:15+1",
-                "airline": "Lufthansa",
-                "flight_num": "LH718",
-                "aircraft": "Airbus A350",
-                "duration_str": "11h 10m"
-              }
-            ],
-            "return_legs": [
-              {
-                "dep_code": "ICN",
-                "dep_name": "Incheon International Airport",
-                "dep_time": "13:30",
-                "arr_code": "MUC",
-                "arr_name": "Munich International Airport",
-                "arr_time": "18:45",
-                "airline": "Lufthansa",
-                "flight_num": "LH719",
-                "aircraft": "Airbus A350",
-                "duration_str": "13h 15m",
-                "layover_after": {
-                  "code": "MUC",
-                  "name": "Munich International Airport",
-                  "duration_str": "3h 15m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "MUC",
-                "dep_name": "Munich International Airport",
-                "dep_time": "22:00",
-                "arr_code": "OTP",
-                "arr_name": "Bucharest Henri Coandă International Airport",
-                "arr_time": "01:00+1",
-                "airline": "Lufthansa City Airlines",
-                "flight_num": "VL1654",
-                "aircraft": "Airbus A320neo",
-                "duration_str": "2h 00m"
-              }
-            ],
-            "self_transfer": false,
-            "outbound_date": "2026-10-30",
-            "return_date": "2026-11-15",
-            "nights": 16,
-            "origin": "OTP",
-            "destination": "ICN",
-            "preferred_airline_match": false,
-            "preferred_time": false,
-            "effective_cost": 1117.0,
             "airline_direct": true,
             "vendor": "Lufthansa"
           },
@@ -16566,6 +16005,120 @@
             "airline_direct": true
           },
           {
+            "price": 923.0,
+            "duration_min": 2185,
+            "duration_str": "36h 25m",
+            "outbound_duration_min": 1225,
+            "outbound_duration_str": "20h 25m",
+            "return_duration_min": 960,
+            "return_duration_str": "16h 00m",
+            "stops": 3,
+            "airline": "LOT Polish Airlines",
+            "airline_codes": [
+              "LO"
+            ],
+            "max_layover_min": 285,
+            "max_layover_h": 4.8,
+            "dep_hour": 8,
+            "dep_time": "08:20",
+            "ret_arr_hour": 17,
+            "outbound_arr_time": "11:45+1",
+            "return_dep_time": "08:40",
+            "return_arr_time": "17:40",
+            "outbound_legs": [
+              {
+                "dep_code": "OTP",
+                "dep_name": "Bucharest Henri Coandă International Airport",
+                "dep_time": "08:20",
+                "arr_code": "WAW",
+                "arr_name": "Warsaw Frederic Chopin",
+                "arr_time": "09:10",
+                "airline": "LOT Polish Airlines",
+                "flight_num": "LO640",
+                "aircraft": "Boeing 737MAX 8 Passenger",
+                "duration_str": "1h 50m",
+                "layover_after": {
+                  "code": "WAW",
+                  "name": "Warsaw Frederic Chopin",
+                  "duration_str": "1h 30m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "WAW",
+                "dep_name": "Warsaw Frederic Chopin",
+                "dep_time": "10:40",
+                "arr_code": "WRO",
+                "arr_name": "Wroclaw Nicolaus Copernicus",
+                "arr_time": "11:40",
+                "airline": "LOT Polish Airlines",
+                "flight_num": "LO3853",
+                "aircraft": "Embraer 195",
+                "duration_str": "1h 00m",
+                "layover_after": {
+                  "code": "WRO",
+                  "name": "Wroclaw Nicolaus Copernicus",
+                  "duration_str": "4h 45m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "WRO",
+                "dep_name": "Wroclaw Nicolaus Copernicus",
+                "dep_time": "16:25",
+                "arr_code": "ICN",
+                "arr_name": "Incheon International Airport",
+                "arr_time": "11:45+1",
+                "airline": "LOT Polish Airlines",
+                "flight_num": "LO2005",
+                "aircraft": "Boeing 787",
+                "duration_str": "11h 20m"
+              }
+            ],
+            "return_legs": [
+              {
+                "dep_code": "ICN",
+                "dep_name": "Incheon International Airport",
+                "dep_time": "08:40",
+                "arr_code": "WAW",
+                "arr_name": "Warsaw Frederic Chopin",
+                "arr_time": "13:45",
+                "airline": "LOT Polish Airlines",
+                "flight_num": "LO98",
+                "aircraft": "Boeing 787",
+                "duration_str": "13h 05m",
+                "layover_after": {
+                  "code": "WAW",
+                  "name": "Warsaw Frederic Chopin",
+                  "duration_str": "1h 05m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "WAW",
+                "dep_name": "Warsaw Frederic Chopin",
+                "dep_time": "14:50",
+                "arr_code": "OTP",
+                "arr_name": "Bucharest Henri Coandă International Airport",
+                "arr_time": "17:40",
+                "airline": "LOT Polish Airlines",
+                "flight_num": "LO645",
+                "aircraft": "Boeing 737MAX 8 Passenger",
+                "duration_str": "1h 50m"
+              }
+            ],
+            "self_transfer": false,
+            "outbound_date": "2026-11-06",
+            "return_date": "2026-11-22",
+            "nights": 16,
+            "origin": "OTP",
+            "destination": "ICN",
+            "preferred_airline_match": true,
+            "preferred_time": false,
+            "effective_cost": 1196.33,
+            "airline_direct": true
+          },
+          {
             "price": 988.0,
             "duration_min": 2055,
             "duration_str": "34h 15m",
@@ -16678,6 +16231,200 @@
             "preferred_airline_match": false,
             "preferred_time": false,
             "effective_cost": 1197.17,
+            "airline_direct": true,
+            "vendor": "Lufthansa"
+          },
+          {
+            "price": 1290.0,
+            "duration_min": 1760,
+            "duration_str": "29h 20m",
+            "outbound_duration_min": 815,
+            "outbound_duration_str": "13h 35m",
+            "return_duration_min": 945,
+            "return_duration_str": "15h 45m",
+            "stops": 2,
+            "airline": "Turkish Airlines",
+            "airline_codes": [
+              "TK"
+            ],
+            "max_layover_min": 125,
+            "max_layover_h": 2.1,
+            "dep_hour": 21,
+            "dep_time": "21:45",
+            "ret_arr_hour": 8,
+            "outbound_arr_time": "18:20+1",
+            "return_dep_time": "00:05",
+            "return_arr_time": "08:50",
+            "outbound_legs": [
+              {
+                "dep_code": "OTP",
+                "dep_name": "Bucharest Henri Coandă International Airport",
+                "dep_time": "21:45",
+                "arr_code": "IST",
+                "arr_name": "Istanbul Airport",
+                "arr_time": "00:15+1",
+                "airline": "Turkish Airlines",
+                "flight_num": "TK1046",
+                "aircraft": "Boeing 787",
+                "duration_str": "1h 30m",
+                "layover_after": {
+                  "code": "IST",
+                  "name": "Istanbul Airport",
+                  "duration_str": "2h 05m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "IST",
+                "dep_name": "Istanbul Airport",
+                "dep_time": "02:20+1",
+                "arr_code": "ICN",
+                "arr_name": "Incheon International Airport",
+                "arr_time": "18:20+1",
+                "airline": "Turkish Airlines",
+                "flight_num": "TK90",
+                "aircraft": "Boeing 777",
+                "duration_str": "10h 00m"
+              }
+            ],
+            "return_legs": [
+              {
+                "dep_code": "ICN",
+                "dep_name": "Incheon International Airport",
+                "dep_time": "00:05",
+                "arr_code": "IST",
+                "arr_name": "Istanbul Airport",
+                "arr_time": "05:55",
+                "airline": "Turkish Airlines",
+                "flight_num": "TK91",
+                "aircraft": "Boeing 777",
+                "duration_str": "11h 50m",
+                "layover_after": {
+                  "code": "IST",
+                  "name": "Istanbul Airport",
+                  "duration_str": "2h 35m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "IST",
+                "dep_name": "Istanbul Airport",
+                "dep_time": "08:30",
+                "arr_code": "OTP",
+                "arr_name": "Bucharest Henri Coandă International Airport",
+                "arr_time": "08:50",
+                "airline": "Turkish Airlines",
+                "flight_num": "TK1043",
+                "aircraft": "Boeing 787",
+                "duration_str": "1h 20m"
+              }
+            ],
+            "self_transfer": false,
+            "outbound_date": "2026-10-30",
+            "return_date": "2026-11-15",
+            "nights": 16,
+            "origin": "OTP",
+            "destination": "ICN",
+            "preferred_airline_match": true,
+            "preferred_time": true,
+            "effective_cost": 1290.0,
+            "airline_direct": true
+          },
+          {
+            "price": 1116.0,
+            "duration_min": 1990,
+            "duration_str": "33h 10m",
+            "outbound_duration_min": 910,
+            "outbound_duration_str": "15h 10m",
+            "return_duration_min": 1080,
+            "return_duration_str": "18h 00m",
+            "stops": 2,
+            "airline": "Lufthansa City Airlines, Lufthansa",
+            "airline_codes": [
+              "VL",
+              "LH"
+            ],
+            "max_layover_min": 110,
+            "max_layover_h": 1.8,
+            "dep_hour": 13,
+            "dep_time": "13:05",
+            "ret_arr_hour": 23,
+            "outbound_arr_time": "11:15+1",
+            "return_dep_time": "12:55",
+            "return_arr_time": "23:55",
+            "outbound_legs": [
+              {
+                "dep_code": "OTP",
+                "dep_name": "Bucharest Henri Coandă International Airport",
+                "dep_time": "13:05",
+                "arr_code": "MUC",
+                "arr_name": "Munich International Airport",
+                "arr_time": "14:15",
+                "airline": "Lufthansa City Airlines",
+                "flight_num": "VL1651",
+                "aircraft": "Airbus A319",
+                "duration_str": "2h 10m",
+                "layover_after": {
+                  "code": "MUC",
+                  "name": "Munich International Airport",
+                  "duration_str": "1h 50m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "MUC",
+                "dep_name": "Munich International Airport",
+                "dep_time": "16:05",
+                "arr_code": "ICN",
+                "arr_name": "Incheon International Airport",
+                "arr_time": "11:15+1",
+                "airline": "Lufthansa",
+                "flight_num": "LH718",
+                "aircraft": "Airbus A350",
+                "duration_str": "11h 10m"
+              }
+            ],
+            "return_legs": [
+              {
+                "dep_code": "ICN",
+                "dep_name": "Incheon International Airport",
+                "dep_time": "12:55",
+                "arr_code": "FRA",
+                "arr_name": "Frankfurt Airport",
+                "arr_time": "18:40",
+                "airline": "Lufthansa",
+                "flight_num": "LH713",
+                "aircraft": "Boeing 787",
+                "duration_str": "13h 45m",
+                "layover_after": {
+                  "code": "FRA",
+                  "name": "Frankfurt Airport",
+                  "duration_str": "1h 55m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "FRA",
+                "dep_name": "Frankfurt Airport",
+                "dep_time": "20:35",
+                "arr_code": "OTP",
+                "arr_name": "Bucharest Henri Coandă International Airport",
+                "arr_time": "23:55",
+                "airline": "Lufthansa City Airlines",
+                "flight_num": "VL1422",
+                "aircraft": "Airbus A320neo",
+                "duration_str": "2h 20m"
+              }
+            ],
+            "self_transfer": false,
+            "outbound_date": "2026-10-29",
+            "return_date": "2026-11-15",
+            "nights": 17,
+            "origin": "OTP",
+            "destination": "ICN",
+            "preferred_airline_match": false,
+            "preferred_time": false,
+            "effective_cost": 1292.67,
             "airline_direct": true,
             "vendor": "Lufthansa"
           }
@@ -16864,8 +16611,8 @@
       {
         "date": "2026-07-29",
         "pairs_searched": 12,
-        "pairs_with_results": 12,
-        "raw_flights_total": 223
+        "pairs_with_results": 9,
+        "raw_flights_total": 161
       }
     ],
     "last_daily_date": "2026-07-13",
@@ -18198,6 +17945,104 @@
             "effective_cost": 1116.0,
             "airline_direct": true,
             "vendor": "Air France"
+          },
+          {
+            "price": 792.0,
+            "duration_min": 2375,
+            "duration_str": "39h 35m",
+            "outbound_duration_min": 1175,
+            "outbound_duration_str": "19h 35m",
+            "return_duration_min": 1200,
+            "return_duration_str": "20h 00m",
+            "stops": 2,
+            "airline": "TAROM, Air France",
+            "airline_codes": [
+              "RO",
+              "AF"
+            ],
+            "max_layover_min": 245,
+            "max_layover_h": 4.1,
+            "dep_hour": 8,
+            "dep_time": "08:40",
+            "ret_arr_hour": 13,
+            "outbound_arr_time": "11:15+1",
+            "return_dep_time": "23:00",
+            "return_arr_time": "13:00+1",
+            "outbound_legs": [
+              {
+                "dep_code": "OTP",
+                "dep_name": "Bucharest Henri Coandă International Airport",
+                "dep_time": "08:40",
+                "arr_code": "CDG",
+                "arr_name": "Aéroport de Paris-Charles de Gaulle",
+                "arr_time": "11:00",
+                "airline": "TAROM",
+                "flight_num": "RO381",
+                "aircraft": "Boeing 737",
+                "duration_str": "3h 20m",
+                "layover_after": {
+                  "code": "CDG",
+                  "name": "Aéroport de Paris-Charles de Gaulle",
+                  "duration_str": "4h 05m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "CDG",
+                "dep_name": "Aéroport de Paris-Charles de Gaulle",
+                "dep_time": "15:05",
+                "arr_code": "ICN",
+                "arr_name": "Incheon International Airport",
+                "arr_time": "11:15+1",
+                "airline": "Air France",
+                "flight_num": "AF264",
+                "aircraft": "Airbus A350",
+                "duration_str": "12h 10m"
+              }
+            ],
+            "return_legs": [
+              {
+                "dep_code": "HKG",
+                "dep_name": "Hong Kong International Airport",
+                "dep_time": "23:00",
+                "arr_code": "AMS",
+                "arr_name": "Amsterdam Airport Schiphol",
+                "arr_time": "05:55+1",
+                "airline": "KLM",
+                "flight_num": "KL888",
+                "aircraft": "Boeing 787",
+                "duration_str": "13h 55m",
+                "layover_after": {
+                  "code": "AMS",
+                  "name": "Amsterdam Airport Schiphol",
+                  "duration_str": "3h 25m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "AMS",
+                "dep_name": "Amsterdam Airport Schiphol",
+                "dep_time": "09:20+1",
+                "arr_code": "OTP",
+                "arr_name": "Bucharest Henri Coandă International Airport",
+                "arr_time": "13:00+1",
+                "airline": "KLM",
+                "flight_num": "KL1373",
+                "aircraft": "Airbus A321neo",
+                "duration_str": "2h 40m"
+              }
+            ],
+            "self_transfer": false,
+            "outbound_date": "2026-11-05",
+            "return_date": "2026-11-22",
+            "nights": 17,
+            "origin": "OTP",
+            "destination": "OTP",
+            "preferred_airline_match": false,
+            "preferred_time": false,
+            "effective_cost": 1129.5,
+            "airline_direct": true,
+            "vendor": "KLM"
           }
         ]
       }
@@ -18383,7 +18228,7 @@
         "date": "2026-07-29",
         "pairs_searched": 12,
         "pairs_with_results": 12,
-        "raw_flights_total": 172
+        "raw_flights_total": 171
       }
     ],
     "last_daily_date": "2026-06-10",
@@ -18841,7 +18686,104 @@
             "vendor": "KLM"
           },
           {
-            "price": 1236.0,
+            "price": 1163.0,
+            "duration_min": 2165,
+            "duration_str": "36h 05m",
+            "outbound_duration_min": 955,
+            "outbound_duration_str": "15h 55m",
+            "return_duration_min": 1210,
+            "return_duration_str": "20h 10m",
+            "stops": 2,
+            "airline": "KLM",
+            "airline_codes": [
+              "KL"
+            ],
+            "max_layover_min": 60,
+            "max_layover_h": 1.0,
+            "dep_hour": 18,
+            "dep_time": "18:00",
+            "ret_arr_hour": 14,
+            "outbound_arr_time": "16:55+1",
+            "return_dep_time": "01:00",
+            "return_arr_time": "14:10",
+            "outbound_legs": [
+              {
+                "dep_code": "OTP",
+                "dep_name": "Bucharest Henri Coandă International Airport",
+                "dep_time": "18:00",
+                "arr_code": "AMS",
+                "arr_name": "Amsterdam Airport Schiphol",
+                "arr_time": "20:00",
+                "airline": "KLM",
+                "flight_num": "KL1376",
+                "aircraft": "Airbus A321neo",
+                "duration_str": "3h 00m",
+                "layover_after": {
+                  "code": "AMS",
+                  "name": "Amsterdam Airport Schiphol",
+                  "duration_str": "1h 00m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "AMS",
+                "dep_name": "Amsterdam Airport Schiphol",
+                "dep_time": "21:00",
+                "arr_code": "ICN",
+                "arr_name": "Incheon International Airport",
+                "arr_time": "16:55+1",
+                "airline": "KLM",
+                "flight_num": "KL855",
+                "aircraft": "Boeing 787",
+                "duration_str": "11h 55m"
+              }
+            ],
+            "return_legs": [
+              {
+                "dep_code": "HND",
+                "dep_name": "Haneda Airport",
+                "dep_time": "01:00",
+                "arr_code": "CDG",
+                "arr_name": "Aéroport de Paris-Charles de Gaulle",
+                "arr_time": "07:55",
+                "airline": "Air France",
+                "flight_num": "AF293",
+                "aircraft": "Boeing 777",
+                "duration_str": "14h 55m",
+                "layover_after": {
+                  "code": "CDG",
+                  "name": "Aéroport de Paris-Charles de Gaulle",
+                  "duration_str": "2h 20m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "CDG",
+                "dep_name": "Aéroport de Paris-Charles de Gaulle",
+                "dep_time": "10:15",
+                "arr_code": "OTP",
+                "arr_name": "Bucharest Henri Coandă International Airport",
+                "arr_time": "14:10",
+                "airline": "Air France",
+                "flight_num": "AF1888",
+                "aircraft": "Airbus A220-300 Passenger",
+                "duration_str": "2h 55m"
+              }
+            ],
+            "self_transfer": false,
+            "outbound_date": "2026-11-06",
+            "return_date": "2026-11-22",
+            "nights": 16,
+            "origin": "OTP",
+            "destination": "OTP",
+            "preferred_airline_match": false,
+            "preferred_time": false,
+            "effective_cost": 1212.17,
+            "airline_direct": true,
+            "vendor": "KLM"
+          },
+          {
+            "price": 1237.0,
             "duration_min": 2030,
             "duration_str": "33h 50m",
             "outbound_duration_min": 955,
@@ -18933,7 +18875,7 @@
             "destination": "OTP",
             "preferred_airline_match": false,
             "preferred_time": false,
-            "effective_cost": 1252.67,
+            "effective_cost": 1253.67,
             "airline_direct": true
           },
           {
@@ -19034,104 +18976,7 @@
             "vendor": "KLM"
           },
           {
-            "price": 1263.0,
-            "duration_min": 2085,
-            "duration_str": "34h 45m",
-            "outbound_duration_min": 975,
-            "outbound_duration_str": "16h 15m",
-            "return_duration_min": 1110,
-            "return_duration_str": "18h 30m",
-            "stops": 2,
-            "airline": "KLM",
-            "airline_codes": [
-              "KL"
-            ],
-            "max_layover_min": 95,
-            "max_layover_h": 1.6,
-            "dep_hour": 18,
-            "dep_time": "18:10",
-            "ret_arr_hour": 23,
-            "outbound_arr_time": "16:25+1",
-            "return_dep_time": "11:45",
-            "return_arr_time": "23:15",
-            "outbound_legs": [
-              {
-                "dep_code": "OTP",
-                "dep_name": "Bucharest Henri Coandă International Airport",
-                "dep_time": "18:10",
-                "arr_code": "AMS",
-                "arr_name": "Amsterdam Airport Schiphol",
-                "arr_time": "20:00",
-                "airline": "KLM",
-                "flight_num": "KL1376",
-                "aircraft": "Boeing 737",
-                "duration_str": "2h 50m",
-                "layover_after": {
-                  "code": "AMS",
-                  "name": "Amsterdam Airport Schiphol",
-                  "duration_str": "1h 35m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "AMS",
-                "dep_name": "Amsterdam Airport Schiphol",
-                "dep_time": "21:35",
-                "arr_code": "ICN",
-                "arr_name": "Incheon International Airport",
-                "arr_time": "16:25+1",
-                "airline": "KLM",
-                "flight_num": "KL855",
-                "aircraft": "Boeing 787",
-                "duration_str": "11h 50m"
-              }
-            ],
-            "return_legs": [
-              {
-                "dep_code": "HND",
-                "dep_name": "Haneda Airport",
-                "dep_time": "11:45",
-                "arr_code": "CDG",
-                "arr_name": "Aéroport de Paris-Charles de Gaulle",
-                "arr_time": "18:15",
-                "airline": "Air France",
-                "flight_num": "AF287",
-                "aircraft": "Airbus A350",
-                "duration_str": "14h 30m",
-                "layover_after": {
-                  "code": "CDG",
-                  "name": "Aéroport de Paris-Charles de Gaulle",
-                  "duration_str": "1h 05m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "CDG",
-                "dep_name": "Aéroport de Paris-Charles de Gaulle",
-                "dep_time": "19:20",
-                "arr_code": "OTP",
-                "arr_name": "Bucharest Henri Coandă International Airport",
-                "arr_time": "23:15",
-                "airline": "Air France",
-                "flight_num": "AF1088",
-                "aircraft": "Airbus A220-300 Passenger",
-                "duration_str": "2h 55m"
-              }
-            ],
-            "self_transfer": false,
-            "outbound_date": "2026-10-08",
-            "return_date": "2026-10-25",
-            "nights": 17,
-            "origin": "OTP",
-            "destination": "OTP",
-            "preferred_airline_match": false,
-            "preferred_time": false,
-            "effective_cost": 1288.0,
-            "airline_direct": true,
-            "vendor": "KLM"
-          },
-          {
-            "price": 1092.0,
+            "price": 1093.0,
             "duration_min": 2360,
             "duration_str": "39h 20m",
             "outbound_duration_min": 1150,
@@ -19224,7 +19069,7 @@
             "destination": "OTP",
             "preferred_airline_match": false,
             "preferred_time": false,
-            "effective_cost": 1357.0,
+            "effective_cost": 1358.0,
             "airline_direct": true,
             "vendor": "Air France"
           },
@@ -19519,7 +19364,7 @@
             "airline_direct": true
           },
           {
-            "price": 1157.0,
+            "price": 1158.0,
             "duration_min": 2420,
             "duration_str": "40h 20m",
             "outbound_duration_min": 1150,
@@ -19612,7 +19457,7 @@
             "destination": "OTP",
             "preferred_airline_match": false,
             "preferred_time": false,
-            "effective_cost": 1452.0,
+            "effective_cost": 1453.0,
             "airline_direct": true,
             "vendor": "Air France"
           },
@@ -19713,6 +19558,103 @@
             "effective_cost": 1465.5,
             "airline_direct": true,
             "vendor": "Air France"
+          },
+          {
+            "price": 1352.0,
+            "duration_min": 1975,
+            "duration_str": "32h 55m",
+            "outbound_duration_min": 910,
+            "outbound_duration_str": "15h 10m",
+            "return_duration_min": 1065,
+            "return_duration_str": "17h 45m",
+            "stops": 2,
+            "airline": "Lufthansa City Airlines, Lufthansa",
+            "airline_codes": [
+              "VL",
+              "LH"
+            ],
+            "max_layover_min": 120,
+            "max_layover_h": 2.0,
+            "dep_hour": 12,
+            "dep_time": "12:45",
+            "ret_arr_hour": 23,
+            "outbound_arr_time": "09:55+1",
+            "return_dep_time": "11:45",
+            "return_arr_time": "23:30",
+            "outbound_legs": [
+              {
+                "dep_code": "OTP",
+                "dep_name": "Bucharest Henri Coandă International Airport",
+                "dep_time": "12:45",
+                "arr_code": "MUC",
+                "arr_name": "Munich International Airport",
+                "arr_time": "13:55",
+                "airline": "Lufthansa City Airlines",
+                "flight_num": "VL1651",
+                "aircraft": "Airbus A320neo",
+                "duration_str": "2h 10m",
+                "layover_after": {
+                  "code": "MUC",
+                  "name": "Munich International Airport",
+                  "duration_str": "2h 00m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "MUC",
+                "dep_name": "Munich International Airport",
+                "dep_time": "15:55",
+                "arr_code": "ICN",
+                "arr_name": "Incheon International Airport",
+                "arr_time": "09:55+1",
+                "airline": "Lufthansa",
+                "flight_num": "LH718",
+                "aircraft": "Airbus A350",
+                "duration_str": "11h 00m"
+              }
+            ],
+            "return_legs": [
+              {
+                "dep_code": "HND",
+                "dep_name": "Haneda Airport",
+                "dep_time": "11:45",
+                "arr_code": "FRA",
+                "arr_name": "Frankfurt Airport",
+                "arr_time": "19:00",
+                "airline": "Lufthansa",
+                "flight_num": "LH717",
+                "aircraft": "Boeing 747",
+                "duration_str": "14h 15m",
+                "layover_after": {
+                  "code": "FRA",
+                  "name": "Frankfurt Airport",
+                  "duration_str": "1h 10m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "FRA",
+                "dep_name": "Frankfurt Airport",
+                "dep_time": "20:10",
+                "arr_code": "OTP",
+                "arr_name": "Bucharest Henri Coandă International Airport",
+                "arr_time": "23:30",
+                "airline": "Lufthansa City Airlines",
+                "flight_num": "VL1422",
+                "aircraft": "Airbus A320neo",
+                "duration_str": "2h 20m"
+              }
+            ],
+            "self_transfer": false,
+            "outbound_date": "2026-10-01",
+            "return_date": "2026-10-18",
+            "nights": 17,
+            "origin": "OTP",
+            "destination": "OTP",
+            "preferred_airline_match": false,
+            "preferred_time": false,
+            "effective_cost": 1473.67,
+            "airline_direct": true
           },
           {
             "price": 1326.0,
@@ -20101,102 +20043,6 @@
             "effective_cost": 1521.0,
             "airline_direct": true,
             "vendor": "SWISS"
-          },
-          {
-            "price": 1401.0,
-            "duration_min": 1980,
-            "duration_str": "33h 00m",
-            "outbound_duration_min": 945,
-            "outbound_duration_str": "15h 45m",
-            "return_duration_min": 1035,
-            "return_duration_str": "17h 15m",
-            "stops": 2,
-            "airline": "Turkish Airlines",
-            "airline_codes": [
-              "TK"
-            ],
-            "max_layover_min": 265,
-            "max_layover_h": 4.4,
-            "dep_hour": 10,
-            "dep_time": "10:10",
-            "ret_arr_hour": 20,
-            "outbound_arr_time": "08:55+1",
-            "return_dep_time": "10:10",
-            "return_arr_time": "20:25",
-            "outbound_legs": [
-              {
-                "dep_code": "OTP",
-                "dep_name": "Bucharest Henri Coandă International Airport",
-                "dep_time": "10:10",
-                "arr_code": "IST",
-                "arr_name": "Istanbul Airport",
-                "arr_time": "12:40",
-                "airline": "Turkish Airlines",
-                "flight_num": "TK1044",
-                "aircraft": "Boeing 787",
-                "duration_str": "1h 30m",
-                "layover_after": {
-                  "code": "IST",
-                  "name": "Istanbul Airport",
-                  "duration_str": "4h 25m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "IST",
-                "dep_name": "Istanbul Airport",
-                "dep_time": "17:05",
-                "arr_code": "ICN",
-                "arr_name": "Incheon International Airport",
-                "arr_time": "08:55+1",
-                "airline": "Turkish Airlines",
-                "flight_num": "TK20",
-                "aircraft": "Boeing 777",
-                "duration_str": "9h 50m"
-              }
-            ],
-            "return_legs": [
-              {
-                "dep_code": "NRT",
-                "dep_name": "Narita International Airport",
-                "dep_time": "10:10",
-                "arr_code": "IST",
-                "arr_name": "Istanbul Airport",
-                "arr_time": "18:00",
-                "airline": "Turkish Airlines",
-                "flight_num": "TK51",
-                "aircraft": "Boeing 787",
-                "duration_str": "13h 50m",
-                "layover_after": {
-                  "code": "IST",
-                  "name": "Istanbul Airport",
-                  "duration_str": "2h 05m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "IST",
-                "dep_name": "Istanbul Airport",
-                "dep_time": "20:05",
-                "arr_code": "OTP",
-                "arr_name": "Bucharest Henri Coandă International Airport",
-                "arr_time": "20:25",
-                "airline": "Turkish Airlines",
-                "flight_num": "TK1045",
-                "aircraft": "Boeing 787",
-                "duration_str": "1h 20m"
-              }
-            ],
-            "self_transfer": false,
-            "outbound_date": "2026-10-30",
-            "return_date": "2026-11-15",
-            "nights": 16,
-            "origin": "OTP",
-            "destination": "OTP",
-            "preferred_airline_match": true,
-            "preferred_time": false,
-            "effective_cost": 1534.33,
-            "airline_direct": true
           }
         ]
       }
@@ -20384,8 +20230,8 @@
       {
         "date": "2026-07-29",
         "pairs_searched": 12,
-        "pairs_with_results": 11,
-        "raw_flights_total": 233
+        "pairs_with_results": 12,
+        "raw_flights_total": 227
       }
     ]
   },
@@ -20744,7 +20590,7 @@
             "vendor": "KLM"
           },
           {
-            "price": 996.0,
+            "price": 995.0,
             "duration_min": 2370,
             "duration_str": "39h 30m",
             "outbound_duration_min": 1170,
@@ -20837,12 +20683,12 @@
             "destination": "OTP",
             "preferred_airline_match": false,
             "preferred_time": false,
-            "effective_cost": 1288.5,
+            "effective_cost": 1287.5,
             "airline_direct": true,
             "vendor": "KLM"
           },
           {
-            "price": 1080.0,
+            "price": 1079.0,
             "duration_min": 2340,
             "duration_str": "39h 00m",
             "outbound_duration_min": 1140,
@@ -20935,12 +20781,12 @@
             "destination": "OTP",
             "preferred_airline_match": false,
             "preferred_time": false,
-            "effective_cost": 1357.5,
+            "effective_cost": 1356.5,
             "airline_direct": true,
             "vendor": "KLM"
           },
           {
-            "price": 1085.0,
+            "price": 1086.0,
             "duration_min": 2340,
             "duration_str": "39h 00m",
             "outbound_duration_min": 1140,
@@ -21033,7 +20879,7 @@
             "destination": "OTP",
             "preferred_airline_match": false,
             "preferred_time": false,
-            "effective_cost": 1362.5,
+            "effective_cost": 1363.5,
             "airline_direct": true,
             "vendor": "KLM"
           },
@@ -21467,104 +21313,6 @@
             "vendor": "British Airways"
           },
           {
-            "price": 1206.0,
-            "duration_min": 2335,
-            "duration_str": "38h 55m",
-            "outbound_duration_min": 1170,
-            "outbound_duration_str": "19h 30m",
-            "return_duration_min": 1165,
-            "return_duration_str": "19h 25m",
-            "stops": 2,
-            "airline": "TAROM, KLM",
-            "airline_codes": [
-              "RO",
-              "KL"
-            ],
-            "max_layover_min": 220,
-            "max_layover_h": 3.7,
-            "dep_hour": 8,
-            "dep_time": "08:35",
-            "ret_arr_hour": 12,
-            "outbound_arr_time": "10:05+1",
-            "return_dep_time": "22:20",
-            "return_arr_time": "12:45+1",
-            "outbound_legs": [
-              {
-                "dep_code": "OTP",
-                "dep_name": "Bucharest Henri Coandă International Airport",
-                "dep_time": "08:35",
-                "arr_code": "AMS",
-                "arr_name": "Amsterdam Airport Schiphol",
-                "arr_time": "10:40",
-                "airline": "TAROM",
-                "flight_num": "RO361",
-                "aircraft": "Boeing 737",
-                "duration_str": "3h 05m",
-                "layover_after": {
-                  "code": "AMS",
-                  "name": "Amsterdam Airport Schiphol",
-                  "duration_str": "3h 40m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "AMS",
-                "dep_name": "Amsterdam Airport Schiphol",
-                "dep_time": "14:20",
-                "arr_code": "KIX",
-                "arr_name": "Kansai International Airport",
-                "arr_time": "10:05+1",
-                "airline": "KLM",
-                "flight_num": "KL867",
-                "aircraft": "Boeing 777",
-                "duration_str": "12h 45m"
-              }
-            ],
-            "return_legs": [
-              {
-                "dep_code": "HKG",
-                "dep_name": "Hong Kong International Airport",
-                "dep_time": "22:20",
-                "arr_code": "CDG",
-                "arr_name": "Aéroport de Paris-Charles de Gaulle",
-                "arr_time": "05:50+1",
-                "airline": "Air France",
-                "flight_num": "AF185",
-                "aircraft": "Airbus A350",
-                "duration_str": "13h 30m",
-                "layover_after": {
-                  "code": "CDG",
-                  "name": "Aéroport de Paris-Charles de Gaulle",
-                  "duration_str": "3h 00m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "CDG",
-                "dep_name": "Aéroport de Paris-Charles de Gaulle",
-                "dep_time": "08:50+1",
-                "arr_code": "OTP",
-                "arr_name": "Bucharest Henri Coandă International Airport",
-                "arr_time": "12:45+1",
-                "airline": "Air France",
-                "flight_num": "AF1888",
-                "aircraft": "Airbus A220-300 Passenger",
-                "duration_str": "2h 55m"
-              }
-            ],
-            "self_transfer": false,
-            "outbound_date": "2026-10-01",
-            "return_date": "2026-10-18",
-            "nights": 17,
-            "origin": "OTP",
-            "destination": "OTP",
-            "preferred_airline_match": false,
-            "preferred_time": false,
-            "effective_cost": 1481.0,
-            "airline_direct": true,
-            "vendor": "KLM"
-          },
-          {
             "price": 1202.0,
             "duration_min": 2365,
             "duration_str": "39h 25m",
@@ -21780,6 +21528,123 @@
             "vendor": "Air France"
           },
           {
+            "price": 1224.0,
+            "duration_min": 2330,
+            "duration_str": "38h 50m",
+            "outbound_duration_min": 1165,
+            "outbound_duration_str": "19h 25m",
+            "return_duration_min": 1165,
+            "return_duration_str": "19h 25m",
+            "stops": 3,
+            "airline": "TAROM, Air France, KLM",
+            "airline_codes": [
+              "RO",
+              "AF",
+              "KL"
+            ],
+            "max_layover_min": 70,
+            "max_layover_h": 1.2,
+            "dep_hour": 8,
+            "dep_time": "08:40",
+            "ret_arr_hour": 12,
+            "outbound_arr_time": "10:05+1",
+            "return_dep_time": "22:20",
+            "return_arr_time": "12:45+1",
+            "outbound_legs": [
+              {
+                "dep_code": "OTP",
+                "dep_name": "Bucharest Henri Coandă International Airport",
+                "dep_time": "08:40",
+                "arr_code": "CDG",
+                "arr_name": "Aéroport de Paris-Charles de Gaulle",
+                "arr_time": "11:00",
+                "airline": "TAROM",
+                "flight_num": "RO381",
+                "aircraft": "Boeing 737",
+                "duration_str": "3h 20m",
+                "layover_after": {
+                  "code": "CDG",
+                  "name": "Aéroport de Paris-Charles de Gaulle",
+                  "duration_str": "0h 45m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "CDG",
+                "dep_name": "Aéroport de Paris-Charles de Gaulle",
+                "dep_time": "11:45",
+                "arr_code": "AMS",
+                "arr_name": "Amsterdam Airport Schiphol",
+                "arr_time": "13:10",
+                "airline": "Air France",
+                "flight_num": "AF1640",
+                "aircraft": "Airbus A320",
+                "duration_str": "1h 25m",
+                "layover_after": {
+                  "code": "AMS",
+                  "name": "Amsterdam Airport Schiphol",
+                  "duration_str": "1h 10m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "AMS",
+                "dep_name": "Amsterdam Airport Schiphol",
+                "dep_time": "14:20",
+                "arr_code": "KIX",
+                "arr_name": "Kansai International Airport",
+                "arr_time": "10:05+1",
+                "airline": "KLM",
+                "flight_num": "KL867",
+                "aircraft": "Boeing 777",
+                "duration_str": "12h 45m"
+              }
+            ],
+            "return_legs": [
+              {
+                "dep_code": "HKG",
+                "dep_name": "Hong Kong International Airport",
+                "dep_time": "22:20",
+                "arr_code": "CDG",
+                "arr_name": "Aéroport de Paris-Charles de Gaulle",
+                "arr_time": "05:50+1",
+                "airline": "Air France",
+                "flight_num": "AF185",
+                "aircraft": "Airbus A350",
+                "duration_str": "13h 30m",
+                "layover_after": {
+                  "code": "CDG",
+                  "name": "Aéroport de Paris-Charles de Gaulle",
+                  "duration_str": "3h 00m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "CDG",
+                "dep_name": "Aéroport de Paris-Charles de Gaulle",
+                "dep_time": "08:50+1",
+                "arr_code": "OTP",
+                "arr_name": "Bucharest Henri Coandă International Airport",
+                "arr_time": "12:45+1",
+                "airline": "Air France",
+                "flight_num": "AF1888",
+                "aircraft": "Airbus A220-300 Passenger",
+                "duration_str": "2h 55m"
+              }
+            ],
+            "self_transfer": false,
+            "outbound_date": "2026-10-01",
+            "return_date": "2026-10-18",
+            "nights": 17,
+            "origin": "OTP",
+            "destination": "OTP",
+            "preferred_airline_match": false,
+            "preferred_time": false,
+            "effective_cost": 1496.5,
+            "airline_direct": true,
+            "vendor": "Air France"
+          },
+          {
             "price": 1184.0,
             "duration_min": 2415,
             "duration_str": "40h 15m",
@@ -21876,6 +21741,122 @@
             "effective_cost": 1499.0,
             "airline_direct": true,
             "vendor": "Air France"
+          },
+          {
+            "price": 1041.0,
+            "duration_min": 2720,
+            "duration_str": "45h 20m",
+            "outbound_duration_min": 1390,
+            "outbound_duration_str": "23h 10m",
+            "return_duration_min": 1330,
+            "return_duration_str": "22h 10m",
+            "stops": 3,
+            "airline": "British Airways, Japan Airlines",
+            "airline_codes": [
+              "BA",
+              "JL"
+            ],
+            "max_layover_min": 140,
+            "max_layover_h": 2.3,
+            "dep_hour": 8,
+            "dep_time": "08:00",
+            "ret_arr_hour": 14,
+            "outbound_arr_time": "14:10+1",
+            "return_dep_time": "22:45",
+            "return_arr_time": "14:55+1",
+            "outbound_legs": [
+              {
+                "dep_code": "OTP",
+                "dep_name": "Bucharest Henri Coandă International Airport",
+                "dep_time": "08:00",
+                "arr_code": "LHR",
+                "arr_name": "Heathrow Airport",
+                "arr_time": "09:50",
+                "airline": "British Airways",
+                "flight_num": "BA879",
+                "aircraft": "Airbus A320",
+                "duration_str": "3h 50m",
+                "layover_after": {
+                  "code": "LHR",
+                  "name": "Heathrow Airport",
+                  "duration_str": "1h 50m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "LHR",
+                "dep_name": "Heathrow Airport",
+                "dep_time": "11:40",
+                "arr_code": "HND",
+                "arr_name": "Haneda Airport",
+                "arr_time": "10:25+1",
+                "airline": "British Airways",
+                "flight_num": "BA5",
+                "aircraft": "Boeing 777",
+                "duration_str": "13h 45m",
+                "layover_after": {
+                  "code": "HND",
+                  "name": "Haneda Airport",
+                  "duration_str": "2h 20m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "HND",
+                "dep_name": "Haneda Airport",
+                "dep_time": "12:45+1",
+                "arr_code": "KIX",
+                "arr_name": "Kansai International Airport",
+                "arr_time": "14:10+1",
+                "airline": "Japan Airlines",
+                "flight_num": "JL225",
+                "aircraft": "Boeing 737",
+                "duration_str": "1h 25m"
+              }
+            ],
+            "return_legs": [
+              {
+                "dep_code": "HKG",
+                "dep_name": "Hong Kong International Airport",
+                "dep_time": "22:45",
+                "arr_code": "LHR",
+                "arr_name": "Heathrow Airport",
+                "arr_time": "05:35+1",
+                "airline": "British Airways",
+                "flight_num": "BA32",
+                "aircraft": "Airbus A350",
+                "duration_str": "14h 50m",
+                "layover_after": {
+                  "code": "LHR",
+                  "name": "Heathrow Airport",
+                  "duration_str": "4h 05m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "LHR",
+                "dep_name": "Heathrow Airport",
+                "dep_time": "09:40+1",
+                "arr_code": "OTP",
+                "arr_name": "Bucharest Henri Coandă International Airport",
+                "arr_time": "14:55+1",
+                "airline": "British Airways",
+                "flight_num": "BA874",
+                "aircraft": "Airbus A320",
+                "duration_str": "3h 15m"
+              }
+            ],
+            "self_transfer": false,
+            "outbound_date": "2026-10-29",
+            "return_date": "2026-11-15",
+            "nights": 17,
+            "origin": "OTP",
+            "destination": "OTP",
+            "preferred_airline_match": false,
+            "preferred_time": false,
+            "effective_cost": 1508.5,
+            "airline_direct": true,
+            "vendor": "British Airways"
           },
           {
             "price": 1146.0,
@@ -22110,13 +22091,13 @@
             "vendor": "Air France"
           },
           {
-            "price": 1300.0,
-            "duration_min": 2330,
-            "duration_str": "38h 50m",
+            "price": 1194.0,
+            "duration_min": 2450,
+            "duration_str": "40h 50m",
             "outbound_duration_min": 1165,
             "outbound_duration_str": "19h 25m",
-            "return_duration_min": 1165,
-            "return_duration_str": "19h 25m",
+            "return_duration_min": 1285,
+            "return_duration_str": "21h 25m",
             "stops": 3,
             "airline": "TAROM, Air France, KLM",
             "airline_codes": [
@@ -22128,10 +22109,10 @@
             "max_layover_h": 1.2,
             "dep_hour": 8,
             "dep_time": "08:40",
-            "ret_arr_hour": 12,
+            "ret_arr_hour": 14,
             "outbound_arr_time": "10:05+1",
-            "return_dep_time": "22:20",
-            "return_arr_time": "12:45+1",
+            "return_dep_time": "22:45",
+            "return_arr_time": "14:10+1",
             "outbound_legs": [
               {
                 "dep_code": "OTP",
@@ -22160,7 +22141,7 @@
                 "arr_time": "13:10",
                 "airline": "Air France",
                 "flight_num": "AF1640",
-                "aircraft": "Airbus A320",
+                "aircraft": "Airbus A220-300 Passenger",
                 "duration_str": "1h 25m",
                 "layover_after": {
                   "code": "AMS",
@@ -22186,28 +22167,28 @@
               {
                 "dep_code": "HKG",
                 "dep_name": "Hong Kong International Airport",
-                "dep_time": "22:20",
+                "dep_time": "22:45",
                 "arr_code": "CDG",
                 "arr_name": "Aéroport de Paris-Charles de Gaulle",
                 "arr_time": "05:50+1",
                 "airline": "Air France",
                 "flight_num": "AF185",
                 "aircraft": "Airbus A350",
-                "duration_str": "13h 30m",
+                "duration_str": "14h 05m",
                 "layover_after": {
                   "code": "CDG",
                   "name": "Aéroport de Paris-Charles de Gaulle",
-                  "duration_str": "3h 00m",
+                  "duration_str": "4h 25m",
                   "overnight": false
                 }
               },
               {
                 "dep_code": "CDG",
                 "dep_name": "Aéroport de Paris-Charles de Gaulle",
-                "dep_time": "08:50+1",
+                "dep_time": "10:15+1",
                 "arr_code": "OTP",
                 "arr_name": "Bucharest Henri Coandă International Airport",
-                "arr_time": "12:45+1",
+                "arr_time": "14:10+1",
                 "airline": "Air France",
                 "flight_num": "AF1888",
                 "aircraft": "Airbus A220-300 Passenger",
@@ -22215,16 +22196,114 @@
               }
             ],
             "self_transfer": false,
-            "outbound_date": "2026-10-01",
-            "return_date": "2026-10-18",
+            "outbound_date": "2026-10-22",
+            "return_date": "2026-11-08",
             "nights": 17,
             "origin": "OTP",
             "destination": "OTP",
             "preferred_airline_match": false,
             "preferred_time": false,
-            "effective_cost": 1572.5,
+            "effective_cost": 1526.5,
             "airline_direct": true,
             "vendor": "Air France"
+          },
+          {
+            "price": 1225.0,
+            "duration_min": 2455,
+            "duration_str": "40h 55m",
+            "outbound_duration_min": 1170,
+            "outbound_duration_str": "19h 30m",
+            "return_duration_min": 1285,
+            "return_duration_str": "21h 25m",
+            "stops": 2,
+            "airline": "TAROM, KLM",
+            "airline_codes": [
+              "RO",
+              "KL"
+            ],
+            "max_layover_min": 220,
+            "max_layover_h": 3.7,
+            "dep_hour": 8,
+            "dep_time": "08:35",
+            "ret_arr_hour": 14,
+            "outbound_arr_time": "10:05+1",
+            "return_dep_time": "22:45",
+            "return_arr_time": "14:10+1",
+            "outbound_legs": [
+              {
+                "dep_code": "OTP",
+                "dep_name": "Bucharest Henri Coandă International Airport",
+                "dep_time": "08:35",
+                "arr_code": "AMS",
+                "arr_name": "Amsterdam Airport Schiphol",
+                "arr_time": "10:40",
+                "airline": "TAROM",
+                "flight_num": "RO361",
+                "aircraft": "Boeing 737",
+                "duration_str": "3h 05m",
+                "layover_after": {
+                  "code": "AMS",
+                  "name": "Amsterdam Airport Schiphol",
+                  "duration_str": "3h 40m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "AMS",
+                "dep_name": "Amsterdam Airport Schiphol",
+                "dep_time": "14:20",
+                "arr_code": "KIX",
+                "arr_name": "Kansai International Airport",
+                "arr_time": "10:05+1",
+                "airline": "KLM",
+                "flight_num": "KL867",
+                "aircraft": "Boeing 777",
+                "duration_str": "12h 45m"
+              }
+            ],
+            "return_legs": [
+              {
+                "dep_code": "HKG",
+                "dep_name": "Hong Kong International Airport",
+                "dep_time": "22:45",
+                "arr_code": "CDG",
+                "arr_name": "Aéroport de Paris-Charles de Gaulle",
+                "arr_time": "05:50+1",
+                "airline": "Air France",
+                "flight_num": "AF185",
+                "aircraft": "Airbus A350",
+                "duration_str": "14h 05m",
+                "layover_after": {
+                  "code": "CDG",
+                  "name": "Aéroport de Paris-Charles de Gaulle",
+                  "duration_str": "4h 25m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "CDG",
+                "dep_name": "Aéroport de Paris-Charles de Gaulle",
+                "dep_time": "10:15+1",
+                "arr_code": "OTP",
+                "arr_name": "Bucharest Henri Coandă International Airport",
+                "arr_time": "14:10+1",
+                "airline": "Air France",
+                "flight_num": "AF1888",
+                "aircraft": "Airbus A220-300 Passenger",
+                "duration_str": "2h 55m"
+              }
+            ],
+            "self_transfer": false,
+            "outbound_date": "2026-10-08",
+            "return_date": "2026-10-25",
+            "nights": 17,
+            "origin": "OTP",
+            "destination": "OTP",
+            "preferred_airline_match": false,
+            "preferred_time": false,
+            "effective_cost": 1560.0,
+            "airline_direct": true,
+            "vendor": "KLM"
           },
           {
             "price": 1282.0,
@@ -22373,6 +22452,102 @@
                 "arr_time": "18:55+1",
                 "airline": "Turkish Airlines",
                 "flight_num": "TK86",
+                "aircraft": "Boeing 787",
+                "duration_str": "10h 45m"
+              }
+            ],
+            "return_legs": [
+              {
+                "dep_code": "HKG",
+                "dep_name": "Hong Kong International Airport",
+                "dep_time": "23:15",
+                "arr_code": "IST",
+                "arr_name": "Istanbul Airport",
+                "arr_time": "06:10+1",
+                "airline": "Turkish Airlines",
+                "flight_num": "TK71",
+                "aircraft": "Boeing 777",
+                "duration_str": "11h 55m",
+                "layover_after": {
+                  "code": "IST",
+                  "name": "Istanbul Airport",
+                  "duration_str": "2h 20m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "IST",
+                "dep_name": "Istanbul Airport",
+                "dep_time": "08:30+1",
+                "arr_code": "OTP",
+                "arr_name": "Bucharest Henri Coandă International Airport",
+                "arr_time": "08:50+1",
+                "airline": "Turkish Airlines",
+                "flight_num": "TK1043",
+                "aircraft": "Boeing 787",
+                "duration_str": "1h 20m"
+              }
+            ],
+            "self_transfer": false,
+            "outbound_date": "2026-11-05",
+            "return_date": "2026-11-22",
+            "nights": 17,
+            "origin": "OTP",
+            "destination": "OTP",
+            "preferred_airline_match": true,
+            "preferred_time": true,
+            "effective_cost": 1578.33,
+            "airline_direct": true
+          },
+          {
+            "price": 1585.0,
+            "duration_min": 1785,
+            "duration_str": "29h 45m",
+            "outbound_duration_min": 850,
+            "outbound_duration_str": "14h 10m",
+            "return_duration_min": 935,
+            "return_duration_str": "15h 35m",
+            "stops": 2,
+            "airline": "Turkish Airlines",
+            "airline_codes": [
+              "TK"
+            ],
+            "max_layover_min": 115,
+            "max_layover_h": 1.9,
+            "dep_hour": 21,
+            "dep_time": "21:45",
+            "ret_arr_hour": 8,
+            "outbound_arr_time": "18:55+1",
+            "return_dep_time": "23:15",
+            "return_arr_time": "08:50+1",
+            "outbound_legs": [
+              {
+                "dep_code": "OTP",
+                "dep_name": "Bucharest Henri Coandă International Airport",
+                "dep_time": "21:45",
+                "arr_code": "IST",
+                "arr_name": "Istanbul Airport",
+                "arr_time": "00:15+1",
+                "airline": "Turkish Airlines",
+                "flight_num": "TK1046",
+                "aircraft": "Boeing 787",
+                "duration_str": "1h 30m",
+                "layover_after": {
+                  "code": "IST",
+                  "name": "Istanbul Airport",
+                  "duration_str": "1h 55m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "IST",
+                "dep_name": "Istanbul Airport",
+                "dep_time": "02:10+1",
+                "arr_code": "KIX",
+                "arr_name": "Kansai International Airport",
+                "arr_time": "18:55+1",
+                "airline": "Turkish Airlines",
+                "flight_num": "TK86",
                 "aircraft": "Boeing 777",
                 "duration_str": "10h 45m"
               }
@@ -22418,6 +22593,102 @@
             "preferred_airline_match": true,
             "preferred_time": true,
             "effective_cost": 1578.33,
+            "airline_direct": true
+          },
+          {
+            "price": 1585.0,
+            "duration_min": 1850,
+            "duration_str": "30h 50m",
+            "outbound_duration_min": 850,
+            "outbound_duration_str": "14h 10m",
+            "return_duration_min": 1000,
+            "return_duration_str": "16h 40m",
+            "stops": 2,
+            "airline": "Turkish Airlines",
+            "airline_codes": [
+              "TK"
+            ],
+            "max_layover_min": 115,
+            "max_layover_h": 1.9,
+            "dep_hour": 21,
+            "dep_time": "21:45",
+            "ret_arr_hour": 20,
+            "outbound_arr_time": "18:55+1",
+            "return_dep_time": "09:45",
+            "return_arr_time": "20:25",
+            "outbound_legs": [
+              {
+                "dep_code": "OTP",
+                "dep_name": "Bucharest Henri Coandă International Airport",
+                "dep_time": "21:45",
+                "arr_code": "IST",
+                "arr_name": "Istanbul Airport",
+                "arr_time": "00:15+1",
+                "airline": "Turkish Airlines",
+                "flight_num": "TK1046",
+                "aircraft": "Boeing 787",
+                "duration_str": "1h 30m",
+                "layover_after": {
+                  "code": "IST",
+                  "name": "Istanbul Airport",
+                  "duration_str": "1h 55m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "IST",
+                "dep_name": "Istanbul Airport",
+                "dep_time": "02:10+1",
+                "arr_code": "KIX",
+                "arr_name": "Kansai International Airport",
+                "arr_time": "18:55+1",
+                "airline": "Turkish Airlines",
+                "flight_num": "TK86",
+                "aircraft": "Boeing 787",
+                "duration_str": "10h 45m"
+              }
+            ],
+            "return_legs": [
+              {
+                "dep_code": "HKG",
+                "dep_name": "Hong Kong International Airport",
+                "dep_time": "09:45",
+                "arr_code": "IST",
+                "arr_name": "Istanbul Airport",
+                "arr_time": "16:45",
+                "airline": "Turkish Airlines",
+                "flight_num": "TK171",
+                "aircraft": "Boeing 787",
+                "duration_str": "12h 00m",
+                "layover_after": {
+                  "code": "IST",
+                  "name": "Istanbul Airport",
+                  "duration_str": "3h 20m",
+                  "overnight": false
+                }
+              },
+              {
+                "dep_code": "IST",
+                "dep_name": "Istanbul Airport",
+                "dep_time": "20:05",
+                "arr_code": "OTP",
+                "arr_name": "Bucharest Henri Coandă International Airport",
+                "arr_time": "20:25",
+                "airline": "Turkish Airlines",
+                "flight_num": "TK1045",
+                "aircraft": "Boeing 787",
+                "duration_str": "1h 20m"
+              }
+            ],
+            "self_transfer": false,
+            "outbound_date": "2026-11-05",
+            "return_date": "2026-11-22",
+            "nights": 17,
+            "origin": "OTP",
+            "destination": "OTP",
+            "preferred_airline_match": true,
+            "preferred_time": true,
+            "effective_cost": 1580.0,
             "airline_direct": true
           },
           {
@@ -22611,547 +22882,6 @@
             "preferred_time": true,
             "effective_cost": 1626.33,
             "airline_direct": true
-          },
-          {
-            "price": 1633.0,
-            "duration_min": 1850,
-            "duration_str": "30h 50m",
-            "outbound_duration_min": 850,
-            "outbound_duration_str": "14h 10m",
-            "return_duration_min": 1000,
-            "return_duration_str": "16h 40m",
-            "stops": 2,
-            "airline": "Turkish Airlines",
-            "airline_codes": [
-              "TK"
-            ],
-            "max_layover_min": 115,
-            "max_layover_h": 1.9,
-            "dep_hour": 21,
-            "dep_time": "21:45",
-            "ret_arr_hour": 20,
-            "outbound_arr_time": "18:55+1",
-            "return_dep_time": "09:45",
-            "return_arr_time": "20:25",
-            "outbound_legs": [
-              {
-                "dep_code": "OTP",
-                "dep_name": "Bucharest Henri Coandă International Airport",
-                "dep_time": "21:45",
-                "arr_code": "IST",
-                "arr_name": "Istanbul Airport",
-                "arr_time": "00:15+1",
-                "airline": "Turkish Airlines",
-                "flight_num": "TK1046",
-                "aircraft": "Boeing 787",
-                "duration_str": "1h 30m",
-                "layover_after": {
-                  "code": "IST",
-                  "name": "Istanbul Airport",
-                  "duration_str": "1h 55m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "IST",
-                "dep_name": "Istanbul Airport",
-                "dep_time": "02:10+1",
-                "arr_code": "KIX",
-                "arr_name": "Kansai International Airport",
-                "arr_time": "18:55+1",
-                "airline": "Turkish Airlines",
-                "flight_num": "TK86",
-                "aircraft": "Boeing 787",
-                "duration_str": "10h 45m"
-              }
-            ],
-            "return_legs": [
-              {
-                "dep_code": "HKG",
-                "dep_name": "Hong Kong International Airport",
-                "dep_time": "09:45",
-                "arr_code": "IST",
-                "arr_name": "Istanbul Airport",
-                "arr_time": "16:45",
-                "airline": "Turkish Airlines",
-                "flight_num": "TK171",
-                "aircraft": "Boeing 787",
-                "duration_str": "12h 00m",
-                "layover_after": {
-                  "code": "IST",
-                  "name": "Istanbul Airport",
-                  "duration_str": "3h 20m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "IST",
-                "dep_name": "Istanbul Airport",
-                "dep_time": "20:05",
-                "arr_code": "OTP",
-                "arr_name": "Bucharest Henri Coandă International Airport",
-                "arr_time": "20:25",
-                "airline": "Turkish Airlines",
-                "flight_num": "TK1045",
-                "aircraft": "Boeing 787",
-                "duration_str": "1h 20m"
-              }
-            ],
-            "self_transfer": false,
-            "outbound_date": "2026-10-29",
-            "return_date": "2026-11-15",
-            "nights": 17,
-            "origin": "OTP",
-            "destination": "OTP",
-            "preferred_airline_match": true,
-            "preferred_time": true,
-            "effective_cost": 1628.0,
-            "airline_direct": true
-          },
-          {
-            "price": 1628.0,
-            "duration_min": 1930,
-            "duration_str": "32h 10m",
-            "outbound_duration_min": 930,
-            "outbound_duration_str": "15h 30m",
-            "return_duration_min": 1000,
-            "return_duration_str": "16h 40m",
-            "stops": 2,
-            "airline": "Turkish Airlines",
-            "airline_codes": [
-              "TK"
-            ],
-            "max_layover_min": 200,
-            "max_layover_h": 3.3,
-            "dep_hour": 21,
-            "dep_time": "21:35",
-            "ret_arr_hour": 20,
-            "outbound_arr_time": "19:05+1",
-            "return_dep_time": "09:45",
-            "return_arr_time": "20:25",
-            "outbound_legs": [
-              {
-                "dep_code": "OTP",
-                "dep_name": "Bucharest Henri Coandă International Airport",
-                "dep_time": "21:35",
-                "arr_code": "IST",
-                "arr_name": "Istanbul Airport",
-                "arr_time": "23:05",
-                "airline": "Turkish Airlines",
-                "flight_num": "TK1046",
-                "aircraft": "Boeing 787",
-                "duration_str": "1h 30m",
-                "layover_after": {
-                  "code": "IST",
-                  "name": "Istanbul Airport",
-                  "duration_str": "3h 20m",
-                  "overnight": true
-                }
-              },
-              {
-                "dep_code": "IST",
-                "dep_name": "Istanbul Airport",
-                "dep_time": "02:25+1",
-                "arr_code": "KIX",
-                "arr_name": "Kansai International Airport",
-                "arr_time": "19:05+1",
-                "airline": "Turkish Airlines",
-                "flight_num": "TK86",
-                "aircraft": "Boeing 777",
-                "duration_str": "10h 40m"
-              }
-            ],
-            "return_legs": [
-              {
-                "dep_code": "HKG",
-                "dep_name": "Hong Kong International Airport",
-                "dep_time": "09:45",
-                "arr_code": "IST",
-                "arr_name": "Istanbul Airport",
-                "arr_time": "16:45",
-                "airline": "Turkish Airlines",
-                "flight_num": "TK171",
-                "aircraft": "Boeing 787",
-                "duration_str": "12h 00m",
-                "layover_after": {
-                  "code": "IST",
-                  "name": "Istanbul Airport",
-                  "duration_str": "3h 20m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "IST",
-                "dep_name": "Istanbul Airport",
-                "dep_time": "20:05",
-                "arr_code": "OTP",
-                "arr_name": "Bucharest Henri Coandă International Airport",
-                "arr_time": "20:25",
-                "airline": "Turkish Airlines",
-                "flight_num": "TK1045",
-                "aircraft": "Boeing 787",
-                "duration_str": "1h 20m"
-              }
-            ],
-            "self_transfer": false,
-            "outbound_date": "2026-10-09",
-            "return_date": "2026-10-25",
-            "nights": 16,
-            "origin": "OTP",
-            "destination": "OTP",
-            "preferred_airline_match": true,
-            "preferred_time": true,
-            "effective_cost": 1629.67,
-            "airline_direct": true
-          },
-          {
-            "price": 1191.0,
-            "duration_min": 2720,
-            "duration_str": "45h 20m",
-            "outbound_duration_min": 1390,
-            "outbound_duration_str": "23h 10m",
-            "return_duration_min": 1330,
-            "return_duration_str": "22h 10m",
-            "stops": 3,
-            "airline": "British Airways, Japan Airlines",
-            "airline_codes": [
-              "BA",
-              "JL"
-            ],
-            "max_layover_min": 140,
-            "max_layover_h": 2.3,
-            "dep_hour": 8,
-            "dep_time": "08:00",
-            "ret_arr_hour": 14,
-            "outbound_arr_time": "14:10+1",
-            "return_dep_time": "22:45",
-            "return_arr_time": "14:55+1",
-            "outbound_legs": [
-              {
-                "dep_code": "OTP",
-                "dep_name": "Bucharest Henri Coandă International Airport",
-                "dep_time": "08:00",
-                "arr_code": "LHR",
-                "arr_name": "Heathrow Airport",
-                "arr_time": "09:50",
-                "airline": "British Airways",
-                "flight_num": "BA879",
-                "aircraft": "Airbus A320",
-                "duration_str": "3h 50m",
-                "layover_after": {
-                  "code": "LHR",
-                  "name": "Heathrow Airport",
-                  "duration_str": "1h 50m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "LHR",
-                "dep_name": "Heathrow Airport",
-                "dep_time": "11:40",
-                "arr_code": "HND",
-                "arr_name": "Haneda Airport",
-                "arr_time": "10:25+1",
-                "airline": "British Airways",
-                "flight_num": "BA5",
-                "aircraft": "Boeing 777",
-                "duration_str": "13h 45m",
-                "layover_after": {
-                  "code": "HND",
-                  "name": "Haneda Airport",
-                  "duration_str": "2h 20m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "HND",
-                "dep_name": "Haneda Airport",
-                "dep_time": "12:45+1",
-                "arr_code": "KIX",
-                "arr_name": "Kansai International Airport",
-                "arr_time": "14:10+1",
-                "airline": "Japan Airlines",
-                "flight_num": "JL225",
-                "aircraft": "Boeing 737",
-                "duration_str": "1h 25m"
-              }
-            ],
-            "return_legs": [
-              {
-                "dep_code": "HKG",
-                "dep_name": "Hong Kong International Airport",
-                "dep_time": "22:45",
-                "arr_code": "LHR",
-                "arr_name": "Heathrow Airport",
-                "arr_time": "05:35+1",
-                "airline": "British Airways",
-                "flight_num": "BA32",
-                "aircraft": "Airbus A350",
-                "duration_str": "14h 50m",
-                "layover_after": {
-                  "code": "LHR",
-                  "name": "Heathrow Airport",
-                  "duration_str": "4h 05m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "LHR",
-                "dep_name": "Heathrow Airport",
-                "dep_time": "09:40+1",
-                "arr_code": "OTP",
-                "arr_name": "Bucharest Henri Coandă International Airport",
-                "arr_time": "14:55+1",
-                "airline": "British Airways",
-                "flight_num": "BA874",
-                "aircraft": "Airbus A320",
-                "duration_str": "3h 15m"
-              }
-            ],
-            "self_transfer": false,
-            "outbound_date": "2026-10-30",
-            "return_date": "2026-11-15",
-            "nights": 16,
-            "origin": "OTP",
-            "destination": "OTP",
-            "preferred_airline_match": false,
-            "preferred_time": false,
-            "effective_cost": 1658.5,
-            "airline_direct": true,
-            "vendor": "British Airways"
-          },
-          {
-            "price": 1191.0,
-            "duration_min": 2720,
-            "duration_str": "45h 20m",
-            "outbound_duration_min": 1390,
-            "outbound_duration_str": "23h 10m",
-            "return_duration_min": 1330,
-            "return_duration_str": "22h 10m",
-            "stops": 3,
-            "airline": "British Airways, Japan Airlines",
-            "airline_codes": [
-              "BA",
-              "JL"
-            ],
-            "max_layover_min": 140,
-            "max_layover_h": 2.3,
-            "dep_hour": 8,
-            "dep_time": "08:00",
-            "ret_arr_hour": 14,
-            "outbound_arr_time": "14:10+1",
-            "return_dep_time": "22:45",
-            "return_arr_time": "14:55+1",
-            "outbound_legs": [
-              {
-                "dep_code": "OTP",
-                "dep_name": "Bucharest Henri Coandă International Airport",
-                "dep_time": "08:00",
-                "arr_code": "LHR",
-                "arr_name": "Heathrow Airport",
-                "arr_time": "09:50",
-                "airline": "British Airways",
-                "flight_num": "BA879",
-                "aircraft": "Airbus A320",
-                "duration_str": "3h 50m",
-                "layover_after": {
-                  "code": "LHR",
-                  "name": "Heathrow Airport",
-                  "duration_str": "1h 50m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "LHR",
-                "dep_name": "Heathrow Airport",
-                "dep_time": "11:40",
-                "arr_code": "HND",
-                "arr_name": "Haneda Airport",
-                "arr_time": "10:25+1",
-                "airline": "British Airways",
-                "flight_num": "BA5",
-                "aircraft": "Boeing 777",
-                "duration_str": "13h 45m",
-                "layover_after": {
-                  "code": "HND",
-                  "name": "Haneda Airport",
-                  "duration_str": "2h 20m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "HND",
-                "dep_name": "Haneda Airport",
-                "dep_time": "12:45+1",
-                "arr_code": "KIX",
-                "arr_name": "Kansai International Airport",
-                "arr_time": "14:10+1",
-                "airline": "Japan Airlines",
-                "flight_num": "JL225",
-                "aircraft": "Boeing 737",
-                "duration_str": "1h 25m"
-              }
-            ],
-            "return_legs": [
-              {
-                "dep_code": "HKG",
-                "dep_name": "Hong Kong International Airport",
-                "dep_time": "22:45",
-                "arr_code": "LHR",
-                "arr_name": "Heathrow Airport",
-                "arr_time": "05:35+1",
-                "airline": "British Airways",
-                "flight_num": "BA32",
-                "aircraft": "Airbus A350",
-                "duration_str": "14h 50m",
-                "layover_after": {
-                  "code": "LHR",
-                  "name": "Heathrow Airport",
-                  "duration_str": "4h 05m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "LHR",
-                "dep_name": "Heathrow Airport",
-                "dep_time": "09:40+1",
-                "arr_code": "OTP",
-                "arr_name": "Bucharest Henri Coandă International Airport",
-                "arr_time": "14:55+1",
-                "airline": "British Airways",
-                "flight_num": "BA874",
-                "aircraft": "Airbus A320",
-                "duration_str": "3h 15m"
-              }
-            ],
-            "self_transfer": false,
-            "outbound_date": "2026-11-06",
-            "return_date": "2026-11-22",
-            "nights": 16,
-            "origin": "OTP",
-            "destination": "OTP",
-            "preferred_airline_match": false,
-            "preferred_time": false,
-            "effective_cost": 1658.5,
-            "airline_direct": true,
-            "vendor": "British Airways"
-          },
-          {
-            "price": 1393.0,
-            "duration_min": 2365,
-            "duration_str": "39h 25m",
-            "outbound_duration_min": 1165,
-            "outbound_duration_str": "19h 25m",
-            "return_duration_min": 1200,
-            "return_duration_str": "20h 00m",
-            "stops": 3,
-            "airline": "TAROM, Air France, KLM",
-            "airline_codes": [
-              "RO",
-              "AF",
-              "KL"
-            ],
-            "max_layover_min": 70,
-            "max_layover_h": 1.2,
-            "dep_hour": 8,
-            "dep_time": "08:40",
-            "ret_arr_hour": 13,
-            "outbound_arr_time": "10:05+1",
-            "return_dep_time": "23:00",
-            "return_arr_time": "13:00+1",
-            "outbound_legs": [
-              {
-                "dep_code": "OTP",
-                "dep_name": "Bucharest Henri Coandă International Airport",
-                "dep_time": "08:40",
-                "arr_code": "CDG",
-                "arr_name": "Aéroport de Paris-Charles de Gaulle",
-                "arr_time": "11:00",
-                "airline": "TAROM",
-                "flight_num": "RO381",
-                "aircraft": "Boeing 737",
-                "duration_str": "3h 20m",
-                "layover_after": {
-                  "code": "CDG",
-                  "name": "Aéroport de Paris-Charles de Gaulle",
-                  "duration_str": "0h 45m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "CDG",
-                "dep_name": "Aéroport de Paris-Charles de Gaulle",
-                "dep_time": "11:45",
-                "arr_code": "AMS",
-                "arr_name": "Amsterdam Airport Schiphol",
-                "arr_time": "13:10",
-                "airline": "Air France",
-                "flight_num": "AF1640",
-                "aircraft": "Airbus A320",
-                "duration_str": "1h 25m",
-                "layover_after": {
-                  "code": "AMS",
-                  "name": "Amsterdam Airport Schiphol",
-                  "duration_str": "1h 10m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "AMS",
-                "dep_name": "Amsterdam Airport Schiphol",
-                "dep_time": "14:20",
-                "arr_code": "KIX",
-                "arr_name": "Kansai International Airport",
-                "arr_time": "10:05+1",
-                "airline": "KLM",
-                "flight_num": "KL867",
-                "aircraft": "Boeing 777",
-                "duration_str": "12h 45m"
-              }
-            ],
-            "return_legs": [
-              {
-                "dep_code": "HKG",
-                "dep_name": "Hong Kong International Airport",
-                "dep_time": "23:00",
-                "arr_code": "AMS",
-                "arr_name": "Amsterdam Airport Schiphol",
-                "arr_time": "05:55+1",
-                "airline": "KLM",
-                "flight_num": "KL888",
-                "aircraft": "Boeing 787",
-                "duration_str": "13h 55m",
-                "layover_after": {
-                  "code": "AMS",
-                  "name": "Amsterdam Airport Schiphol",
-                  "duration_str": "3h 25m",
-                  "overnight": false
-                }
-              },
-              {
-                "dep_code": "AMS",
-                "dep_name": "Amsterdam Airport Schiphol",
-                "dep_time": "09:20+1",
-                "arr_code": "OTP",
-                "arr_name": "Bucharest Henri Coandă International Airport",
-                "arr_time": "13:00+1",
-                "airline": "KLM",
-                "flight_num": "KL1373",
-                "aircraft": "Airbus A321neo",
-                "duration_str": "2h 40m"
-              }
-            ],
-            "self_transfer": false,
-            "outbound_date": "2026-10-15",
-            "return_date": "2026-11-01",
-            "nights": 17,
-            "origin": "OTP",
-            "destination": "OTP",
-            "preferred_airline_match": false,
-            "preferred_time": false,
-            "effective_cost": 1683.0,
-            "airline_direct": true,
-            "vendor": "Air France"
           }
         ]
       }
