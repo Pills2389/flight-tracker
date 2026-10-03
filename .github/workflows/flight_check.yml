@@ -1,7 +1,9 @@
 name: ✈️ Daily Flight Check
 
 on:
-  schedule:
+  # Schedule paused 2026-10-03: all routes' date windows have started/passed, so
+  # every search fails validation. Uncomment once routes have future dates.
+  # schedule:
     # Six times daily, every 3 hours starting at 02:11 UTC. Cron is UTC and doesn't follow DST.
     # 02:11 UTC = 05:11 EEST (summer) / 04:11 EET (winter)
     # 05:11 UTC = 08:11 EEST (summer) / 07:11 EET (winter)
@@ -9,7 +11,7 @@ on:
     # 11:11 UTC = 14:11 EEST (summer) / 13:11 EET (winter)
     # 14:11 UTC = 17:11 EEST (summer) / 16:11 EET (winter)
     # 17:11 UTC = 20:11 EEST (summer) / 19:11 EET (winter)
-    - cron: '11 2,5,8,11,14,17 * * *'
+    # - cron: '11 2,5,8,11,14,17 * * *'
   workflow_dispatch:
     # Allows manual trigger from the GitHub Actions tab
 
